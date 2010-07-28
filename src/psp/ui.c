@@ -152,7 +152,7 @@ int draw_battery_status(int draw)
 	メインボリューム表示
 ------------------------------------------------------*/
 
-int draw_volume_status(int draw)
+/*int draw_volume_status(int draw)
 {
 	if (devkit_version >= 0x03050210)
 	{
@@ -186,7 +186,7 @@ int draw_volume_status(int draw)
 		return update;
 	}
 	return 0;
-}
+}*/
 
 
 /******************************************************************************
