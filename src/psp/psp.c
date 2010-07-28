@@ -161,8 +161,6 @@ static int user_main(SceSize args, void *argp)
 int main(int argc, char *argv[])
 #endif
 {
-	SceUID modID;
-	char prx_path[MAX_PATH];
 
 	getcwd(launchDir, MAX_PATH - 1);
 	strcat(launchDir, "/");
@@ -183,20 +181,7 @@ int main(int argc, char *argv[])
 	video_init();
 #endif
 
-	sprintf(prx_path, "%sSystemButtons.prx", launchDir);
-
-	if ((modID = pspSdkLoadStartModule(prx_path, PSP_MEMORY_PARTITION_KERNEL)) >= 0)
-	{
-		initSystemButtons(devkit_version);
-
-		file_browser();
-	}
-	else
-	{
-		small_font_printf(0, 0, "Error 0x%08X start SystemButtons.prx.", modID);
-		video_flip_screen(1);
-		sceKernelDelayThread(5*1000*1000);
-	}
+	file_browser();
 
 	video_exit();
 
