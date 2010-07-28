@@ -1,0 +1,54 @@
+
+Windowsで使用する場合
+---------------------
+
+GCC及びWindowsでコンパイル可能です。
+makefileを作成すれば、VCでもコンパイルできます。
+
+CPS2PSP用を作成する場合
+
+make -f makefile.cps2
+
+MVSPSP用を作成する場合
+
+make -f makefile.mvs
+
+でコンパイルを開始します。
+
+---------------------------------------------------------------------------
+
+Linux等で使用する場合
+---------------------
+
+ver.2.0.6よりLinux等でも一応変換できるようにしました。
+環境に依存するため、バイナリでの提供はありません。
+
+ソースコードを適当なディレクトリに展開し、
+
+CPS2PSP用を作成する場合
+
+make -f makefile.cps2 UNIX=1
+
+MVSPSP用を作成する場合
+
+make -f makefile.mvs UNIX=1
+
+とすることで、Unix系OS用のバイナリを作成します。
+
+使用方法は基本的にWindows版と同じですが、ダイアログでの指定は出来ないので、
+コマンドラインで引数を指定する必要があります。
+
+以下にLinuxのbash上で使用する例を書いておきます。
+
+例) /home/username/romcnv/roms内のssf2.zipを変換する場合。
+
+./romcnv_cps2 /home/username/romcnv/roms/ssf2.zip
+
+例) /home/username/romcnv/roms内のssf2.zipをzip圧縮変換する場合。
+
+./romcnv_cps2 /home/username/romcnv/roms/ssf2.zip -zip
+
+例) /home/username/romcnv/roms内の全てのromを変換する場合。
+
+./romcnv_cps2 /home/username/romcnv/roms -all
+
