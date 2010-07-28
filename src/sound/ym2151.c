@@ -1007,7 +1007,7 @@ void YM2151WriteReg(int r, int v)
 		{
 		case 0x00:	/* RL enable, Feedback, Connection */
 			op->fb_shift = ((v >> 3) & 7) ? ((v >> 3) & 7) + 6 : 0;
-			if (sound->channels == 2)
+			if (sound->stereo)
 			{
 				ym2151->pan[(r&7)*2   ] = (v & 0x40) ? ~0 : 0;
 				ym2151->pan[(r&7)*2 +1] = (v & 0x80) ? ~0 : 0;
@@ -1546,11 +1546,9 @@ static void advance(void)
 }
 
 
-static void YM2151Update_stereo(INT32 **buffer, int length)
+static void YM2151Update_stereo(INT32 *buffer, int length)
 {
 	int i;
-	INT32 *bufL = buffer[0];
-	INT32 *bufR = buffer[1];
 	FMSAMPLE_MIX sample;
 
 	for (i = 0; i < length; i++)
@@ -1577,7 +1575,7 @@ static void YM2151Update_stereo(INT32 **buffer, int length)
 		sample += chanout[5] & ym2151->pan[10];
 		sample += chanout[6] & ym2151->pan[12];
 		sample += chanout[7] & ym2151->pan[14];
-		*bufL++ = sample;
+		*buffer++ = sample;
 
 		sample  = chanout[0] & ym2151->pan[ 1];
 		sample += chanout[1] & ym2151->pan[ 3];
@@ -1587,17 +1585,16 @@ static void YM2151Update_stereo(INT32 **buffer, int length)
 		sample += chanout[5] & ym2151->pan[11];
 		sample += chanout[6] & ym2151->pan[13];
 		sample += chanout[7] & ym2151->pan[15];
-		*bufR++ = sample;
+		*buffer++ = sample;
 
 		advance();
 	}
 }
 
 
-static void YM2151Update_mono(INT32 **buffer, int length)
+static void YM2151Update_mono(INT32 *buffer, int length)
 {
 	int i;
-	INT32 *buf = buffer[0];
 	FMSAMPLE_MIX sample;
 
 	for (i = 0; i < length; i++)
@@ -1624,7 +1621,7 @@ static void YM2151Update_mono(INT32 **buffer, int length)
 		sample += chanout[5] & ym2151->pan[5];
 		sample += chanout[6] & ym2151->pan[6];
 		sample += chanout[7] & ym2151->pan[7];
-		*buf++ = sample;
+		*buffer++ = sample;
 
 		advance();
 	}
@@ -1632,29 +1629,27 @@ static void YM2151Update_mono(INT32 **buffer, int length)
 
 
 #if (EMU_SYSTEM == CPS1)
-static void YM2151Update_mono_with_okim6295(INT32 **buffer, int length)
+static void YM2151Update_mono_with_okim6295(INT32 *buffer, int length)
 {
 	YM2151Update_mono(buffer, length);
-	OKIM6295Update(buffer[0], length);
+	OKIM6295Update(buffer, length);
 }
 #endif
 
 
-void YM2151Init(int clock, FM_IRQHANDLER IRQHandler)
+void YM2151Init(int clock, int rate, FM_IRQHANDLER IRQHandler)
 {
-	sound->stack     = 0x10000;
-	sound->frequency = 44100;
-	sound->samples   = SOUND_SAMPLES_44100;
+	sound->stack = 0x10000;
 
 	switch (machine_sound_type)
 	{
 	case SOUND_YM2151_MONO:
-		sound->channels = 1;
+		sound->stereo = 0;
 		sound->callback = YM2151Update_mono;
 		break;
 
 	case SOUND_YM2151_CPS1:
-		sound->channels = 1;
+		sound->stereo = 0;
 		if (memory_region_sound1)
 		{
 			sound->callback = YM2151Update_mono_with_okim6295;
@@ -1667,7 +1662,7 @@ void YM2151Init(int clock, FM_IRQHANDLER IRQHandler)
 		break;
 
 	case SOUND_YM2151_STEREO:
-		sound->channels = 2;
+		sound->stereo = 1;
 		sound->callback = YM2151Update_stereo;
 		break;
 	}
@@ -1675,7 +1670,7 @@ void YM2151Init(int clock, FM_IRQHANDLER IRQHandler)
 	memset(ym2151, 0, sizeof(ym2151_t));
 
 	ym2151->clock      = clock;
-	ym2151->sampfreq   = sound->frequency >> (2 - option_samplerate);
+	ym2151->sampfreq   = rate;
 	ym2151->irqhandler = IRQHandler;
 
 	init_tables();
@@ -1743,7 +1738,9 @@ void YM2151Reset(void)
 
 void YM2151_set_samplerate(void)
 {
-	ym2151->sampfreq = sound->frequency >> (2 - option_samplerate);
+	int samplerate = PSP_SAMPLERATE >> (2 - option_samplerate);
+
+	ym2151->sampfreq = samplerate;
 
 	init_chip_tables();
 
@@ -1809,7 +1806,7 @@ STATE_SAVE( ym2151 )
 		state_save_long(&op->rr, 1);
 	}
 
-	if (sound->channels == 2)
+	if (sound->stereo)
 	{
 		state_save_long(ym2151->pan, 16);
 	}
@@ -1905,7 +1902,7 @@ STATE_LOAD( ym2151 )
 		state_load_long(&op->rr, 1);
 	}
 
-	if (sound->channels == 2)
+	if (sound->stereo)
 	{
 		state_load_long(ym2151->pan, 16);
 	}
@@ -1950,11 +1947,7 @@ STATE_LOAD( ym2151 )
 
 	state_load_byte(ym2151->connect, 8);
 
-#ifdef ADHOC
-	state_load_okim6295();
-#else
 	state_load_okim6295(fp);
-#endif
 }
 
 #endif /* SAVE_STATE */

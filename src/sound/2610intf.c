@@ -22,6 +22,8 @@ static void TimerHandler(int channel, int count, double stepTime);
 
 void YM2610_sh_start(void)
 {
+	int samplerate = PSP_SAMPLERATE >> (2 - option_samplerate);
+
 #if (EMU_SYSTEM == MVS)
 	void *pcmbufa, *pcmbufb;
 	int pcmsizea, pcmsizeb;
@@ -40,9 +42,9 @@ void YM2610_sh_start(void)
 		pcmsizeb = memory_length_sound1;
 	}
 
-	YM2610Init(8000000, pcmbufa, pcmsizea, pcmbufb, pcmsizeb, TimerHandler, neogeo_sound_irq);
+	YM2610Init(8000000, samplerate, pcmbufa, pcmsizea, pcmbufb, pcmsizeb, TimerHandler, neogeo_sound_irq);
 #else
-	YM2610Init(8000000, memory_region_sound1, memory_length_sound1, TimerHandler, neogeo_sound_irq);
+	YM2610Init(8000000, samplerate, memory_region_sound1, memory_length_sound1, TimerHandler, neogeo_sound_irq);
 #endif
 }
 

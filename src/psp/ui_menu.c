@@ -374,6 +374,7 @@ static const int button_value[13] =
 	PSP_CTRL_SQUARE,
 	PSP_CTRL_TRIANGLE,
 	PSP_CTRL_LTRIGGER,
+
 	PSP_CTRL_RTRIGGER,
 	PSP_CTRL_START,
 	PSP_CTRL_SELECT
@@ -1626,7 +1627,7 @@ void showmenu(void)
 	video_clear_screen();
 	video_clear_frame(work_frame);
 #if (EMU_SYSTEM != CPS2)
-	sound_set_samplerate();
+	//sound_set_samplerate();
 #endif
 	set_cpu_clock(psp_cpuclock);
 
@@ -2005,3 +2006,4 @@ void show_color_menu(void)
 }
 
 #endif
+

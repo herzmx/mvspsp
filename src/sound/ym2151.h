@@ -14,7 +14,7 @@ typedef INT32 FMSAMPLE_MIX;
 
 typedef void (*FM_IRQHANDLER)(int irq);
 
-void YM2151Init(int clock, FM_IRQHANDLER IRQHandler);
+void YM2151Init(int clock, int rate, FM_IRQHANDLER IRQHandler);
 void YM2151Reset(void);
 void YM2151_set_samplerate(void);
 void YM2151Update(int p);

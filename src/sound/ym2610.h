@@ -20,7 +20,8 @@ typedef INT32 FMSAMPLE_MIX;
 typedef void (*FM_TIMERHANDLER)(int channel, int count, double stepTime);
 typedef void (*FM_IRQHANDLER)(int irq);
 
-void YM2610Init(int baseclock, void *pcmroma, int pcmsizea,
+void YM2610Init(int baseclock, int rate,
+				void *pcmroma, int pcmsizea,
 #if (EMU_SYSTEM == MVS)
 				void *pcmromb, int pcmsizeb,
 #endif
@@ -28,9 +29,9 @@ void YM2610Init(int baseclock, void *pcmroma, int pcmsizea,
 				FM_IRQHANDLER IRQHandler);
 
 void YM2610Reset(void);
-int YM2610Write(int addr, UINT8 value);
-UINT8 YM2610Read(int addr);
-int YM2610TimerOver(int channel);
+int  YM2610Write(int addr, UINT8 value);
+UINT8   YM2610Read(int addr);
+int  YM2610TimerOver(int channel);
 void YM2610_set_samplerate(void);
 
 #ifdef SAVE_STATE

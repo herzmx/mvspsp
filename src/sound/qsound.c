@@ -8,6 +8,8 @@
 
 #include "emumain.h"
 
+#define QSOUND_CLOCK    4000000		/* default 4MHz clock */
+#define QSOUND_CLOCKDIV 166			/* Clock divider */
 #define QSOUND_CHANNELS 16
 
 typedef INT8  QSOUND_SRC_SAMPLE;
@@ -42,7 +44,10 @@ static QSOUND_CHANNEL ALIGN_DATA qsound_channel[QSOUND_CHANNELS];
 
 static QSOUND_SRC_SAMPLE *qsound_sample_rom;
 
+static float qsound_frq_ratio;
 static int qsound_data;
+static int qsound_resample_count;
+static int qsound_stream_type;
 static int qsound_volume_shift;
 
 static const int ALIGN_DATA qsound_pan_table[33] =
@@ -60,12 +65,14 @@ static const int ALIGN_DATA qsound_pan_table[33] =
 ******************************************************************************/
 
 /*--------------------------------------------------------
-	サウンドストリーム生成
+	サウンドストリーム生成 (通常)
 --------------------------------------------------------*/
 
-static void qsound_update(INT32 **buffer, int length)
+static void qsound_update_normal(INT32 *buffer, int length)
 {
 	int ch;
+
+	memset(buffer, 0, length << 3);
 
 	for (ch = 0; ch < QSOUND_CHANNELS; ch++)
 	{
@@ -74,11 +81,10 @@ static void qsound_update(INT32 **buffer, int length)
 		if (pC->key)
 		{
 			int i;
-			QSOUND_SRC_SAMPLE *pST  = qsound_sample_rom + pC->bank;
-			QSOUND_SAMPLE_MIX *bufL = buffer[0];
-			QSOUND_SAMPLE_MIX *bufR = buffer[1];
-			QSOUND_SAMPLE_MIX lvol  = (pC->lvol * pC->vol) >> qsound_volume_shift;
-			QSOUND_SAMPLE_MIX rvol  = (pC->rvol * pC->vol) >> qsound_volume_shift;
+			QSOUND_SRC_SAMPLE *pST = qsound_sample_rom + pC->bank;
+			QSOUND_SAMPLE_MIX *buf = buffer;
+			QSOUND_SAMPLE_MIX rvol = (pC->rvol * pC->vol) >> qsound_volume_shift;
+			QSOUND_SAMPLE_MIX lvol = (pC->lvol * pC->vol) >> qsound_volume_shift;
 
 			for (i = 0; i < length; i++)
 			{
@@ -103,9 +109,72 @@ static void qsound_update(INT32 **buffer, int length)
 					pC->lastdt = pST[pC->address];
 				}
 
-				*bufL++ += (pC->lastdt * lvol) >> 6;
-				*bufR++ += (pC->lastdt * rvol) >> 6;
+				*buf++ += (pC->lastdt * lvol) >> 6;
+				*buf++ += (pC->lastdt * rvol) >> 6;
 				pC->offset += pC->pitch;
+			}
+		}
+	}
+}
+
+
+/*--------------------------------------------------------
+	サウンドストリーム生成 (リサンプリング処理)
+--------------------------------------------------------*/
+
+static void qsound_update_resample(INT32 *buffer, int length)
+{
+	int ch;
+
+	memset(buffer, 0, length << 3);
+
+	for (ch = 0; ch < QSOUND_CHANNELS; ch++)
+	{
+		QSOUND_CHANNEL *pC = &qsound_channel[ch];
+
+		if (pC->key)
+		{
+			int i, j;
+			QSOUND_SRC_SAMPLE *pST = qsound_sample_rom + pC->bank;
+			QSOUND_SAMPLE_MIX *buf = buffer;
+			QSOUND_SAMPLE_MIX rvol = (pC->rvol * pC->vol) >> qsound_volume_shift;
+			QSOUND_SAMPLE_MIX lvol = (pC->lvol * pC->vol) >> qsound_volume_shift;
+
+			for (i = 0; i < length; i++)
+			{
+				for (j = 0; j < qsound_resample_count; j++)
+				{
+					int count = (pC->offset) >> 16;
+
+					pC->offset &= 0xffff;
+
+					if (count)
+					{
+						pC->address += count;
+
+						if (pC->address >= pC->end)
+						{
+							if (!pC->loop)
+							{
+								pC->key = 0;
+								break;
+							}
+							pC->address = (pC->end - pC->loop) & 0xffff;
+						}
+
+						if (pC->lastdt)
+							pC->lastdt = (pC->lastdt + pST[pC->address]) >> 1;
+						else
+							pC->lastdt = pST[pC->address];
+					}
+
+					pC->offset += pC->pitch;
+				}
+
+				*buf++ += (pC->lastdt * lvol) >> 6;
+				*buf++ += (pC->lastdt * rvol) >> 6;
+
+				if (!pC->key) break;
 			}
 		}
 	}
@@ -122,21 +191,35 @@ static void qsound_update(INT32 **buffer, int length)
 
 void qsound_sh_start(void)
 {
-	sound->stack     = 0x1000;
-	sound->channels  = 2;
-#if QSOUND_STREAM_48KHz
-	sound->frequency = 48000;
-	sound->samples   = SOUND_SAMPLES_48000;
-#else
-	sound->frequency = 24000;
-	sound->samples   = SOUND_SAMPLES_24000;
-#endif
-	sound->callback  = qsound_update;
+	sound->stack  = 0x1000;
+	sound->stereo = 1;
 
 	qsound_sample_rom   = (QSOUND_SRC_SAMPLE *)memory_region_sound1;
+	qsound_stream_type  = 0;
 	qsound_volume_shift = 6;
 
-#if (EMU_SYSTEM == CPS2)
+#if (EMU_SYSTEM == CPS1)
+	if (!strncmp(driver->name, "wof", 3)
+	||	!strncmp(driver->name, "slammas", 7)
+	||	!strncmp(driver->name, "mbomb", 5))
+	{
+		qsound_stream_type = 1;
+	}
+	if (!strncmp(driver->name, "punish", 6))
+	{
+		qsound_volume_shift = 4;
+	}
+#else
+	if (!strcmp(driver->name, "dstlk")
+	||	!strcmp(driver->name, "nwarr")
+	||	!strcmp(driver->name, "sfa2")
+	||	!strcmp(driver->name, "vsav")
+	||	!strcmp(driver->name, "vhunt2")
+	||	!strcmp(driver->name, "vsav2"))
+	{
+		qsound_stream_type = 1;
+	}
+
 	if (!strcmp(driver->name, "csclub"))
 	{
 		qsound_volume_shift = 4;
@@ -157,12 +240,9 @@ void qsound_sh_start(void)
 	{
 		qsound_volume_shift = 7;
 	}
-#else
-	if (!strncmp(driver->name, "punish", 6))
-	{
-		qsound_volume_shift = 4;
-	}
 #endif
+
+	qsound_set_samplerate();
 }
 
 
@@ -183,6 +263,30 @@ void qsound_sh_reset(void)
 {
 	memset(&qsound_channel, 0, sizeof(qsound_channel));
 	qsound_data = 0;
+}
+
+
+/*--------------------------------------------------------
+	QSound サンプルレート設定
+--------------------------------------------------------*/
+
+void qsound_set_samplerate(void)
+{
+	int samplerate = PSP_SAMPLERATE;
+
+	if (!qsound_stream_type || option_samplerate == 2)
+	{
+		samplerate >>= (2 - option_samplerate);
+		sound->callback = qsound_update_normal;
+	}
+	else
+	{
+		qsound_resample_count = 1 << (2 - option_samplerate);
+		sound->callback = qsound_update_resample;
+	}
+
+	qsound_frq_ratio = ((float)QSOUND_CLOCK / (float)QSOUND_CLOCKDIV) / (float)samplerate;
+	qsound_frq_ratio *= 16.0;
 }
 
 
@@ -257,11 +361,7 @@ WRITE8_HANDLER( qsound_cmd_w )
 		break;
 
 	case 2: /* pitch */
-#if QSOUND_STREAM_48KHz
-		qsound_channel[ch].pitch = qsound_data << 3;
-#else
-		qsound_channel[ch].pitch = qsound_data << 4;
-#endif
+		qsound_channel[ch].pitch = (long)((float)qsound_data * qsound_frq_ratio);
 		if (!qsound_data)
 		{
 			/* Key off */

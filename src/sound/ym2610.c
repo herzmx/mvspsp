@@ -2781,16 +2781,12 @@ static void OPNB_ADPCMB_write(ADPCMB *adpcmb, int r, int v)
 /* YM2610(OPNB) */
 
 /* Generate samples for one of the YM2610s */
-static void YM2610Update(INT32 **buffer, int length)
+static void YM2610Update(INT32 *buffer, int length)
 {
 	FM_OPN *OPN = &YM2610.OPN;
 	int i, j, outn;
-	INT32 *bufL, *bufR;
 	FMSAMPLE_MIX lt, rt;
 	FM_CH *cch[6];
-
-	bufL = buffer[0];
-	bufR = buffer[1];
 
 	cch[0] = &YM2610.CH[1];
 	cch[1] = &YM2610.CH[2];
@@ -2896,23 +2892,22 @@ static void YM2610Update(INT32 **buffer, int length)
 		lt += (out_fm[5] >> 1) & OPN->pan[10];
 		rt += (out_fm[5] >> 1) & OPN->pan[11];
 
-		*bufL++ = lt;
-		*bufR++ = rt;
+		*buffer++ = lt;
+		*buffer++ = rt;
 	}
 }
 
 
-void YM2610Init(int clock, void *pcmroma, int pcmsizea,
+void YM2610Init(int clock, int rate,
+				void *pcmroma, int pcmsizea,
 #if (EMU_SYSTEM == MVS)
 				void *pcmromb, int pcmsizeb,
 #endif
 				FM_TIMERHANDLER TimerHandler, FM_IRQHANDLER IRQHandler)
 {
-	sound->stack     = 0x10000;
-	sound->channels  = 2;
-	sound->frequency = 44100;
-	sound->samples   = SOUND_SAMPLES_44100;
-	sound->callback  = YM2610Update;
+	sound->stack    = 0x10000;
+	sound->stereo   = 1;
+	sound->callback = YM2610Update;
 
 	/* clear */
 	memset(&YM2610, 0, sizeof(YM2610));
@@ -2925,12 +2920,12 @@ void YM2610Init(int clock, void *pcmroma, int pcmsizea,
 	/* FM */
 	YM2610.OPN.P_CH = YM2610.CH;
 	YM2610.OPN.ST.clock = clock;
-	YM2610.OPN.ST.rate = sound->frequency >> (2 - option_samplerate);
+	YM2610.OPN.ST.rate = rate;
 	/* Extend handler */
 	YM2610.OPN.ST.Timer_Handler = TimerHandler;
 	YM2610.OPN.ST.IRQ_Handler   = IRQHandler;
 	/* SSG */
-//	SSG.step = ((float)SSG_STEP * YM2610.OPN.ST.rate * 8) / clock;
+	SSG.step = ((float)SSG_STEP * rate * 8) / clock;
 #if (EMU_SYSTEM == MVS)
 #ifndef PSP_SLIM
 	if (pcm_cache_enable)
@@ -3070,10 +3065,10 @@ void YM2610Reset(void)
 
 void YM2610_set_samplerate(void)
 {
-	int i;
+	int i, samplerate = PSP_SAMPLERATE >> (2 - option_samplerate);
 
-	YM2610.OPN.ST.rate = sound->frequency >> (2 - option_samplerate);
-
+	YM2610.OPN.ST.rate = samplerate;
+	SSG.step = ((float)SSG_STEP * samplerate * 8) / YM2610.OPN.ST.clock;
 	OPNSetPres(&YM2610.OPN, 6*24, 6*24, 4*2); /* OPN 1/6, SSG 1/4 */
 
 	for (i = 0; i < 6; i++)
