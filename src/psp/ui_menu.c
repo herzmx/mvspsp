@@ -1646,8 +1646,8 @@ void showmenu(void)
     YM2610_set_samplerate();
 	
 //#if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
-//	neogeo_reset_driver_type();
-//#endif
+	neogeo_reset_driver_type();
+#endif
 
 	if (Loop == LOOP_EXEC)
 	{
