@@ -926,13 +926,14 @@ void file_browser(void)
 	i = uifont_get_string_width(APPNAME_STR " " VERSION_STR) / 2;
 #ifdef PSP_SLIM
 	draw_dialog(240-(i+32), 136-48, 240+(i+32), 136+48);
-	uifont_print_shadow_center(136-30, 255,255,120, APPNAME_STR " " VERSION_STR);
-	uifont_print_shadow_center(136- 7, 255,255,255, "for PSP Slim");
+	uifont_print_shadow_center(136-30, 255,255,120, APPNAME_STR " " VERSION_STR " for PSP Slim");
+	uifont_print_shadow_center(136- 7, 255,255,255, "HBL mod by Herz");
 	uifont_print_shadow_center(136+16, 200,200,200, "NJ (http://nj-emu.tfact.jp)");
 #else
-	draw_dialog(240-(i+32), 136-40, 240+(i+32), 136+40);
-	uifont_print_shadow_center(136-20, 255,255,120, APPNAME_STR " " VERSION_STR);
-	uifont_print_shadow_center(136+10, 200,200,200, "NJ (http://nj-emu.tfact.jp)");
+	draw_dialog(240-(i+32), 136-48, 240+(i+32), 136+48);
+	uifont_print_shadow_center(136-30, 255,255,120, APPNAME_STR " " VERSION_STR);
+	uifont_print_shadow_center(136- 7, 255,255,255, "HBL mod by Herz");
+	uifont_print_shadow_center(136+16, 200,200,200, "NJ (http://nj-emu.tfact.jp)");
 #endif
 	video_flip_screen(1);
 
