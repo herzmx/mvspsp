@@ -1947,7 +1947,7 @@ STATE_LOAD( ym2151 )
 
 	state_load_byte(ym2151->connect, 8);
 
-	state_load_okim6295();
+	state_load_okim6295(fp);
 }
 
 #endif /* SAVE_STATE */
