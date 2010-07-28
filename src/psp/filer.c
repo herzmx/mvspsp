@@ -1144,7 +1144,7 @@ void file_browser(void)
 			draw_scrollbar(469, 26, 479, 270, rows, nfiles, sel);
 
 			update  = draw_battery_status(1);
-			update |= draw_volume_status(1);
+			//update |= draw_volume_status(1);
 			update |= ui_show_popup(1);
 			video_flip_screen(1);
 		}
@@ -1181,14 +1181,14 @@ void file_browser(void)
 			video_copy_rect(tex_frame, draw_frame, &clip2, &clip1);
 
 			update = draw_battery_status(0);
-			update |= draw_volume_status(0);
+			//update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_flip_screen(1);
 		}
 		else
 		{
 			update = draw_battery_status(0);
-			update |= draw_volume_status(0);
+			//update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_wait_vsync();
 		}
@@ -1312,7 +1312,7 @@ void file_browser(void)
 #ifdef ADHOC
 					else if (adhoc_enable)
 					{
-						if (!readWLANSwitch())
+						if (!1)
 						{
 							ui_popup(TEXT(PLEASE_TURN_ON_THE_WLAN_SWITCH));
 							adhoc_enable = 0;
