@@ -55,7 +55,7 @@
 #if PSP_VIDEO_32BPP
 #include "psp/wallpaper.h"
 #endif
-#include "SystemButtons.h"
+//#include "SystemButtons.h"
 
 #ifdef PSP_SLIM
 #define PSP2K_MEM_TOP		0xa000000
