@@ -814,7 +814,7 @@ void update_inputport(void)
 
 			buttons = poll_gamepad();
 
-			if (readHomeButton())
+			if ((buttons & PSP_CTRL_START) && (buttons & PSP_CTRL_SELECT))
 			{
 				buttons = 0;
 				adhoc_paused = adhoc_server + 1;
@@ -857,7 +857,7 @@ void update_inputport(void)
 	{
 		buttons = poll_gamepad();
 
-		if (readHomeButton())
+		if ((buttons & PSP_CTRL_START) && (buttons & PSP_CTRL_SELECT))
 		{
 			showmenu();
 			setup_autofire();
