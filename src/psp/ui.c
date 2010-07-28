@@ -531,7 +531,7 @@ void msg_printf(const char *text, ...)
 
 	show_background();
 	draw_battery_status(1);
-	draw_volume_status(1);
+	//draw_volume_status(1);
 
 	for (y = 0; y <= cy; y++)
 		uifont_print(MIN_X, MIN_Y + y * 16, msg_r[y], msg_g[y], msg_b[y], msg_lines[y]);

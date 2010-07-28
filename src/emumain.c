@@ -206,13 +206,13 @@ void update_screen(void)
 	if (!skipped_it)
 	{
 		if (option_showfps) show_fps();
-		draw_volume_status(1);
+		//draw_volume_status(1);
 		show_battery_warning();
 		ui_show_popup(1);
 	}
 	else
 	{
-		draw_volume_status(0);
+		//draw_volume_status(0);
 		ui_show_popup(0);
 	}
 
@@ -356,13 +356,13 @@ void show_fatal_error(void)
 				uifont_print_shadow_center(sy, UI_COLOR(UI_PAL_SELECT), fatal_error_message);
 
 				update = draw_battery_status(1);
-				update |= draw_volume_status(1);
+				//update |= draw_volume_status(1);
 				video_flip_screen(1);
 			}
 			else
 			{
 				update = draw_battery_status(0);
-				update |= draw_volume_status(0);
+				//update |= draw_volume_status(0);
 				video_wait_vsync();
 			}
 
