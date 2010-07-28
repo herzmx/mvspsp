@@ -14,24 +14,28 @@ extern UINT8 *memory_region_cpu2;
 extern UINT8 *memory_region_gfx1;
 extern UINT8 *memory_region_gfx2;
 extern UINT8 *memory_region_gfx3;
+extern UINT8 *memory_region_gfx4;
 extern UINT8 *memory_region_sound1;
 extern UINT8 *memory_region_sound2;
 extern UINT8 *memory_region_user1;
 #if !RELEASE
 extern UINT8 *memory_region_user2;
 #endif
+extern UINT8 *memory_region_user3;
 
 extern UINT32 memory_length_cpu1;
 extern UINT32 memory_length_cpu2;
 extern UINT32 memory_length_gfx1;
 extern UINT32 memory_length_gfx2;
 extern UINT32 memory_length_gfx3;
+extern UINT32 memory_length_gfx4;
 extern UINT32 memory_length_sound1;
 extern UINT32 memory_length_sound2;
 extern UINT32 memory_length_user1;
 #if !RELEASE
 extern UINT32 memory_length_user2;
 #endif
+extern UINT32 memory_length_user3;
 
 extern UINT8  neogeo_memcard[0x800];
 extern UINT8  neogeo_ram[0x10000];
@@ -45,7 +49,7 @@ extern int use_parent_vrom;
 
 #ifdef PSP_SLIM
 extern UINT32 psp2k_mem_offset;
-extern UINT32 psp2k_mem_left;
+extern INT32 psp2k_mem_left;
 #endif
 
 int memory_init(void);

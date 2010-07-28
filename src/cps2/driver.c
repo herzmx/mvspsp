@@ -245,9 +245,11 @@ READ16_HANDLER( cps2_qsound_volume_r )
 	/* Network adapter (ssf2tb) present when bit 15 = 0 */
 	/* Only game known to use both these so far is SSF2TB */
 
+#if 0
 	if (strncmp(game_name, "ssf2tb", 6) == 0)
 		return 0x2021;
 	else
+#endif
 		return 0xe021;
 }
 
@@ -364,33 +366,10 @@ int cps2_driver_init(void)
 
 	EEPROM_init();
 
-#ifdef ADHOC
-	if (adhoc_enable)
-	{
-		if (adhoc_server)
-		{
-			cps2_nvram_read_write(0);
+	cps2_nvram_read_write(0);
 
-			if (!strcmp(driver->name, "sfa3"))
-				EEPROM_write_data(0x75, 0x04);
-
-			msg_printf(TEXT(SENDING_EEPROM_DATA));
-			return adhoc_send_eeprom();
-		}
-		else
-		{
-			msg_printf(TEXT(RECIEVING_EEPROM_DATA));
-			return adhoc_recv_eeprom();
-		}
-	}
-	else
-#endif
-	{
-		cps2_nvram_read_write(0);
-
-		if (!strcmp(driver->name, "sfa3"))
-			EEPROM_write_data(0x75, 0x04);
-	}
+	if (!strcmp(driver->name, "sfa3"))
+		EEPROM_write_data(0x75, 0x04);
 
 	return 1;
 }

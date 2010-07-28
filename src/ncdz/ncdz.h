@@ -14,13 +14,13 @@
 #include "cpu/z80/z80.h"
 #include "sound/sndintrf.h"
 #include "sound/2610intf.h"
+#include "timer.h"
 #include "driver.h"
 #include "cdrom.h"
 #include "cdda.h"
 #include "inptport.h"
 #include "memintrf.h"
 #include "sprite.h"
-#include "timer.h"
 #include "vidhrdw.h"
 
 extern int neogeo_boot_bios;

@@ -86,15 +86,19 @@ const UINT32 bios_patch_address[BIOS_MAX] =
 };
 
 
-const UINT32 sfix_crc = 0x354029fc;
+const UINT32 sfix_crc  = 0x354029fc;
+const UINT32 lorom_crc = 0xe09e253c;
+
+const char *bios_zip   = "neogeo";
+const char *sfix_name  = "sfix.sfx";
+const char *lorom_name = "000-lo.lo";
 
 
 /******************************************************************************
 	ローカル変数
 ******************************************************************************/
 
-static int bios_exist[BIOS_MAX];
-static int sfix_exist;
+static UINT8 bios_exist[BIOS_MAX];
 
 
 /******************************************************************************
@@ -102,54 +106,61 @@ static int sfix_exist;
 ******************************************************************************/
 
 /*------------------------------------------------------
+	エラーメッセージ表示
+------------------------------------------------------*/
+
+static void bios_error(const char *rom_name, int error, int flag)
+{
+	char mes[128];
+
+	zip_close();
+
+	if (error == -2)
+		sprintf(mes, TEXT(CRC32_NOT_CORRECT_x), rom_name);
+	else
+		sprintf(mes, TEXT(FILE_NOT_FOUND_x), rom_name);
+
+	if (flag)
+		fatalerror(mes);
+	else
+		ui_popup(mes);
+}
+
+
+/*------------------------------------------------------
 	BIOS存在チェック
 ------------------------------------------------------*/
 
 static int bios_check(int flag)
 {
-	int i, f, count;
+	int i, err, count = 0, check_max = DEBUG_BIOS;
+	char *fname;
 
-	if (!flag) ui_popup_reset(POPUP_MENU);
+	if (!flag) ui_popup_reset();
 
 	video_copy_rect(show_frame, draw_frame, &full_rect, &full_rect);
 	video_flip_screen(1);
+
+	for (i = 0; i < BIOS_MAX; i++)
+		bios_exist[i] = 0;
 
 #ifdef ADHOC
 	if (flag == 2)
 	{
 		neogeo_bios = -1;
-
-		for (i = 0; i < BIOS_MAX; i++)
-			bios_exist[i] = 0;
-
-		for (i = 0; i < ASIA_AES; i++)
-		{
-			if (file_open("neogeo", NULL, bios_crc[i], NULL) != -1)
-			{
-				bios_exist[i] = 1;
-				file_close();
-			}
-		}
+		check_max = ASIA_AES;
 	}
-	else
 #endif
-	{
-		for (i = 0; i < BIOS_MAX; i++)
-		{
-			bios_exist[i] = 0;
 
-			if (file_open("neogeo", NULL, bios_crc[i], NULL) != -1)
-			{
-				bios_exist[i] = 1;
-				file_close();
-			}
+	for (i = 0; i <= check_max; i++)
+	{
+		if (file_open(bios_zip, NULL, bios_crc[i], NULL) >= 0)
+		{
+			count++;
+			bios_exist[i] = 1;
+			file_close();
 		}
 	}
-
-	count = 0;
-
-	for (i = 0; i < BIOS_MAX; i++)
-		count += bios_exist[i];
 
 	if (count == 0)
 	{
@@ -160,18 +171,25 @@ static int bios_check(int flag)
 		return 0;
 	}
 
-	if ((f = file_open("neogeo", NULL, sfix_crc, NULL)) != -1)
+	fname = (char *)sfix_name;
+	if ((err = file_open(bios_zip, NULL, sfix_crc, fname)) >= 0)
 	{
-		sfix_exist = 1;
 		file_close();
 	}
 	else
 	{
-		sfix_exist = 0;
-		if (!flag)
-			ui_popup(TEXT(SFIX_NOT_FOUND));
-		else
-			fatalerror(TEXT(SFIX_NOT_FOUND));
+		bios_error(sfix_name, err, flag);
+		return 0;
+	}
+
+	fname = (char *)lorom_name;
+	if ((err = file_open(bios_zip, NULL, lorom_crc, fname)) >= 0)
+	{
+		file_close();
+	}
+	else
+	{
+		bios_error(lorom_name, err, flag);
 		return 0;
 	}
 
@@ -215,7 +233,7 @@ void bios_select(int flag)
 
 	pad_wait_clear();
 	load_background(BG_DEFAULT);
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 
 	while (1)
 	{
@@ -321,7 +339,7 @@ void bios_select(int flag)
 	}
 
 	pad_wait_clear();
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 	if (flag)
 		load_background(WP_LOGO);
 	else

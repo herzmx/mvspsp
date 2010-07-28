@@ -17,7 +17,7 @@
 
 #define TIME_NOW				(0.0)
 #define TIME_NEVER				(1.0e30)
-#define TIME_IN_HZ(hz)			(1000000.0/(float)hz)
+#define TIME_IN_HZ(hz)			(1000000.0 / (hz))
 
 #define SEC_TO_USEC(secs)		((secs) * 1000000.0)
 

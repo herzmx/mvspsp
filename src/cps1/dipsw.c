@@ -9,11 +9,7 @@
 #include "cps1.h"
 
 #define MENU_BLANK					{ "\n", 0, 0x00, 0, 0, { NULL } }
-#if JAPANESE_UI
-#define MENU_RETURN					{ "ƒƒCƒ“ƒƒjƒ…[‚É–ß‚é", 1, 0x00, 0, 0, { NULL } }
-#else
 #define MENU_RETURN					{ "Return to main menu", 1, 0x00, 0, 0, { NULL } }
-#endif
 #define MENU_END					{ "\0", 0, 0x00, 0, 0, { NULL } }
 
 #define ACTIVE_HIGH					0
@@ -38,6 +34,7 @@
 
 #define save_demo_sounds2			dip_save_bit(DIP_C, (dip++)->value, 5, 0);
 #define save_allow_continue2		dip_save_bit(DIP_C, (dip++)->value, 6, 0);
+
 
 /*--------------------------------------
   ‹¤’Ê (bit)

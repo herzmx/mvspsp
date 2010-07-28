@@ -4,15 +4,16 @@
 #
 #------------------------------------------------------------------------------
 
-ifdef ADHOC
-VERSION_STR += [AdHoc]
-endif
-
 PSP_EBOOT_ICON = data/mvs.png
+
 ifdef PSP_SLIM
 PSP_EBOOT_TITLE = $(PBPNAME_STR) $(VERSION_STR) for PSP slim
 else
+ifdef KERNEL_MODE
 PSP_EBOOT_TITLE = $(PBPNAME_STR) $(VERSION_STR)
+else
+PSP_EBOOT_TITLE = $(PBPNAME_STR) $(VERSION_STR) for FW 3.xx
+endif
 endif
 
 

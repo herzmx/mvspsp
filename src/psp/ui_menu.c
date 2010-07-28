@@ -183,7 +183,7 @@ static int menu_gamecfg(void)
 
 	pad_wait_clear();
 	load_background(WP_GAMECFG);
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 
 	do
 	{
@@ -262,12 +262,14 @@ static int menu_gamecfg(void)
 			}
 
 			update  = draw_battery_status(1);
+			update |= draw_volume_status(1);
 			update |= ui_show_popup(1);
 			video_flip_screen(1);
 		}
 		else
 		{
 			update  = draw_battery_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_wait_vsync();
 		}
@@ -517,7 +519,7 @@ static int menu_keycfg(void)
 
 	pad_wait_clear();
 	load_background(WP_KEYCFG);
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 
 	do
 	{
@@ -611,12 +613,14 @@ static int menu_keycfg(void)
 			}
 
 			update  = draw_battery_status(1);
+			update |= draw_volume_status(1);
 			update |= ui_show_popup(1);
 			video_flip_screen(1);
 		}
 		else
 		{
 			update  = draw_battery_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_wait_vsync();
 		}
@@ -801,7 +805,7 @@ static int menu_dipswitch(void)
 
 	pad_wait_clear();
 	load_background(WP_DIPSW);
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 
 	do
 	{
@@ -882,12 +886,14 @@ static int menu_dipswitch(void)
 			}
 
 			update  = draw_battery_status(1);
+			update |= draw_volume_status(1);
 			update |= ui_show_popup(1);
 			video_flip_screen(1);
 		}
 		else
 		{
 			update  = draw_battery_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_wait_vsync();
 		}
@@ -991,25 +997,27 @@ static int state_sel;
 
 static void state_draw_thumbnail(void)
 {
+	void *tex = UI_TEXTURE;
+
 #if (EMU_SYSTEM == CPS1 || EMU_SYSTEM == CPS2)
 	if (machine_screen_type)
 	{
 		RECT clip1 = { 0, 0, 112, 152 };
 		RECT clip2 = { 317, 34, 317+112, 34+152 };
-		video_copy_rect(tex_frame, draw_frame, &clip1, &clip2);
+		video_draw_texture(GU_PSM_5551, VRAM_FMT, tex, draw_frame, &clip1, &clip2);
 	}
 	else
 #endif
 	{
 		RECT clip1 = { 0, 0, 152, 112 };
 		RECT clip2 = { 298, 52, 298+152, 52+112 };
-		video_copy_rect(tex_frame, draw_frame, &clip1, &clip2);
+		video_draw_texture(GU_PSM_5551, VRAM_FMT, tex, draw_frame, &clip1, &clip2);
 	}
 }
 
 static void state_refresh_screen(int reload_thumbnail)
 {
-	int i;
+	int i, x;
 	char name[16], state[32], buf[64];
 
 	if (reload_thumbnail)
@@ -1050,6 +1058,11 @@ static void state_refresh_screen(int reload_thumbnail)
 	uifont_print_shadow(i + 16, 5, UI_COLOR(UI_PAL_NORMAL), "|");
 	uifont_print_shadow(i + 24, 5, UI_COLOR(UI_PAL_TITLE), buf);
 
+	if (ui_text_get_language() == LANG_JAPANESE)
+		x = 12;
+	else
+		x = 0;
+
 	for (i = 0; i < 10; i++)
 	{
 		sprintf(name, TEXT(SLOTx), i);
@@ -1062,48 +1075,40 @@ static void state_refresh_screen(int reload_thumbnail)
 		{
 			small_icon_light(12, 38 + i * 22, UI_COLOR(UI_PAL_SELECT), ICON_MEMSTICK);
 			uifont_print_shadow(40, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), name);
-#if JAPANESE_UI
-			uifont_print_shadow(104, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), state);
-#else
-			uifont_print_shadow(92, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), state);
-#endif
+			uifont_print_shadow(92 + x, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), state);
 
 			if (slot[state_sel])
 			{
 				if (state_func == STATE_FUNC_LOAD)
 				{
-					uifont_print_shadow(188, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), FONT_LEFTTRIANGLE);
-					uifont_print_shadow(210, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), TEXT(LOAD));
-					uifont_print_shadow(250, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), FONT_RIGHTTRIANGLE);
+					uifont_print_shadow(200, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), FONT_LEFTTRIANGLE);
+					uifont_print_shadow(222, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), TEXT(LOAD));
+					uifont_print_shadow(262, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), FONT_RIGHTTRIANGLE);
 				}
 				else if (state_func == STATE_FUNC_DEL)
 				{
-					uifont_print_shadow(188, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), FONT_LEFTTRIANGLE);
-					uifont_print_shadow(210, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), TEXT(DELETE));
+					uifont_print_shadow(200, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), FONT_LEFTTRIANGLE);
+					uifont_print_shadow(222, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), TEXT(DELETE));
 				}
 				else
 				{
-					uifont_print_shadow(210, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), TEXT(SAVE));
-					uifont_print_shadow(250, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), FONT_RIGHTTRIANGLE);
+					uifont_print_shadow(222, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), TEXT(SAVE));
+					uifont_print_shadow(262, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), FONT_RIGHTTRIANGLE);
 				}
 			}
 			else
 			{
-				uifont_print_shadow(210, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), TEXT(SAVE));
+				uifont_print_shadow(222, 40 + i * 22, UI_COLOR(UI_PAL_SELECT), TEXT(SAVE));
 			}
 
-			hline_gradation(40, 266, 56 + i * 22, UI_COLOR(UI_PAL_NORMAL), UI_COLOR(UI_PAL_SELECT), 14);
-			hline_gradation(41, 267, 57 + i * 22, COLOR_BLACK, COLOR_BLACK, 8);
+			hline_gradation(40, 278, 56 + i * 22, UI_COLOR(UI_PAL_NORMAL), UI_COLOR(UI_PAL_SELECT), 14);
+			hline_gradation(41, 279, 57 + i * 22, COLOR_BLACK, COLOR_BLACK, 8);
 		}
 		else
 		{
 			small_icon(12, 38 + i * 22, UI_COLOR(UI_PAL_NORMAL), ICON_MEMSTICK);
 			uifont_print(40, 40 + i * 22, UI_COLOR(UI_PAL_NORMAL), name);
-#if JAPANESE_UI
-			uifont_print(104, 40 + i * 22, UI_COLOR(UI_PAL_NORMAL), state);
-#else
-			uifont_print(92, 40 + i * 22, UI_COLOR(UI_PAL_NORMAL), state);
-#endif
+			uifont_print(92 + x, 40 + i * 22, UI_COLOR(UI_PAL_NORMAL), state);
 		}
 	}
 
@@ -1241,7 +1246,7 @@ static int menu_state(void)
 
 	pad_wait_clear();
 	load_background(WP_STATE);
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 
 	memset(slot, 0, sizeof(slot));
 	state_clear_thumbnail();
@@ -1250,20 +1255,16 @@ static int menu_state(void)
 
 	do
 	{
-#if PSP_VIDEO_32BPP
-		if (update & 1)
-#else
-		if (update)
-#endif
+		if (update & UI_FULL_REFRESH)
 		{
 			state_refresh_screen((prev_sel == state_sel) ? 0 : 1);
 
 			update  = draw_battery_status(1);
+			update |= draw_volume_status(1);
 			update |= ui_show_popup(1);
 			video_flip_screen(1);
 		}
-#if PSP_VIDEO_32BPP
-		else if (update & 2)
+		else if (update & UI_PARTIAL_REFRESH)
 		{
 			int x, y, w, h;
 			RECT clip1, clip2;
@@ -1292,20 +1293,19 @@ static int menu_state(void)
 			video_copy_rect(tex_frame, draw_frame, &clip2, &clip1);
 
 			update  = draw_battery_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_flip_screen(1);
 		}
-#endif
 		else
 		{
 			update  = draw_battery_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_wait_vsync();
 		}
 
-#if PSP_VIDEO_32BPP
 		update |= ui_light_update();
-#endif
 		prev_sel = state_sel;
 		prev_func = state_func;
 
@@ -1441,6 +1441,11 @@ void showmenu(void)
 	char buf[128];
 	menu_t mainmenu[MENU_MAX_ITEMS];
 
+#ifdef SAVE_STATE
+	state_make_thumbnail();
+#endif
+	video_set_mode(32);
+
 #if (EMU_SYSTEM == NCDZ)
 	if (cdda_playing == CDDA_PLAY) mp3_pause(1);
 #endif
@@ -1460,25 +1465,15 @@ void showmenu(void)
 	}
 	mainmenu_num = i;
 
-#ifdef SAVE_STATE
-	state_make_thumbnail();
-#else
-	video_set_mode(32);
-#endif
-
 	set_cpu_clock(PSPCLOCK_222);
 	video_clear_screen();
 	load_background(WP_LOGO);
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 	pad_wait_clear();
 
 	do
 	{
-#if PSP_VIDEO_32BPP
-		if (update & 1)
-#else
-		if (update)
-#endif
+		if (update & UI_FULL_REFRESH)
 		{
 			show_background();
 
@@ -1520,11 +1515,11 @@ void showmenu(void)
 			}
 
 			update  = draw_battery_status(1);
+			update |= draw_volume_status(1);
 			update |= ui_show_popup(1);
 			video_flip_screen(1);
 		}
-#if PSP_VIDEO_32BPP
-		else if (update & 2)
+		else if (update & UI_PARTIAL_REFRESH)
 		{
 			int x, y, w, h;
 			RECT clip1, clip2;
@@ -1556,20 +1551,19 @@ void showmenu(void)
 			video_copy_rect(tex_frame, draw_frame, &clip2, &clip1);
 
 			update  = draw_battery_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_flip_screen(1);
 		}
-#endif
 		else
 		{
 			update  = draw_battery_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_wait_vsync();
 		}
 
-#if PSP_VIDEO_32BPP
 		update |= ui_light_update();
-#endif
 		prev_sel = sel;
 
 		if (pad_pressed(PSP_CTRL_UP))
@@ -1627,25 +1621,20 @@ void showmenu(void)
 	blit_clear_all_sprite();
 
 	pad_wait_clear();
-	ui_popup_reset(POPUP_GAME);
+	ui_popup_reset();
 	video_set_mode(16);
 	video_clear_screen();
 	video_clear_frame(work_frame);
+#if (EMU_SYSTEM != CPS2)
+	sound_set_samplerate();
+#endif
 	set_cpu_clock(psp_cpuclock);
 
 #if USE_CACHE
 	cache_sleep(0);
 #endif
 
-#if (EMU_SYSTEM == CPS1)
-	if (machine_sound_type == SOUND_QSOUND)
-		qsound_set_samplerate();
-	else
-		YM2151_set_samplerate();
-#elif (EMU_SYSTEM == CPS2)
-	qsound_set_samplerate();
-#elif (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
-	YM2610_set_samplerate();
+#if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
 	neogeo_reset_driver_type();
 #endif
 
@@ -1720,7 +1709,7 @@ void show_color_menu(void)
 
 	pad_wait_clear();
 	load_background(WP_COLORCFG);
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 
 	do
 	{
@@ -2012,7 +2001,7 @@ void show_color_menu(void)
 
 	pad_wait_clear();
 	load_background(WP_FILER);
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 }
 
 #endif

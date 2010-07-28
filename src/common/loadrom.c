@@ -29,38 +29,18 @@ static int rom_fd = -1;
 
 int file_open(const char *fname1, const char *fname2, const UINT32 crc, char *fname)
 {
-	int found = 0;
+	int i, found = 0;
 	struct zip_find_t file;
 	char path[MAX_PATH];
 
-	sprintf(path, "%s/%s.zip", game_dir, fname1);
-
-	if (zip_open(path) != -1)
+	for (i = 0; i < 3; i++)
 	{
-		if (zip_findfirst(&file))
+		switch (i)
 		{
-			if (file.crc32 == crc)
-			{
-				found = 1;
-			}
-			else
-			{
-				while (zip_findnext(&file))
-				{
-					if (file.crc32 == crc)
-					{
-						found = 1;
-						break;
-					}
-				}
-			}
+		case 0: sprintf(path, "%s/%s.zip", game_dir, fname1); break;
+		case 1: sprintf(path, "%s/%s.zip", game_dir, fname2); break;
+		case 2: sprintf(path, "%sroms/%s.zip", launchDir, fname2); break;
 		}
-		if (!found) zip_close();
-	}
-
-	if (!found && fname2 != NULL)
-	{
-		sprintf(path, "%s/%s.zip", game_dir, fname2);
 
 		if (zip_open(path) != -1)
 		{
@@ -72,33 +52,7 @@ int file_open(const char *fname1, const char *fname2, const UINT32 crc, char *fn
 				}
 				else
 				{
-					while (zip_findnext(&file))
-					{
-						if (file.crc32 == crc)
-						{
-							found = 1;
-							break;
-						}
-					}
-				}
-			}
-
-			if (!found) zip_close();
-		}
-
-		if (!found)
-		{
-			sprintf(path, "%sroms/%s.zip", launchDir, fname2);
-
-			if (zip_open(path) != -1)
-			{
-				if (zip_findfirst(&file))
-				{
-					if (file.crc32 == crc)
-					{
-						found = 1;
-					}
-					else
+					if (!found)
 					{
 						while (zip_findnext(&file))
 						{
@@ -110,20 +64,39 @@ int file_open(const char *fname1, const char *fname2, const UINT32 crc, char *fn
 						}
 					}
 				}
+			}
 
-				if (!found) zip_close();
+			if (!found)
+			{
+				if (fname)
+				{
+					int fd;
+
+					if ((fd = zopen(fname)) != -1)
+					{
+						zclose(fd);
+						found = 2;
+					}
+				}
+				zip_close();
 			}
 		}
+
+		if (found || fname2 == NULL) break;
 	}
 
-	if (found)
+	if (found == 1)
 	{
 		if (fname) strcpy(fname, file.name);
 		rom_fd = zopen(file.name);
 		return rom_fd;
 	}
+	else if (found == 2)
+	{
+		return -2;	// CRC error
+	}
 
-	return -1;
+	return -1;	// not found
 }
 
 

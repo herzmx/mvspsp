@@ -16,7 +16,7 @@ TARGET = romcnv_mvs
 #------------------------------------------------------------------------------
 
 VERSION_MAJOR = 2
-VERSION_MINOR = 2
+VERSION_MINOR = 3
 VERSION_BUILD = 0
 
 EXENAME_STR = $(TARGET)

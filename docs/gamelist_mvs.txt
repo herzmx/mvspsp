@@ -1,6 +1,6 @@
 -------------------------------------------------------------------------------
 
-  MVSPSP game list (ver.2.2.0)
+  MVSPSP game list (ver.2.2.5)
 
 -------------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ mslugx      Metal Slug X - Super Vehicle-001
 mutnat      Mutation Nation
 nam1975     NAM-1975
 ncombat     Ninja Combat (set 1)
-ncombata    Ninja Combat (set 2)
+ncombath    Ninja Combat (set 2)
 ncommand    Ninja Commando
 neobombe    Neo Bomberman
 neocup98    Neo-Geo Cup '98 - The Road to the Victory
@@ -183,7 +183,7 @@ stakwin     Stakes Winner
 stakwin2    Stakes Winner 2
 strhoop     Street Hoop / Street Slam
 superspy    The Super Spy
-svc         SvC Chaos - SNK vs Capcom (MVS)
+svc         SvC Chaos - SNK vs Capcom
 svcpcba     SVC Chaos - SNK vs CAPCOM (JAMMA PCB / set 2)
 tophunta    Top Hunter - Roddy & Cathy (set 2)
 tophuntr    Top Hunter - Roddy & Cathy (set 1)
@@ -198,8 +198,10 @@ vlinero     V-Liner (set 2)
 wakuwak7    Waku Waku 7
 wh1         World Heroes (set 1)
 wh1h        World Heroes (set 2)
+wh1ha       World Heroes (set 3)
 wh2         World Heroes 2
-wh2j        World Heroes 2 Jet
+wh2j        World Heroes 2 Jet (Set 1)
+wh2jh       World Heroes 2 Jet (Set 2)
 whp         World Heroes Perfect
 wjammers    Windjammers
 zedblade    Zed Blade
@@ -218,6 +220,7 @@ kf2k1pa     The King of Fighters 2001 Plus (set 2 / bootleg)
 cthd2003    Crouching Tiger Hidden Dragon 2003 (KOF2001 bootleg / set 1)
 cthd2k3a    Crouching Tiger Hidden Dragon 2003 (KOF2001 bootleg / set 2)
 ct2k3sp     Crouching Tiger Hidden Dragon 2003 Super Plus (KOF2001 bootleg)
+ct2k3sa     Crouching Tiger Hidden Dragon 2003 Super Plus alternate (KOF2001 bootleg)
 kof2002b    The King of Fighters 2002 (bootleg)
 kf2k2pls    The King of Fighters 2002 Plus (set 1, bootleg)
 kf2k2pla    The King of Fighters 2002 Plus (set 2, bootleg)
@@ -232,7 +235,7 @@ kof2k4se    The King of Fighters Special Edition 2004 (KOF2002 bootleg)
 kf2k4pls    The King of Fighters Special Edition 2004 Plus (KOF2002 bootleg)
 mslug5b     Metal Slug 5 (bootleg)
 ms5plus     Metal Slug 5 Plus (bootleg)
-svcboot     SvC Chaos - SNK vs Capcom (MVS) (bootleg)
+svcboot     SvC Chaos - SNK vs Capcom (bootleg)
 svcplus     SvC Chaos - SNK vs Capcom Plus (set 1, bootleg)
 svcplusa    SvC Chaos - SNK vs Capcom Plus (set 2, bootleg)
 svcsplus    SvC Chaos - SNK vs Capcom Super Plus (bootleg)
@@ -246,6 +249,7 @@ lans2004    Lansquenet 2004 (Shock Troopers - 2nd Squad bootleg)
 ms4plus     Metal Slug 4 Plus (bootleg)
 fr2ch       Idol Mahjong - final romance 2 (CD to MVS Conversion)
 bangbedp    Bang Bead (bootleg?)
+nitdbl      Nightmare in the Dark (bootleg)
 
 diggerma    Digger Man (prototype)
 columnsn    Columns (PD)

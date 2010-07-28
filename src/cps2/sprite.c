@@ -1053,11 +1053,11 @@ void blit_start(int start, int end)
 		sceGuDepthBuffer(draw_frame, BUF_WIDTH);
 		sceGuScissor(0, 0, SCR_WIDTH, SCR_HEIGHT);
 		sceGuEnable(GU_ALPHA_TEST);
-		sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT);
+		sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
 		sceGuTexMode(GU_PSM_T8, 0, 0, GU_TRUE);
 		sceGuTexFilter(GU_NEAREST, GU_NEAREST);
 		sceGuFinish();
-		sceGuSync(0, 0);
+		sceGuSync(0, GU_SYNC_FINISH);
 	}
 }
 
@@ -1233,7 +1233,7 @@ static void blit_render_object(int start_pri, int end_pri)
 
 				if (total_sprites)
 				{
-					sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, 0, vertices);
+					sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, NULL, vertices);
 					total_sprites = 0;
 					vertices = vertices_tmp;
 				}
@@ -1251,10 +1251,10 @@ static void blit_render_object(int start_pri, int end_pri)
 	}
 
 	if (total_sprites)
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, NULL, vertices);
 
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
 }
 
 
@@ -1264,7 +1264,7 @@ static void blit_render_object(int start_pri, int end_pri)
 
 static void blit_render_object_zb0(void)
 {
-	int i, size = object_num[0], total_sprites = 0;
+	int size = object_num[0], total_sprites = 0;
 	struct Vertex *vertices, *vertices_tmp;
 	OBJECT *object;
 
@@ -1290,14 +1290,13 @@ static void blit_render_object_zb0(void)
 		object = object->next;
 	}
 
-	sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, 0, vertices);
+	sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, NULL, vertices);
 
 	sceGuDisable(GU_DEPTH_TEST);
 	sceGuDepthMask(GU_TRUE);
+	sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);
 	sceGuFinish();
-	sceGuSync(0, 0);
-
-	video_clear_frame(work_frame);
+	sceGuSync(0, GU_SYNC_FINISH);
 }
 
 
@@ -1345,7 +1344,7 @@ static void blit_render_object_zb(int start_pri, int end_pri)
 
 				if (total_sprites)
 				{
-					sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, 0, vertices);
+					sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, NULL, vertices);
 					total_sprites = 0;
 					vertices = vertices_tmp;
 				}
@@ -1363,12 +1362,12 @@ static void blit_render_object_zb(int start_pri, int end_pri)
 	}
 
 	if (total_sprites)
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, NULL, vertices);
 
 	sceGuDisable(GU_DEPTH_TEST);
 	sceGuDepthMask(GU_TRUE);
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
 }
 
 
@@ -1486,7 +1485,7 @@ void blit_finish_scroll1(void)
 		sceGuClutLoad(256/8, &clut[32 << 4]);
 
 		memcpy(vertices, vertices_scroll[0], clut0_num * sizeof(struct Vertex));
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut0_num, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut0_num, NULL, vertices);
 		vertices += clut0_num;
 
 		clut0_num = 0;
@@ -1496,13 +1495,13 @@ void blit_finish_scroll1(void)
 		sceGuClutLoad(256/8, &clut[48 << 4]);
 
 		memcpy(vertices, vertices_scroll[1], clut1_num * sizeof(struct Vertex));
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut1_num, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut1_num, NULL, vertices);
 
 		clut1_num = 0;
 	}
 
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
 }
 
 
@@ -1693,7 +1692,7 @@ void blit_finish_scroll2(void)
 		sceGuClutLoad(256/8, &clut[64 << 4]);
 
 		memcpy(vertices, vertices_scroll[0], clut0_num * sizeof(struct Vertex));
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut0_num, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut0_num, NULL, vertices);
 		vertices += clut0_num;
 
 		clut0_num = 0;
@@ -1703,13 +1702,13 @@ void blit_finish_scroll2(void)
 		sceGuClutLoad(256/8, &clut[80 << 4]);
 
 		memcpy(vertices, vertices_scroll[1], clut1_num * sizeof(struct Vertex));
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut1_num, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut1_num, NULL, vertices);
 
 		clut1_num = 0;
 	}
 
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
 }
 
 
@@ -1836,7 +1835,7 @@ void blit_finish_scroll3(void)
 		sceGuClutLoad(256/8, &clut[96 << 4]);
 
 		memcpy(vertices, vertices_scroll[0], clut0_num * sizeof(struct Vertex));
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut0_num, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut0_num, NULL, vertices);
 		vertices += clut0_num;
 
 		clut0_num = 0;
@@ -1846,11 +1845,11 @@ void blit_finish_scroll3(void)
 		sceGuClutLoad(256/8, &clut[112 << 4]);
 
 		memcpy(vertices, vertices_scroll[1], clut1_num * sizeof(struct Vertex));
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut1_num, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut1_num, NULL, vertices);
 
 		clut1_num = 0;
 	}
 
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
 }

@@ -42,9 +42,4 @@ STATE_SAVE( eeprom );
 STATE_LOAD( eeprom );
 #endif
 
-#ifdef ADHOC
-int adhoc_send_eeprom(void);
-int adhoc_recv_eeprom(void);
-#endif /* ADHOC */
-
 #endif /* EEPROM_H */

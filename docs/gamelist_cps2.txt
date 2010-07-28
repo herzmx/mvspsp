@@ -1,6 +1,6 @@
 -------------------------------------------------------------------------------
 
-  CPS2PSP game list (ver.2.2.0)
+  CPS2PSP game list (ver.2.2.5)
 
 -------------------------------------------------------------------------------
 
@@ -14,6 +14,7 @@ ssf2ar1     Super Street Fighter II: The New Challengers (Asia 930914)
 ssf2j       Super Street Fighter II: The New Challengers (Japan 931005)
 ssf2jr1     Super Street Fighter II: The New Challengers (Japan 930911)
 ssf2jr2     Super Street Fighter II: The New Challengers (Japan 930910)
+ssf2tb      Super Street Fighter II: The Tournament Battle (World 931119)
 ssf2tbr1    Super Street Fighter II: The Tournament Battle (World 930911)
 ssf2tbj     Super Street Fighter II: The Tournament Battle (Japan 930911)
 ddtod       Dungeons & Dragons: Tower of Doom (Euro 940412)
@@ -72,7 +73,8 @@ mshjr1      Marvel Super Heroes (Japan 951024)
 msha        Marvel Super Heroes (Asia 951024)
 mshb        Marvel Super Heroes (Brazil 951117)
 mshh        Marvel Super Heroes (Hispanic 951117)
-nwarr       Night Warriors: Darkstalkers' Revenge (USA 950406)
+nwarr       Night Warriors: Darkstalkers' Revenge (EURO 950316)
+nwarru      Night Warriors: Darkstalkers' Revenge (USA 950406)
 nwarrh      Night Warriors: Darkstalkers' Revenge (Hispanic 950403)
 nwarrb      Night Warriors: Darkstalkers' Revenge (Brazil 950403)
 vhuntj      Vampire Hunter: Darkstalkers' Revenge (Japan 950316)
@@ -97,6 +99,7 @@ rmancp2j    Rockman: The Power Battle (CPS2 - Japan 950922)
 19xxj       19XX: The War Against Destiny (Japan 951225)
 19xxjr1     19XX: The War Against Destiny (Japan 951207)
 19xxh       19XX: The War Against Destiny (Hispanic 951218)
+19xxb       19XX: The War Against Destiny (Brazil 951218)
 ddsom       Dungeons & Dragons: Shadow over Mystara (Euro 960619)
 ddsomr1     Dungeons & Dragons: Shadow over Mystara (Euro 960223)
 ddsomr2     Dungeons & Dragons: Shadow over Mystara (Euro 960209)
@@ -224,8 +227,3 @@ sfa3d       Street Fighter Alpha 3 (USA 980904 Phoenix Edition)
 hsf2d       Hyper Street Fighter II: The Anniversary Edition (Asia 040202 Phoenix Edition)
 gwingjd     Giga Wing (Japan 990223 Phoenix Edition)
 1944d       1944: The Loop Master (USA 000620 Phoenix Edition)
-
--------------------------------------------------------------------------------
- Following games are not working.
--------------------------------------------------------------------------------
-ssf2tb      Super Street Fighter II: The Tournament Battle (World 931119)

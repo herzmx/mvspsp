@@ -35,7 +35,9 @@ enum
 
 extern int cps_rotate_screen;
 extern int cps_flip_screen;
+#if ENABLE_RASTER_OPTION
 extern int cps_raster_enable;
+#endif
 extern UINT16 video_palette[3072];
 
 void cps1_scan_object(void);

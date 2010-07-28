@@ -10,10 +10,10 @@
 
 
 #ifdef KERNEL_MODE
-PSP_MODULE_INFO(PBPNAME_STR, 0x1000, VERSION_MAJOR, VERSION_MINOR);
+PSP_MODULE_INFO(PBPNAME_STR, PSP_MODULE_KERNEL, VERSION_MAJOR, VERSION_MINOR);
 PSP_MAIN_THREAD_ATTR(0);
 #else
-PSP_MODULE_INFO(PBPNAME_STR, 0, VERSION_MAJOR, VERSION_MINOR);
+PSP_MODULE_INFO(PBPNAME_STR, PSP_MODULE_USER, VERSION_MAJOR, VERSION_MINOR);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
 
@@ -25,7 +25,9 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 volatile int Loop;
 volatile int Sleep;
 char launchDir[MAX_PATH];
-int psp_cpuclock;
+int psp_cpuclock = PSPCLOCK_333;
+int devkit_version;
+int njemu_debug;
 
 
 /******************************************************************************
@@ -41,6 +43,7 @@ void set_cpu_clock(int value)
 	switch (value)
 	{
 	case PSPCLOCK_266: scePowerSetClockFrequency(266, 266, 133); break;
+	case PSPCLOCK_300: scePowerSetClockFrequency(300, 300, 150); break;
 	case PSPCLOCK_333: scePowerSetClockFrequency(333, 333, 166); break;
 	default: scePowerSetClockFrequency(222, 222, 111); break;
 	}
@@ -52,18 +55,6 @@ void set_cpu_clock(int value)
 ******************************************************************************/
 
 /*--------------------------------------------------------
-	Exit Callback
---------------------------------------------------------*/
-
-#ifndef KERNEL_MODE
-static SceKernelCallbackFunction ExitCallback(int arg1, int arg2, void *arg)
-{
-	Loop = LOOP_EXIT;
-	return 0;
-}
-#endif
-
-/*--------------------------------------------------------
 	Power Callback
 --------------------------------------------------------*/
 
@@ -73,10 +64,45 @@ static SceKernelCallbackFunction PowerCallback(int unknown, int pwrflags, void *
 
 	if (pwrflags & PSP_POWER_CB_POWER_SWITCH)
 	{
+#if defined(PSP_SLIM) && ((EMU_SYSTEM == CPS2) || (EMU_SYSTEM == MVS))
+		extern INT32 psp2k_mem_left;
+
+		if (psp2k_mem_left < 0x400000)
+		{
+			char path[MAX_PATH];
+			SceUID fd;
+
+			sprintf(path, "%sresume.bin", launchDir);
+
+			if ((fd = sceIoOpen(path, PSP_O_WRONLY|PSP_O_CREAT, 0777)) >= 0)
+			{
+				sceIoWrite(fd, (void *)(PSP2K_MEM_TOP + 0x1c00000), 0x400000);
+				sceIoClose(fd);
+			}
+		}
+#endif
 		Sleep = 1;
 	}
 	else if (pwrflags & PSP_POWER_CB_RESUME_COMPLETE)
 	{
+#if defined(PSP_SLIM) && ((EMU_SYSTEM == CPS2) || (EMU_SYSTEM == MVS))
+		extern INT32 psp2k_mem_left;
+
+		if (psp2k_mem_left < 0x400000)
+		{
+			char path[MAX_PATH];
+			SceUID fd;
+
+			sprintf(path, "%sresume.bin", launchDir);
+
+			if ((fd = sceIoOpen(path, PSP_O_RDONLY, 0777)) >= 0)
+			{
+				sceIoRead(fd, (void *)(PSP2K_MEM_TOP + 0x1c00000), 0x400000);
+				sceIoClose(fd);
+			}
+			sceIoRemove(path);
+		}
+#endif
 		Sleep = 0;
 	}
 
@@ -94,11 +120,6 @@ static SceKernelCallbackFunction PowerCallback(int unknown, int pwrflags, void *
 static int CallbackThread(SceSize args, void *argp)
 {
 	int cbid;
-
-#ifndef KERNEL_MODE
-	cbid = sceKernelCreateCallback("Exit Callback", (void *)ExitCallback, NULL);
-	sceKernelRegisterExitCallback(cbid);
-#endif
 
 	cbid = sceKernelCreateCallback("Power Callback", (void *)PowerCallback, NULL);
 	scePowerRegisterCallback(0, cbid);
@@ -135,115 +156,90 @@ static int SetupCallbacks(void)
 --------------------------------------------------------*/
 
 #ifdef KERNEL_MODE
-
-static volatile int home_active;
-volatile UINT32 home_button;
-
-static int home_button_thread(SceSize args, void *argp)
-{
-	SceCtrlData paddata;
-
-	home_active = 1;
-
-	while (home_active)
-	{
-		sceCtrlPeekBufferPositive(&paddata, 1);
-		home_button = paddata.Buttons & PSP_CTRL_HOME;
-		sceKernelDelayThread(200);
-	}
-
-	sceKernelExitThread(0);
-
-	return 0;
-}
-
 static int user_main(SceSize args, void *argp)
+#else
+int main(int argc, char *argv[])
+#endif
 {
+	SceUID modID;
+	char prx_path[MAX_PATH];
+
+	getcwd(launchDir, MAX_PATH - 1);
+	strcat(launchDir, "/");
+
+	devkit_version = sceKernelDevkitVersion();
+	njemu_debug = 0;
+
 	SetupCallbacks();
 
 	set_cpu_clock(PSPCLOCK_222);
 
+	ui_text_init();
 	pad_init();
-	video_set_mode(32);
-	video_init();
-	file_browser();
-	video_exit(1);
 
+#if PSP_VIDEO_32BPP
+	video_set_mode(32);
+#else
+	video_init();
+#endif
+
+	sprintf(prx_path, "%sSystemButtons.prx", launchDir);
+
+	if ((modID = pspSdkLoadStartModule(prx_path, PSP_MEMORY_PARTITION_KERNEL)) >= 0)
+	{
+		initSystemButtons(devkit_version);
+
+		file_browser();
+	}
+	else
+	{
+		small_font_printf(0, 0, "Error 0x%08X start SystemButtons.prx.", modID);
+		video_flip_screen(1);
+		sceKernelDelayThread(5*1000*1000);
+	}
+
+	video_exit();
+
+#ifdef KERNEL_MODE
 	sceKernelExitThread(0);
+#else
+	sceKernelExitGame();
+#endif
 
 	return 0;
 }
 
+
+/*--------------------------------------------------------
+	KernelÉÇÅ[Éh main()
+--------------------------------------------------------*/
+
+#ifdef KERNEL_MODE
 int main(int argc, char *argv[])
 {
 	SceUID main_thread;
-	SceUID home_thread;
-	char *p;
 
-	memset(launchDir, 0, sizeof(launchDir));
-	strncpy(launchDir, argv[0], MAX_PATH - 1);
-	if ((p = strrchr(launchDir, '/')) != NULL)
-	{
-		*(p + 1) = '\0';
-	}
+	pspSdkInstallNoPlainModuleCheckPatch();
+	pspSdkInstallKernelLoadModulePatch();
 
 #ifdef ADHOC
 	pspSdkLoadAdhocModules();
 #endif
 
-	home_thread = sceKernelCreateThread("Home Button Thread",
-								home_button_thread,
-								0x11,
-								0x200,
-								0,
-								NULL);
-
-	main_thread = sceKernelCreateThread("User Mode Thread",
-								user_main,
-								0x11,
-								256 * 1024,
-								PSP_THREAD_ATTR_USER,
-								NULL);
-
-	sceKernelStartThread(home_thread, 0, 0);
+	main_thread = sceKernelCreateThread(
+						"User Mode Thread",
+						user_main,
+						0x11,
+						256 * 1024,
+						PSP_THREAD_ATTR_USER,
+						NULL
+					);
 
 	sceKernelStartThread(main_thread, 0, 0);
 	sceKernelWaitThreadEnd(main_thread, NULL);
 
-	home_active = 0;
-	sceKernelWaitThreadEnd(home_thread, NULL);
-
 	sceKernelExitGame();
 
 	return 0;
 }
-
-#else
-
-int main(int argc, char *argv[])
-{
-	char *p;
-
-	SetupCallbacks();
-
-	memset(launchDir, 0, sizeof(launchDir));
-	strncpy(launchDir, argv[0], MAX_PATH - 1);
-	if ((p = strrchr(launchDir, '/')) != NULL)
-	{
-		*(p + 1) = '\0';
-	}
-
-	set_cpu_clock(PSPCLOCK_222);
-
-	pad_init();
-	video_set_mode(32);
-	video_init();
-	file_browser();
-	video_exit(1);
-
-	sceKernelExitGame();
-
-	return 0;
-}
-
-#endif /* KERNEL_MODE */
+#endif

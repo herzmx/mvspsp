@@ -15,6 +15,9 @@
 #include "zip/zfile.h"
 #include "common/loadrom.h"
 #include "common/state.h"
+#ifdef ADHOC
+#include "common/adhoc.h"
+#endif
 #if USE_CACHE
 #include "common/cache.h"
 #endif
@@ -48,13 +51,6 @@ extern char cache_parent_name[16];
 extern char cache_dir[MAX_PATH];
 #endif
 
-#if (EMU_SYSTEM == MVS)
-extern int TICKS_PER_FRAME;
-extern float FPS;
-#else
-#define TICKS_PER_FRAME		16683
-#endif
-
 extern int option_showfps;
 extern int option_autoframeskip;
 extern int option_frameskip;
@@ -74,11 +70,6 @@ extern int machine_sound_type;
 
 extern UINT32 frames_displayed;
 extern int fatal_error;
-
-#ifdef ADHOC
-extern int adhoc_enable;
-extern int adhoc_server;
-#endif
 
 void emu_main(void);
 

@@ -8,15 +8,15 @@
 
 #include "romcnv.h"
 
-#define MAX_GAMES		512
+#define MAX_GAMES			512
 
-#define TILE_BLANK		0x00
-#define TILE_NOT_BLANK	0x02
-#define TILE_OPAQUE		0x01
+#define SPRITE_BLANK		0x00
+#define SPRITE_TRANSPARENT	0x01
+#define SPRITE_OPAQUE		0x02
 
-#define MAX_GFX2ROM		4
-#define MAX_GFX3ROM		16
-#define MAX_SND1ROM		8
+#define MAX_GFX2ROM			4
+#define MAX_GFX3ROM			16
+#define MAX_SND1ROM			8
 
 enum
 {
@@ -43,21 +43,21 @@ enum
 	グローバル変数
 ******************************************************************************/
 
-u8 *memory_region_gfx2;
-u8 *memory_region_gfx3;
-u8 *memory_region_sound1;
+UINT8 *memory_region_gfx2;
+UINT8 *memory_region_gfx3;
+UINT8 *memory_region_sound1;
 
-u32 memory_length_gfx2;
-u32 memory_length_gfx3;
-u32 memory_length_sound1;
+UINT32 memory_length_gfx2;
+UINT32 memory_length_gfx3;
+UINT32 memory_length_sound1;
 
 
 /******************************************************************************
 	ローカル変数
 ******************************************************************************/
 
-static u32 gfx_total_elements[TILE_TYPE_MAX];
-static u8  *gfx_pen_usage[TILE_TYPE_MAX];
+static UINT32 gfx_total_elements[TILE_TYPE_MAX];
+static UINT8  *gfx_pen_usage[TILE_TYPE_MAX];
 
 static int disable_sound;
 static int machine_driver_type;
@@ -80,6 +80,8 @@ static int encrypt_snd1;
 static int convert_crom;
 static int convert_srom;
 static int convert_vrom;
+
+static int psp2k;
 
 static char game_names[MAX_GAMES][16];
 
@@ -131,6 +133,7 @@ struct cacheinfo_t MVS_cacheinfo[] =
 	{ "cthd2003", "kof2001",  1, 1, 0 },
 	{ "cthd2k3a", "kof2001",  1, 1, 1 },
 	{ "ct2k3sp",  "kof2001",  1, 1, 0 },
+	{ "ct2k3sa",  "kof2001",  1, 1, 0 },
 	{ "ms4plus",  "mslug4",   0, 0, 0 },
 	{ "kof2002b", "kof2002",  1, 0, 0 },
 	{ "kf2k2pls", "kof2002",  0, 0, 0 },
@@ -164,14 +167,14 @@ struct cacheinfo_t MVS_cacheinfo[] =
 	MVS用関数
 ******************************************************************************/
 
-static void neogeo_decode_spr(u8 *mem, u32 length, u8 *usage)
+static void neogeo_decode_spr(UINT8 *mem, UINT32 length, UINT8 *usage)
 {
-	u32 i;
+	UINT32 i;
 
 	for (i = 0; i < gfx_total_elements[TILE_SPR]; i++)
 	{
-		u8 swap[128], *gfxdata;
-		u32 x, y, pen, opaque = 0;
+		UINT8 swap[128], *gfxdata;
+		UINT32 x, y, pen, opaque = 0;
 
 		gfxdata = &mem[128 * i];
 
@@ -179,7 +182,7 @@ static void neogeo_decode_spr(u8 *mem, u32 length, u8 *usage)
 
 		for (y = 0; y < 16; y++)
 		{
-			u32 dw, data;
+			UINT32 dw, data;
 
 			dw = 0;
 			for (x = 0; x < 8; x++)
@@ -225,9 +228,9 @@ static void neogeo_decode_spr(u8 *mem, u32 length, u8 *usage)
 		}
 
 		if (opaque)
-			*usage = (opaque == 256) ? TILE_OPAQUE : TILE_NOT_BLANK;
+			*usage = (opaque == 256) ? SPRITE_OPAQUE : SPRITE_TRANSPARENT;
 		else
-			*usage = TILE_BLANK;
+			*usage = SPRITE_BLANK;
 		usage++;
 	}
 }
@@ -668,6 +671,8 @@ static int convert_rom(char *game_name)
 	if (strlen(parent_name))
 		printf("Clone set (parent: %s)\n", parent_name);
 
+	if (psp2k) disable_sound = 0;
+
 	if (encrypt_snd1 || disable_sound)
 	{
 		if (load_rom_sound1())
@@ -845,6 +850,7 @@ static int convert_rom(char *game_name)
 
 			case INIT_cthd2003:
 			case INIT_cthd2k3a:
+			case INIT_ct2k3sa:
 				cthd2003_cx_decrypt();
 				break;
 
@@ -1000,6 +1006,7 @@ int main(int argc, char *argv[])
 	printf(" ROM converter for MVSPSP " VERSION_STR "\n");
 	printf("----------------------------------------------\n\n");
 
+	psp2k = 0;
 	if (argc > 1)
 	{
 		for (i = 1; i < argc; i++)
@@ -1007,6 +1014,10 @@ int main(int argc, char *argv[])
 			if (!strcasecmp(argv[i], "-all"))
 			{
 				all = 1;
+			}
+			else if (!strcasecmp(argv[i], "-slim"))
+			{
+				psp2k = 1;
 			}
 #ifdef WIN32
 			else if (!strcasecmp(argv[i], "-batch"))

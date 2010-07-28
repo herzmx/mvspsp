@@ -19,6 +19,22 @@ int neogeo_save_sound_flag;
 
 
 /******************************************************************************
+	ローカル変数
+******************************************************************************/
+
+#ifdef ADHOC
+static const char *bios[] =
+{
+	"EURO2", "EURO1",
+	"USA2", "USA1",
+	"ASIA3",
+	"JPN3", "JPN2", "JPN1",
+	"AES"
+};
+#endif
+
+
+/******************************************************************************
 	ローカル関数
 ******************************************************************************/
 
@@ -55,9 +71,40 @@ static int neogeo_init(void)
 	neogeo_video_init();
 
 	msg_printf(TEXT(DONE2));
-
 	msg_screen_clear();
+
 	video_clear_screen();
+
+#ifdef ADHOC
+	if (adhoc_enable)
+	{
+		sprintf(adhoc_matching, "%s_%s_%s", PBPNAME_STR, game_name, bios[neogeo_bios]);
+
+		if (adhocInit(adhoc_matching) == 0)
+		{
+			if ((adhoc_server = adhocSelect()) >= 0)
+			{
+				video_clear_screen();
+
+				if (adhoc_server)
+				{
+					option_controller = INPUT_PLAYER1;
+
+					return adhoc_send_state(NULL);
+				}
+				else
+				{
+					option_controller = INPUT_PLAYER2;
+
+					return adhoc_recv_state(NULL);
+				}
+			}
+		}
+
+		Loop = LOOP_BROWSER;
+		return 0;
+	}
+#endif
 
 	return 1;
 }
@@ -70,16 +117,18 @@ static int neogeo_init(void)
 static void neogeo_reset(void)
 {
 	video_set_mode(16);
-	video_clear_screen();
 
-	autoframeskip_reset();
+	video_clear_screen();
 
 	timer_reset();
 	input_reset();
-	sound_reset();
 
 	neogeo_driver_reset();
 	neogeo_video_reset();
+
+	sound_reset();
+	blit_clear_all_sprite();
+	autoframeskip_reset();
 
 	Loop = LOOP_EXEC;
 }
@@ -97,7 +146,7 @@ static void neogeo_exit(void)
 	video_set_mode(32);
 	video_clear_screen();
 
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 
 	video_clear_screen();
 	msg_screen_init(WP_LOGO, ICON_SYSTEM, TEXT(EXIT_EMULATION2));
@@ -134,6 +183,10 @@ static void neogeo_exit(void)
 
 	msg_printf(TEXT(DONE2));
 
+#ifdef ADHOC
+	if (adhoc_enable) adhocTerm();
+#endif
+
 	show_exit_screen();
 }
 
@@ -163,7 +216,7 @@ static void neogeo_run(void)
 				autoframeskip_reset();
 			}
 
-			(*timer_update_cpu)();
+			timer_update_cpu();
 			update_screen();
 			update_inputport();
 		}
@@ -184,15 +237,13 @@ static void neogeo_run(void)
 
 void neogeo_main(void)
 {
-	video_set_mode(32);
-
 	Loop = LOOP_RESET;
 
 	while (Loop >= LOOP_RESTART)
 	{
 		Loop = LOOP_EXEC;
 
-		ui_popup_reset(POPUP_GAME);
+		ui_popup_reset();
 
 		fatal_error = 0;
 
@@ -202,14 +253,14 @@ void neogeo_main(void)
 		{
 			if (sound_init())
 			{
-				input_init();
-
-				if (neogeo_init())
+				if (input_init())
 				{
-					neogeo_run();
+					if (neogeo_init())
+					{
+						neogeo_run();
+					}
+					neogeo_exit();
 				}
-				neogeo_exit();
-
 				input_shutdown();
 			}
 			sound_exit();

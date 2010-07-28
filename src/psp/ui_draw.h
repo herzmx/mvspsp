@@ -99,13 +99,6 @@ enum
 // ユーザインタフェースカラーデータ
 extern UI_PALETTE ui_palette[UI_PAL_MAX];
 
-// アルファブレンド処理テーブル
-#if PSP_VIDEO_32BPP
-extern const UINT8 alpha_blend[16][256][256];
-#else
-extern const UINT8 alpha_blend[16][32][32];
-#endif
-
 // ゲーム画面用スモールフォント
 extern const UINT8 font_s[];
 
@@ -113,12 +106,14 @@ extern const UINT8 font_s[];
 extern const UINT8 shadow[9][8][4];
 
 // Shift JIS フォントテーブル
-#if JAPANESE_UI
 extern const UINT16 sjis_table[];
-#else
-extern UINT8 *jpnfont;
-extern UINT16 *sjis_table;
-#endif
+
+
+/*------------------------------------------------------
+	ユーザインタフェース初期化
+------------------------------------------------------*/
+
+void ui_init(void);
 
 
 /*------------------------------------------------------
@@ -127,44 +122,24 @@ extern UINT16 *sjis_table;
 
 // プロポーショナルフォント
 int graphic_font_get_gryph(struct font_t *font, UINT16 code);
-#if PSP_VIDEO_32BPP
-int graphic_font_get_shadow(struct font_t *font, UINT16 code);
-#endif
 int graphic_font_get_pitch(UINT16 code);
 
 int ascii_14p_get_gryph(struct font_t *font, UINT16 code);
-#if PSP_VIDEO_32BPP
-int ascii_14p_get_shadow(struct font_t *font, UINT16 code);
-#endif
 int ascii_14p_get_pitch(UINT16 code);
 
-#if JAPANESE_UI || (EMU_SYSTEM != NCDZ)
 int jpn_h14p_get_gryph(struct font_t *font, UINT16 code);
-#if PSP_VIDEO_32BPP
-int jpn_h14p_get_shadow(struct font_t *font, UINT16 code);
-#endif
 int jpn_h14p_get_pitch(UINT16 code);
 
 int jpn_z14p_get_gryph(struct font_t *font, UINT16 code);
-#if PSP_VIDEO_32BPP
-int jpn_z14p_get_shadow(struct font_t *font, UINT16 code);
-#endif
 int jpn_z14p_get_pitch(UINT16 code);
-#endif
 
 // アイコン(小)
 int icon_s_get_gryph(struct font_t *font, UINT16 code);
-#if PSP_VIDEO_32BPP
-int icon_s_get_shadow(struct font_t *font, UINT16 code);
 int icon_s_get_light(struct font_t *font, UINT16 code);
-#endif
 
 // アイコン(大)
 int icon_l_get_gryph(struct font_t *font, UINT16 code);
-#if PSP_VIDEO_32BPP
-int icon_l_get_shadow(struct font_t *font, UINT16 code);
 int icon_l_get_light(struct font_t *font, UINT16 code);
-#endif
 
 // 等幅フォント
 #ifdef COMMAND_LIST
@@ -173,12 +148,6 @@ int ascii_14_get_gryph(struct font_t *font, UINT16 code);
 int latin1_14_get_gryph(struct font_t *font, UINT16 code);
 int jpn_h14_get_gryph(struct font_t *font, UINT16 code);
 int jpn_z14_get_gryph(struct font_t *font, UINT16 code);
-#endif
-
-// 日本語フォント読み込み
-#if !JAPANESE_UI
-int load_jpnfont(int gryph_type);
-void free_jpnfont(void);
 #endif
 
 
@@ -213,33 +182,27 @@ void textfont_print(int sx, int sy, int r, int g, int b, const char *s, int flag
 ------------------------------------------------------*/
 
 void small_icon(int sx, int sy, int r, int g, int b, int no);
-#if PSP_VIDEO_32BPP
 void small_icon_shadow(int sx, int sy, int r, int g, int b, int no);
 void small_icon_light(int sx, int sy, int r, int g, int b, int no);
-#else
-#define small_icon_shadow	small_icon
-#define small_icon_light	small_icon
-#endif
 
 void large_icon(int sx, int sy, int r, int g, int b, int no);
-#if PSP_VIDEO_32BPP
 void large_icon_shadow(int sx, int sy, int r, int g, int b, int no);
 void large_icon_light(int sx, int sy, int r, int g, int b, int no);
-#else
-#define large_icon_shadow	large_icon
-#define large_icon_light	large_icon
-#endif
 
-#if PSP_VIDEO_32BPP
 int ui_light_update(void);
-#endif
+
+
+/*------------------------------------------------------
+	ボリューム描画 (CFW 3.52以降のユーザーモードのみ)
+------------------------------------------------------*/
+
+void draw_volume(int volume);
 
 
 /*------------------------------------------------------
 	フォント描画 (ゲーム画面用)
 ------------------------------------------------------*/
 
-void create_small_font(void);
 void small_font_print(int sx, int sy, const char *s, int bg);
 void small_font_printf(int x, int y, const char *text, ...);
 
@@ -267,22 +230,19 @@ void boxfill_gradation(int sx, int sy, int ex, int ey, int r1, int g1, int b1, i
 void draw_bar_shadow(void);
 void draw_box_shadow(int sx, int sy, int ex, int ey);
 
-#if PSP_VIDEO_32BPP
-
 /*------------------------------------------------------
 	ユーザインタフェース色設定
 ------------------------------------------------------*/
 
+#if PSP_VIDEO_32BPP
 void get_ui_color(UI_PALETTE *pal, int *r, int *g, int *b);
 void set_ui_color(UI_PALETTE *pal, int r, int g, int b);
-
+#endif
 
 /*------------------------------------------------------
 	ロゴ描画
 ------------------------------------------------------*/
 
 void logo(int sx, int sy, int r, int g, int b);
-
-#endif
 
 #endif /* PSP_UI_DRAW_H */

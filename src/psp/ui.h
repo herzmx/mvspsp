@@ -9,6 +9,9 @@
 #ifndef PSP_UI_H
 #define PSP_UI_H
 
+#define UI_FULL_REFRESH		1
+#define UI_PARTIAL_REFRESH	2
+
 /*------------------------------------------------------
 	背景画像表示
 ------------------------------------------------------*/
@@ -54,6 +57,13 @@ int draw_battery_status(int draw);
 
 
 /*------------------------------------------------------
+	メインボリューム表示
+------------------------------------------------------*/
+
+int draw_volume_status(int draw);
+
+
+/*------------------------------------------------------
 	ダイアログボックス表示
 ------------------------------------------------------*/
 
@@ -71,10 +81,7 @@ void draw_scrollbar(int sx, int sy, int ex, int ey, int disp_lines, int total_li
 	ポップアップメッセージ表示
 ------------------------------------------------------*/
 
-#define POPUP_MENU	0
-#define POPUP_GAME	1
-
-void ui_popup_reset(int mode);
+void ui_popup_reset(void);
 void ui_popup(const char *text, ...);
 int ui_show_popup(int draw);
 
@@ -128,9 +135,6 @@ enum
 #endif
 #if (EMU_SYSTEM == NCDZ)
 	MB_STARTEMULATION_NOMP3,
-#ifdef ADHOC
-	MB_STARTEMULATION_ADHOC_NOMP3,
-#endif
 	MB_BOOTBIOS,
 	MB_BIOSNOTFOUND,
 	MB_BIOSINVALID,

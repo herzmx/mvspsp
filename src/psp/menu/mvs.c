@@ -17,7 +17,7 @@ gamecfg2_t gamecfg_mvs[] =
 	{ MACHINE_REGION, &neogeo_region,        CFG_RESTART,  3,  { DEFAULT,REGION_JAPAN,REGION_USA,REGION_EUROPE } },
 	{ MACHINE_MODE,   &neogeo_machine_mode,  CFG_RESTART,  2,  { DEFAULT,MODE_AES,MODE_MVS } },
 	MENU_BLANK,
-	{ RASTER_EFFECTS, &neogeo_raster_enable, CFG_CONTINUE, 1,  { OFF, ON } },
+	{ RASTER_EFFECTS, &neogeo_raster_enable, CFG_RESET,    1,  { OFF, ON } },
 	MENU_BLANK,
 	{ STRETCH_SCREEN, &option_stretch,       CFG_CONTINUE, 3,  { OFF, STRETCH1, STRETCH2, STRETCH3 } },
 	{ VIDEO_SYNC,     &option_vsync,         CFG_RESET,    1,  { OFF, ON } },
@@ -32,7 +32,7 @@ gamecfg2_t gamecfg_mvs[] =
 	MENU_BLANK,
 	{ CONTROLLER,     &option_controller,    CFG_CONTINUE, 1,  { CONTROLLER1,CONTROLLER2 } },
 	MENU_BLANK,
-	{ PSP_CLOCK,      &psp_cpuclock,         CFG_CONTINUE, 2,  { CLK222MHz,CLK266MHz,CLK333MHz } },
+	{ PSP_CLOCK,      &psp_cpuclock,         CFG_CONTINUE, 3,  { CLK222MHz,CLK266MHz,CLK300MHz,CLK333MHz } },
 	MENU_BLANK,
 	MENU_RETURN,
 	MENU_END

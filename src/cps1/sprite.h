@@ -47,4 +47,6 @@ void blit_draw_scroll3h(INT16 x, INT16 y, UINT32 code, UINT16 attr, UINT16 tpens
 void blit_update_scrollh(INT16 x, INT16 y, UINT32 code, UINT16 attr);
 void blit_finish_scrollh(void);
 
+void blit_draw_stars(UINT16 stars_x, UINT16 stars_y, UINT8 *col, UINT16 *pal);
+
 #endif /* CPS1_SPRITE_H */

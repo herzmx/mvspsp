@@ -320,7 +320,7 @@ static void pd4990a_serial_control(unsigned char data)
 	clock_line=data&CLOCK_BIT;
 }
 
-WRITE16_HANDLER( pd4990a_control_16_w )
+WRITE16_HANDLER( pd4990a_control_w )
 {
 	pd4990a_serial_control(data&0x7);
 }

@@ -15,7 +15,9 @@
 
 int cps_flip_screen;
 int cps_rotate_screen;
+#if ENABLE_RASTER_OPTION
 int cps_raster_enable;
+#endif
 
 
 /******************************************************************************
@@ -36,7 +38,7 @@ static UINT16 *cps_scroll2;
 static UINT16 *cps_scroll3;
 static UINT16 *cps_other;
 static UINT16 *cps1_palette;
-static UINT16 ALIGN_DATA cps1_old_palette[cps1_palette_size >> 1];
+static UINT16 ALIGN_DATA cps1_old_palette[4*32*16];
 
 static UINT8 cps_layer_enabled[4];								/* Layer enabled [Y/N] */
 static INT16 cps_scroll1x, cps_scroll1y;
@@ -64,8 +66,6 @@ static struct cps1_object_t *cps1_last_object;
 
 static UINT16 cps1_transparency_scroll[4];	/* Transparency pens of scroll layers */
 static UINT16 cps1_has_stars;
-static INT16 cps1_stars1x, cps1_stars1y;
-static INT16 cps1_stars2x, cps1_stars2y;
 static UINT16 cps1_high_layer;
 static UINT16 cps1_kludge;
 
@@ -530,7 +530,7 @@ void cps1_video_reset(void)
 	memset(cps1_old_palette, 0, sizeof(cps1_old_palette));
 	memset(video_palette, 0, sizeof(video_palette));
 
-	for (i = 0; i < cps1_palette_size >> 1; i += 16)
+	for (i = 0; i < 4*32*16; i += 16)
 		video_palette[i + 15] = 0x8000;
 
 	cps1_port(CPS1_OBJ_BASE)     = 0x9200;
@@ -570,7 +570,7 @@ static void cps1_build_palette(void)
 
 	for (offset = 0; offset < 1*32*16; offset++)
 	{
-		if (!(video_palette[offset] & 0x8000))
+		if (~offset & 0x000f)
 		{
 			palette = cps1_palette[offset];
 
@@ -584,7 +584,7 @@ static void cps1_build_palette(void)
 
 	for (; offset < 4*32*16; offset++)
 	{
-		if (!(video_palette[offset] & 0x8000))
+		if (~offset & 0x000f)
 		{
 			palette = cps1_palette[offset];
 
@@ -597,17 +597,13 @@ static void cps1_build_palette(void)
 		}
 	}
 
-	for (; offset < 6*32*16; offset++)
+	if (cps1_has_stars)
 	{
-		if (!(video_palette[offset] & 0x8000))
+		for (; offset < 6*32*16; offset++)
 		{
 			palette = cps1_palette[offset];
 
-			if (palette != cps1_old_palette[offset])
-			{
-				cps1_old_palette[offset] = palette;
-				video_palette[offset] = video_clut16[palette];
-			}
+			video_palette[offset] = video_clut16[palette];
 		}
 	}
 }
@@ -724,13 +720,13 @@ void cps1_scan_object(void)
 #define scroll1_offset(col, row) (((row) & 0x1f) + (((col) & 0x3f) << 5) + (((row) & 0x20) << 6)) << 1
 
 #define SCAN_SCROLL1()													\
-	UINT32 code;															\
-	UINT16 offs, attr, gfxset;												\
+	UINT32 code;														\
+	UINT16 offs, attr, gfxset;											\
 	INT16 x, y, sx, sy, min_x, max_x, min_y, max_y;						\
 	INT16 logical_col = cps_scroll1x >> 3;								\
 	INT16 logical_row = cps_scroll1y >> 3;								\
-	INT16 scroll_col  = cps_scroll1x & 0x07;								\
-	INT16 scroll_row  = cps_scroll1y & 0x07;								\
+	INT16 scroll_col  = cps_scroll1x & 0x07;							\
+	INT16 scroll_row  = cps_scroll1y & 0x07;							\
 																		\
 	min_x = ( 64 + scroll_col) >> 3;									\
 	max_x = (447 + scroll_col) >> 3;									\
@@ -868,13 +864,13 @@ void cps1_scan_scroll1(void)
 #define scroll2_offset(col, row) (((row) & 0x0f) + (((col) & 0x3f) << 4) + (((row) & 0x30) << 6)) << 1
 
 #define SCAN_SCROLL2()														\
-	UINT32 code;																\
-	UINT16 block, offs, attr;													\
+	UINT32 code;															\
+	UINT16 block, offs, attr;												\
 	INT16 x, y, sx, sy, min_x, max_x, min_y, max_y;							\
 	INT16 logical_col, scroll_col;											\
 	INT16 logical_row = cps_scroll2y >> 4;									\
 	INT16 scroll_row = cps_scroll2y & 0x0f;									\
-	UINT16 *pen_usage = cps1_scroll_pen_usage[2];								\
+	UINT16 *pen_usage = cps1_scroll_pen_usage[2];							\
 																			\
 	for (block = 0; block < cps_scroll2_blocks; block++)					\
 	{																		\
@@ -1102,11 +1098,13 @@ static void cps1_check_scroll2_distort(int distort)
 
 		scroll2[0].value = cps_scroll2x + cps_other[(16 + otheroffs) & 0x3ff];
 
+#if ENABLE_RASTER_OPTION
 		if (!cps_raster_enable)
 		{
 			scroll2[0].value = cps_scroll2x + cps_other[(128 + otheroffs) & 0x3ff];
 		}
 		else
+#endif
 		{
 			UINT16 value, prev_value;
 
@@ -1152,14 +1150,14 @@ static void cps1_check_scroll2_distort(int distort)
 #define scroll3_offset(col, row) (((row) & 0x07) + (((col) & 0x3f) << 3) + (((row) & 0x38) << 6)) << 1
 
 #define SCAN_SCROLL3(blit_func)											\
-	UINT32 code;															\
-	UINT16 offs, attr;														\
+	UINT32 code;														\
+	UINT16 offs, attr;													\
 	INT16 x, y, sx, sy, min_x, max_x, min_y, max_y;						\
 	INT16 logical_col = cps_scroll3x >> 5;								\
 	INT16 logical_row = cps_scroll3y >> 5;								\
-	INT16 scroll_col  = cps_scroll3x & 0x1f;								\
-	INT16 scroll_row  = cps_scroll3y & 0x1f;								\
-	UINT16 *pen_usage = cps1_scroll_pen_usage[3];							\
+	INT16 scroll_col  = cps_scroll3x & 0x1f;							\
+	INT16 scroll_row  = cps_scroll3y & 0x1f;							\
+	UINT16 *pen_usage = cps1_scroll_pen_usage[3];						\
 																		\
 	min_x = ( 64 + scroll_col) >> 5;									\
 	max_x = (447 + scroll_col) >> 5;									\
@@ -1297,61 +1295,28 @@ void cps1_scan_scroll3(void)
 	Stars
 ******************************************************************************/
 
-static void cps1_render_stars(void)
+static void cps1_render_stars(UINT16 layer_ctrl)
 {
-	UINT16 offs, *pal;
-	UINT16 layer_ctrl = cps1_port(driver->layer_control);
-	UINT32 current_frame = timer_getcurrentframe();
-	UINT16 *video_buf = (UINT16 *)video_frame_addr(work_frame, 0, 0);
+	UINT8 frame = (timer_get_currentframe() >> 4) & 0x0f;
 
 	if (layer_ctrl & driver->layer_enable_mask[3])
 	{
-		cps1_stars1x = cps1_port(CPS1_STARS1_SCROLLX);
-		cps1_stars1y = cps1_port(CPS1_STARS1_SCROLLY);
-		pal = &video_palette[0xa00];
-
-		for (offs = 0; offs < 0x2000 >> 1; offs++)
-		{
-			UINT8 col = memory_region_gfx1[(offs << 3) + 4];
-
-			if (col != 0x0f)
-			{
-				INT16 sx = (offs >> 8) << 5;
-				INT16 sy = offs & 0xff;
-
-				sx = (sx - cps1_stars2x + (col & 0x1f)) & 0x1ff;
-				sy = (sy - cps1_stars2y) & 0xff;
-				col = ((col & 0xe0) >> 1) + ((current_frame >> 4) & 0x0f);
-
-				if ((sx >= 64 && sx <= 448) && (sy >= 16 && sy <= 248))
-					video_buf[(sy << 9) + sx] = pal[col];
-			}
-		}
+		blit_draw_stars(
+			cps1_port(CPS1_STARS2_SCROLLX),
+			cps1_port(CPS1_STARS2_SCROLLY),
+			&memory_region_gfx1[4],
+			&video_palette[0xa00 + frame]
+		);
 	}
 
 	if (layer_ctrl & driver->layer_enable_mask[4])
 	{
-		cps1_stars2x = cps1_port(CPS1_STARS2_SCROLLX);
-		cps1_stars2y = cps1_port(CPS1_STARS2_SCROLLY);
-		pal = &video_palette[0x800];
-
-		for (offs = 0; offs < 0x2000 >> 1; offs++)
-		{
-			UINT8 col = memory_region_gfx1[offs << 3];
-
-			if (col != 0x0f)
-			{
-				int sx = (offs >> 8) << 5;
-				int sy = offs & 0xff;
-
-				sx = (sx - cps1_stars1x + (col & 0x1f)) & 0x1ff;
-				sy = (sy - cps1_stars1y) & 0xff;
-				col = ((col & 0xe0) >> 1) + ((current_frame >> 4) & 0x0f);
-
-				if ((sx >= 64 && sx <= 448) && (sy >= 16 && sy <= 248))
-					video_buf[(sy << 9) + sx] = pal[col];
-			}
-		}
+		blit_draw_stars(
+			cps1_port(CPS1_STARS1_SCROLLX),
+			cps1_port(CPS1_STARS1_SCROLLY),
+			&memory_region_gfx1[0],
+			&video_palette[0x800 + frame]
+		);
 	}
 }
 
@@ -1441,6 +1406,18 @@ void cps1_screenrefresh(void)
 	cps_layer_enabled[2] = layer_ctrl & driver->layer_enable_mask[1];
 	cps_layer_enabled[3] = layer_ctrl & driver->layer_enable_mask[2];
 
+	if (!cps_layer_enabled[l0]) l0 = LAYER_SKIP;
+	if (!cps_layer_enabled[l1]) l1 = LAYER_SKIP;
+	if (!cps_layer_enabled[l2]) l2 = LAYER_SKIP;
+	if (!cps_layer_enabled[l3]) l3 = LAYER_SKIP;
+
+	if (l0 == l1) l0 = LAYER_SKIP;
+	if (l0 == l2) l0 = LAYER_SKIP;
+	if (l0 == l3) l0 = LAYER_SKIP;
+	if (l1 == l2) l1 = LAYER_SKIP;
+	if (l1 == l3) l1 = LAYER_SKIP;
+	if (l2 == l3) l2 = LAYER_SKIP;
+
 	cps1_high_layer = 0;
 
 	for (i = 0; i < 4; i++)
@@ -1467,23 +1444,11 @@ void cps1_screenrefresh(void)
 			cps1_high_layer = 0;
 	}
 
-	if (!cps_layer_enabled[l0]) l0 = LAYER_SKIP;
-	if (!cps_layer_enabled[l1]) l1 = LAYER_SKIP;
-	if (!cps_layer_enabled[l2]) l2 = LAYER_SKIP;
-	if (!cps_layer_enabled[l3]) l3 = LAYER_SKIP;
-
-	if (l0 == l1) l0 = LAYER_SKIP;
-	if (l0 == l2) l0 = LAYER_SKIP;
-	if (l0 == l3) l0 = LAYER_SKIP;
-	if (l1 == l2) l1 = LAYER_SKIP;
-	if (l1 == l3) l1 = LAYER_SKIP;
-	if (l2 == l3) l2 = LAYER_SKIP;
-
 	cps1_check_scroll2_distort(video_ctrl & 1);
 
 	blit_start(cps1_high_layer);
 
-	if (cps1_has_stars) cps1_render_stars();
+	if (cps1_has_stars) cps1_render_stars(layer_ctrl);
 	cps1_render_layer(l0);
 	cps1_render_layer(l1);
 	cps1_render_layer(l2);

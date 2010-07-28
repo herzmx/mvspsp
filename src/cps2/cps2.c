@@ -23,11 +23,49 @@ static int cps2_init(void)
 		return 0;
 
 	msg_printf(TEXT(DONE2));
-
 	msg_screen_clear();
+
 	video_clear_screen();
 
+#ifdef ADHOC
+	if (!cps2_video_init())
+		return 0;
+
+	if (adhoc_enable)
+	{
+		sprintf(adhoc_matching, "%s_%s", PBPNAME_STR, game_name);
+
+		Loop = LOOP_EXEC;
+
+		if (adhocInit(adhoc_matching) == 0)
+		{
+			if ((adhoc_server = adhocSelect()) >= 0)
+			{
+				video_clear_screen();
+
+				if (adhoc_server)
+				{
+					option_controller = INPUT_PLAYER1;
+
+					return adhoc_send_state(NULL);
+				}
+				else
+				{
+					option_controller = INPUT_PLAYER2;
+
+					return adhoc_recv_state(NULL);
+				}
+			}
+		}
+
+		Loop = LOOP_BROWSER;
+		return 0;
+	}
+
+	return 1;
+#else
 	return cps2_video_init();
+#endif
 }
 
 
@@ -50,6 +88,8 @@ static void cps2_reset(void)
 	timer_reset();
 	input_reset();
 	sound_reset();
+
+	blit_clear_all_sprite();
 }
 
 
@@ -62,7 +102,7 @@ static void cps2_exit(void)
 	video_set_mode(32);
 	video_clear_screen();
 
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 
 	video_clear_screen();
 	msg_screen_init(WP_LOGO, ICON_SYSTEM, TEXT(EXIT_EMULATION2));
@@ -83,6 +123,10 @@ static void cps2_exit(void)
 	}
 
 	msg_printf(TEXT(DONE2));
+
+#ifdef ADHOC
+	if (adhoc_enable) adhocTerm();
+#endif
 
 	show_exit_screen();
 }
@@ -138,15 +182,13 @@ static void cps2_run(void)
 
 void cps2_main(void)
 {
-	video_set_mode(32);
-
 	Loop = LOOP_RESET;
 
 	while (Loop >= LOOP_RESTART)
 	{
 		Loop = LOOP_EXEC;
 
-		ui_popup_reset(POPUP_GAME);
+		ui_popup_reset();
 
 		fatal_error = 0;
 
@@ -156,14 +198,14 @@ void cps2_main(void)
 		{
 			if (sound_init())
 			{
-				input_init();
-
-				if (cps2_init())
+				if (input_init())
 				{
-					cps2_run();
+					if (cps2_init())
+					{
+						cps2_run();
+					}
+					cps2_exit();
 				}
-				cps2_exit();
-
 				input_shutdown();
 			}
 			sound_exit();

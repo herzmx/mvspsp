@@ -49,8 +49,8 @@ void pcm_cache_update(UINT16 block);
 #endif
 
 #ifdef STATE_SAVE
-UINT8 *cache_alloc_state_buffer(UINT32 size);
-void cache_free_state_buffer(UINT32 size);
+UINT8 *cache_alloc_state_buffer(INT32 size);
+void cache_free_state_buffer(INT32 size);
 #endif
 
 #endif /* USE_CACHE */

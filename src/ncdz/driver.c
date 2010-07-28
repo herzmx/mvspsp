@@ -6,181 +6,9 @@
 
 ******************************************************************************/
 
-/******************************************************************************
-
-    NEOGEO CDZ Motherboard
-    ----------------------
-
-    NEO-CDC1-1
-                    L   R   V    S-V    A/V             DC
-    |--------------| |-| |-| |--|  |---|   |-----------|  |---------------|
-    |              +-+ +-+ +-+  +--+   +---+           +--+               |
-    |    D05                   MB3516A                                    |
-    |                                                                     |
-    |                                                                     |
-    |                   74LS05                  518129                    |
-    |                            NEO-GRC2-F                               |
-    |                                           000-LO                    |
-    |                                                                     |
-    |      D357J5             LH516  TOP-SPD              LH52B256N       |
-    |                                                                     |
-    |   KDS-5K                          HC245A    514400  LH52B256N       |
-    |  24.000MHz                                                          |
-    |                  LC89513K 51832   HC245A    514400  84C00AM-6       |
-    |                                                                     |
-    |                                                                     |
-    |                                                                     |
-    |                                                                     |
-    |                                                                     |
-    |  D05  74HCU04A   HC245A HC245A LS05 HC245A HC245A                   |
-    |                                                  HC245A             |
-    |     |=====|     +----------+        +----------+                    |
-    |-----------------|          |--------|          |--------------------|
-                       Controler1          Controler2
-
-    (Back)
-    |---------------------------------------------------------------------|
-    |                                                                     |
-    |                                                                     |
-    |                                                                     |
-    |                                                                     |
-    |                                         LS273  LS273    9480F       |
-    |                                                                     |
-    |  5118160   NEO-0FC   GC24512          LH52B256N                     |
-    |                                                   5118160           |
-    |                                       LH52B256N                     |
-    |                                                                     |
-    |                                                                     |
-    |                                                                     |
-    |                                                                     |
-    |  5118160   NEO-YSA       MC68HC000                                  |
-    |                                        NEO-MGA2-SA                  |
-    |                                                                     |
-    |                                                                     |
-    |                                                                     |
-    |                                                                     |
-    |                                                                     |
-    |                                                                     |
-    |                 +----------+        +----------+                    |
-    |-----------------|          |--------|          |--------------------|
-                       Controler2          Controler1
-
-    Notes:
-          68k clock: 12.000MHz
-          Z80 clock: 6.000MHz
-       YM2610 clock: 8.000MHz
-              VSync: 60Hz
-              HSync: 15.21kHz
-
-             Custom SNK chips
-             -------------------
-             NEO-GRC2-F
-             NEO-0FC
-             NEO-YSA   (YM2610?)
-             NEO-MGA2-SA
-             GC24512
-
-             ROMs        Type
-             ----------------------------
-             TOP-SPD     TC534200 (DIP40)
-             000-L0      TC531000 (DIP28)
-
-             CD-ROM controler
-             -----------------
-             LC89513K: SANYO
-
-=============================================================================
-
-Points to note, known and proven information deleted from this map:
-
-    0x3000001       Dipswitches
-                bit 0 : Selftest
-                bit 1 : Unknown (Unused ?) \ something to do with
-                bit 2 : Unknown (Unused ?) / auto repeating keys ?
-                bit 3 : \
-                bit 4 :  | communication setting ?
-                bit 5 : /
-                bit 6 : free play
-                bit 7 : stop mode ?
-
-    0x3c000c        IRQ acknowledge
-
-    0x380011        Backup bank select
-
-    0x3a0001        Enable display.
-    0x3a0011        Disable display
-
-    0x3a0003        Swap in Bios (0x80 bytes vector table of BIOS)
-    0x3a0013        Swap in Rom  (0x80 bytes vector table of ROM bank)
-
-    0x3a000d        lock backup ram
-    0x3a001d        unlock backup ram
-
-    0x3a000b        set game vector table (?)  mirror ?
-    0x3a001b        set bios vector table (?)  mirror ?
-
-    0x3a000c        Unknown (ghost pilots)
-    0x31001c        Unknown (ghost pilots)
-
-    IO word read
-
-    0x3c0002        return vidram word (pointed to by 0x3c0000)
-    0x3c0006        ?????.
-    0x3c0008        shadow adress for 0x3c0000 (not confirmed).
-    0x3c000a        shadow adress for 0x3c0002 (confirmed, see
-                               Puzzle de Pon).
-    IO word write
-
-    0x3c0006        Unknown, set vblank counter (?)
-
-    0x3c0008        shadow address for 0x3c0000 (not confirmed)
-    0x3c000a        shadow address for 0x3c0002 (not confirmed)
-
-    NEOGEO CDZではNEC 4990は使用されておらず、別のチップが使用されていると
-    思われます。Z80のポート$C0～$02に出力されている値が制御を行っているように
-    思えますが、ハードウェアには疎いのでさっぱりわからず。
-
-******************************************************************************/
-
 #include "ncdz.h"
 
 
-/* VBLANK should fire on line 248 */
-#define RASTER_COUNTER_START 0x1f0	/* value assumed right after vblank */
-#define RASTER_COUNTER_RELOAD 0x0f8	/* value assumed after 0x1ff */
-#define RASTER_LINE_RELOAD (0x200 - RASTER_COUNTER_START)
-
-#define SCANLINE_ADJUST 3	/* in theory should be 0, give or take an off-by-one mistake */
-
-/*  flags for irq1control:
-
-    0x07 unused? kof94 sets some random combination of these at the character
-         selection screen but only because it does andi.w #$ff2f, $3c0006. It
-         clears them immediately after.
-
-    0x08 shocktro2, stops autoanim counter
-
-    Maybe 0x07 writes to the autoanim counter, meaning that in conjunction with
-    0x08 one could fine control it. However, if that was the case, writing the
-    the IRQ2 control bits would interfere with autoanimation, so I'm probably
-    wrong.
-
-    0x10 irq1 enable, tile engine scanline irq that is triggered
-    when a certain scanline is reached.
-
-    0x20 when set, the next values written in the irq position register
-    sets irq1 to happen N lines after the current one
-
-    0x40 when set, irq position register is automatically loaded at vblank to
-    set the irq1 line.
-
-    0x80 when set, every time irq1 is triggered the irq position register is
-    automatically loaded to set the next irq1 line.
-
-    0x80 and 0x40 may be set at the same time (Viewpoint does this).
-*/
-
-#define IRQ1CTRL_AUTOANIM_STOP		0x08
 #define IRQ1CTRL_ENABLE				0x10
 #define IRQ1CTRL_LOAD_RELATIVE		0x20
 #define IRQ1CTRL_AUTOLOAD_VBLANK	0x40
@@ -191,31 +19,40 @@ Points to note, known and proven information deleted from this map:
 	グローバル変数
 ******************************************************************************/
 
+int neogeo_driver_type;
+int neogeo_raster_enable;
+UINT16 neogeo_ngh;
+
+UINT8 auto_animation_speed;
+UINT8 auto_animation_disabled;
+UINT8 auto_animation_counter;
+
+UINT16 raster_line;
+UINT16 raster_counter;
+
 const char default_name[16] = "default";
 int game_index;
-int neogeo_driver_type;
-int neogeo_ngh;
-int neogeo_raster_enable;
-UINT32 neogeo_frame_counter;
-UINT32 neogeo_frame_counter_speed;
-
 int watchdog_counter;
 
 
 /******************************************************************************
-	Private variables
+	ローカル変数
 ******************************************************************************/
 
-static int current_rasterline;
-static int current_rastercounter;
-static int irq1start;
-static int irq1control;
-static UINT32 irq1pos_value;
-static int scanline_read;
-static int vblank_int;
-static int scanline_int;
+static int raster_enable;
 
-static UINT32 frame_counter;
+static int scanline_read;
+static int busy;
+
+static int display_position_interrupt_start;
+static int display_position_interrupt_counter;
+static int display_position_interrupt_control;
+static int display_position_interrupt_pending;
+static UINT32 display_counter;
+
+static int vblank_interrupt_pending;
+
+static UINT8 auto_animation_frame_counter;
 
 static int sound_code;
 static int result_code;
@@ -243,6 +80,15 @@ static UINT8 *neogeo_vectors[2];
 static UINT8 memory_region_hctrl[0x200];
 
 
+/******************************************************************************
+	プロトタイプ
+******************************************************************************/
+
+void (*neogeo_raster_interrupt)(int line);
+static void raster_interrupt(int line);
+static void raster_interrupt_aof2(int line);
+
+
 /*------------------------------------------------------
 	ゲームチェック
 ------------------------------------------------------*/
@@ -254,7 +100,6 @@ int neogeo_check_game(void)
 	int i, fd, found = 0, NGH_number;
 
 	neogeo_ngh = 0;
-	neogeo_driver_type = NORMAL;
 	hack_irq = 0;
 
 	if (neogeo_boot_bios)
@@ -406,28 +251,28 @@ void neogeo_driver_reset(void)
 
 	memcpy(memory_region_cpu1, neogeo_vectors[1], 0x100);	// game vector
 
-	watchdog_reset_16_w(0, 0, 0);
+	watchdog_reset_w(0, 0, 0);
 
-	irq1start = 1000;
-	irq1control = 0;
-	irq1pos_value = 0;
+	raster_line = 0;
+	raster_counter = RASTER_COUNTER_START;
 	scanline_read = 0;
 
-	current_rasterline = 0;
-	current_rastercounter = RASTER_COUNTER_START;
+	display_position_interrupt_start = 1000;
+	display_position_interrupt_counter = 0;
+	display_position_interrupt_control = 0;
+	display_counter = 0;
 
-	vblank_int = 0;
-	scanline_int = 0;
+	vblank_interrupt_pending = 0;
+	display_position_interrupt_pending = 0;
 
 	sound_code = 0;
 	result_code = 0;
 	pending_command = 0;
 
-	frame_counter = 0;
-	neogeo_frame_counter = 0;
-	neogeo_frame_counter_speed = 4;
-
-	timer_set_update_handler();
+	auto_animation_frame_counter = 0;
+	auto_animation_speed = 0;
+	auto_animation_disabled = 0;
+	auto_animation_counter = 0;
 
 	neogeo_reset_driver_type();
 
@@ -442,22 +287,51 @@ void neogeo_driver_reset(void)
 
 void neogeo_reset_driver_type(void)
 {
-	if (neogeo_raster_enable)
+	busy = 0;
+
+	if (neogeo_ngh == NGH_tpgolf
+	||	neogeo_ngh == NGH_trally
+	||	neogeo_ngh == NGH_aof2
+	||	neogeo_ngh == NGH_neodrift)
+		neogeo_raster_enable = 1;
+
+	raster_enable = neogeo_raster_enable;
+
+	if (raster_enable)
 	{
-		if (neogeo_ngh == NGH_mosyougi)
-			neogeo_driver_type = BUSY;
-		else
-			neogeo_driver_type = RASTER;
+		if (neogeo_ngh == NGH_mosyougi) busy = 1;
+
+		neogeo_driver_type = RASTER;
 	}
 	else
 	{
-		if (neogeo_ngh == NGH_aof2)
-			neogeo_driver_type = RASTER;
-		else
-			neogeo_driver_type = NORMAL;
+		neogeo_driver_type = NORMAL;
+	}
+
+	if (neogeo_ngh == NGH_aof2)
+	{
+		neogeo_raster_interrupt = raster_interrupt_aof2;
+		neogeo_driver_type = RASTER_AOF2;
+	}
+	else
+	{
+		neogeo_raster_interrupt = raster_interrupt;
 	}
 
 	timer_set_update_handler();
+}
+
+
+/*------------------------------------------------------
+	Adjust display position interrupt
+------------------------------------------------------*/
+
+INLINE void adjust_display_position_interrupt(void)
+{
+	if ((display_counter + 1) != 0)
+	{
+		display_position_interrupt_counter = (display_counter + 1) / 0x180;
+	}
 }
 
 
@@ -470,8 +344,8 @@ static void update_interrupts(void)
 	int level = 0;
 
 	/* determine which interrupt is active */
-	if (vblank_int) level = 2;
-	if (scanline_int) level = 1;
+	if (display_position_interrupt_pending) level = 1;
+	if (vblank_interrupt_pending) level = 2;
 
 	/* either set or clear the appropriate lines */
 	if (level)
@@ -481,8 +355,8 @@ static void update_interrupts(void)
 
 	if (hack_irq)
 	{
-		if (level == 2) vblank_int = 0;
-		if (level == 1) scanline_int = 0;
+		if (level == 2) vblank_interrupt_pending = 0;
+		if (level == 1) display_position_interrupt_pending = 0;
 	}
 }
 
@@ -493,27 +367,27 @@ static void update_interrupts(void)
 
 void neogeo_interrupt(void)
 {
-	current_rasterline = 0;
-	current_rastercounter = RASTER_COUNTER_START;
+	raster_line = 0;
+	raster_counter = RASTER_COUNTER_START;
 
-	if (!(irq1control & IRQ1CTRL_AUTOANIM_STOP))
+	if (!auto_animation_disabled)
 	{
-		/* Animation counter */
-		if (frame_counter++ > neogeo_frame_counter_speed)	/* fixed animation speed */
+		if (auto_animation_frame_counter == 0)
 		{
-			frame_counter = 0;
-			neogeo_frame_counter++;
+			auto_animation_frame_counter = auto_animation_speed;
+			auto_animation_counter++;
 		}
+		else auto_animation_frame_counter--;
 	}
 
-	vblank_int = 1; /* vertical blank */
+	vblank_interrupt_pending = 1;
 
 	if (hack_irq)
 	{
 		UINT32 pc = m68000_get_reg(M68K_PC);
 
-		if (pc >= 0xbf00 && pc <= 0xbfff)	// 0xbf92
-			vblank_int = 0;
+		if (pc >= 0xbf00 && pc <= 0xbfff)
+			vblank_interrupt_pending = 0;
 	}
 
 	update_interrupts();
@@ -524,133 +398,117 @@ void neogeo_interrupt(void)
 	MC68000 scanline interrupt (IRQ1)
 ------------------------------------------------------*/
 
-static void neogeo_interrupt_aof2(int line)
-{
-	static int next_irq1 = 0;
-	static int raster_count = 0;
-
-	if (line == RASTER_LINES)
-	{
-		current_rasterline = 0;
-		current_rastercounter = RASTER_COUNTER_START;
-
-		if (irq1control & IRQ1CTRL_ENABLE)
-			irq1start = (irq1pos_value + 3) / 0x180;
-		else
-			irq1start = 1000;
-
-		if (!(irq1control & IRQ1CTRL_AUTOANIM_STOP))
-		{
-			/* Animation counter */
-			if (frame_counter++ > neogeo_frame_counter_speed)
-			{
-				frame_counter = 0;
-				neogeo_frame_counter++;
-			}
-		}
-
-		if (!(irq1control & IRQ1CTRL_ENABLE))
-		{
-			next_irq1 = 0;
-		}
-		else if (next_irq1 == 0)
-		{
-			next_irq1 = 1;
-			raster_count = irq1start;
-		}
-
-		vblank_int = 1; /* vertical blank */
-	}
-	else
-	{
-		if (next_irq1 && (irq1control & IRQ1CTRL_ENABLE))
-		{
-			if (--raster_count == 0)
-			{
-				scanline_int = 1;
-				raster_count = irq1start;
-			}
-		}
-	}
-
-	update_interrupts();
-}
-
-
-void neogeo_raster_interrupt(int line, int busy)
+static void raster_interrupt(int line)
 {
 	int do_refresh = 0;
 
-	current_rasterline = line;
+	raster_line = line;
+	if (raster_line == RASTER_LINES) raster_line = 0;
 
-	if (current_rasterline == RASTER_LINES) current_rasterline = 0;	/* vblank */
-
-	if (current_rasterline < RASTER_LINE_RELOAD)
-		current_rastercounter = RASTER_COUNTER_START + current_rasterline;
+	if (raster_line < RASTER_LINE_RELOAD)
+		raster_counter = RASTER_COUNTER_START + raster_line;
 	else
-		current_rastercounter = RASTER_COUNTER_RELOAD + current_rasterline - RASTER_LINE_RELOAD;
-
-
-	if (neogeo_ngh == NGH_aof2)
-	{
-		neogeo_interrupt_aof2(line);
-		return;
-	}
+		raster_counter = RASTER_COUNTER_RELOAD + raster_line - RASTER_LINE_RELOAD;
 
 	if (busy)
 	{
 		if (scanline_read)
 		{
-			do_refresh = 1;
+			do_refresh = neogeo_raster_enable;
 			scanline_read = 0;
 		}
 	}
 
-	if (irq1control & IRQ1CTRL_ENABLE)
+	if (display_position_interrupt_control & IRQ1CTRL_ENABLE)
 	{
-		if (line == irq1start)
+		if (line == display_position_interrupt_start)
 		{
-			if (!busy) do_refresh = 1;
+			if (!busy) do_refresh = neogeo_raster_enable;
 
-			if (irq1control & IRQ1CTRL_AUTOLOAD_REPEAT)
-				irq1start += (irq1pos_value + 3) / 0x180;	/* ridhero gives 0x17d */
+			if (display_position_interrupt_control & IRQ1CTRL_AUTOLOAD_REPEAT)
+				display_position_interrupt_start += (display_counter + 1) / 0x180;
 
-			scanline_int = 1;
+			display_position_interrupt_pending = 1;
 		}
 	}
 
 	if (line == RASTER_LINES)
 	{
-		if (irq1control & IRQ1CTRL_AUTOLOAD_VBLANK)
-			irq1start = (irq1pos_value + 3) / 0x180;	/* ridhero gives 0x17d */
+		if (display_position_interrupt_control & IRQ1CTRL_AUTOLOAD_VBLANK)
+			display_position_interrupt_start = (display_counter + 1) / 0x180;
 		else
-			irq1start = 1000;
+			display_position_interrupt_start = 1000;
 
-		if (!(irq1control & IRQ1CTRL_AUTOANIM_STOP))
+		if (!auto_animation_disabled)
 		{
-			/* Animation counter */
-			if (frame_counter++ > neogeo_frame_counter_speed)	/* fixed animation speed */
+			if (auto_animation_frame_counter == 0)
 			{
-				frame_counter = 0;
-				neogeo_frame_counter++;
+				auto_animation_frame_counter = auto_animation_speed;
+				auto_animation_counter++;
 			}
+			else auto_animation_frame_counter--;
 		}
 
-		vblank_int = 1; /* vertical blank */
+		vblank_interrupt_pending = 1;
 
 		if (hack_irq)
 		{
 			UINT32 pc = m68000_get_reg(M68K_PC);
 
-			if (pc >= 0xbf00 && pc <= 0xbfff)	// 0xbf92
-				vblank_int = 0;
+			if (pc >= 0xbf00 && pc <= 0xbfff)
+				vblank_interrupt_pending = 0;
 		}
 	}
 
+	update_interrupts();
+
 	if (do_refresh && !skip_this_frame())
+		neogeo_partial_screenrefresh((raster_counter - 0x100) - 1);
+}
+
+
+static void raster_interrupt_aof2(int line)
+{
+	raster_line = line;
+	if (raster_line == RASTER_LINES) raster_line = 0;
+
+	if (raster_line < RASTER_LINE_RELOAD)
+		raster_counter = RASTER_COUNTER_START + raster_line;
+	else
+		raster_counter = RASTER_COUNTER_RELOAD + raster_line - RASTER_LINE_RELOAD;
+
+	if (display_position_interrupt_counter)
 	{
-		if (line > RASTER_LINE_RELOAD)	/* avoid unnecessary updates after start of vblank */
-			neogeo_partial_screenrefresh((current_rastercounter - 256) - 1 + SCANLINE_ADJUST);
+		display_position_interrupt_counter--;
+
+		if (display_position_interrupt_counter == 0)
+		{
+			if (display_position_interrupt_control & IRQ1CTRL_ENABLE)
+			{
+				display_position_interrupt_pending = 1;
+
+				if (display_position_interrupt_control & IRQ1CTRL_AUTOLOAD_REPEAT)
+					adjust_display_position_interrupt();
+			}
+		}
+	}
+
+	if (line == RASTER_LINES)
+	{
+		if (display_position_interrupt_control & IRQ1CTRL_AUTOLOAD_VBLANK)
+			adjust_display_position_interrupt();
+
+		if (!auto_animation_disabled)
+		{
+			if (auto_animation_frame_counter == 0)
+			{
+				auto_animation_frame_counter = auto_animation_speed;
+				auto_animation_counter++;
+			}
+			else auto_animation_frame_counter--;
+		}
+
+		vblank_interrupt_pending = 1;
 	}
 
 	update_interrupts();
@@ -665,11 +523,11 @@ void neogeo_raster_interrupt(int line, int busy)
 	Select BIOS vector (0x3a0003 / 0x3a0013)
 ------------------------------------------------------*/
 
-INLINE void neogeo_select_vectors(int vector)
+INLINE void set_main_cpu_vector_table_source(UINT8 data)
 {
-	memcpy(memory_region_cpu1, neogeo_vectors[vector], 0x80);
-	blit_clear_fix_sprite();
-	blit_clear_spr_sprite();
+	memcpy(memory_region_cpu1, neogeo_vectors[data], 0x80);
+	blit_set_fix_clear_flag();
+	blit_set_spr_clear_flag();
 	autoframeskip_reset();
 }
 
@@ -678,88 +536,142 @@ INLINE void neogeo_select_vectors(int vector)
 	Select palette RAM bank  (0x3a000f / 0x3a001f)
 ------------------------------------------------------*/
 
-INLINE void neogeo_setpalbank(UINT32 bank)
+INLINE void neogeo_set_palette_bank(UINT8 data)
 {
-	if (neogeo_palette_index != bank)
+	if (palette_bank != data)
 	{
-		neogeo_palette_index = bank;
-		neogeo_paletteram16 = neogeo_palettebank16[bank];
-		video_palette = video_palettebank[bank];
+		palette_bank = data;
+
+		video_palette = video_palettebank[data];
 	}
 }
 
 
 /*------------------------------------------------------
-	Write data to VRAM ($3c0002)
+	Write VRAM offset ($3c0001)
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( neogeo_vidram16_data_w )
+INLINE void set_videoram_offset(UINT16 data)
 {
-	COMBINE_DATA(&neogeo_vidram16[neogeo_vidram16_offset]);
+	videoram_offset = data;
 
-	neogeo_vidram16_offset = (neogeo_vidram16_offset & 0x8000)
-			| ((neogeo_vidram16_offset + neogeo_vidram16_modulo) & 0x7fff);
+	/* the read happens right away */
+	videoram_read_buffer = neogeo_videoram[videoram_offset];
+}
+
+
+/*------------------------------------------------------
+	Read data from VRAM ($3c0001 / $3c0003)
+------------------------------------------------------*/
+
+INLINE UINT16 get_videoram_data(void)
+{
+	return videoram_read_buffer;
+}
+
+
+/*------------------------------------------------------
+	Write data to VRAM ($3c0003)
+------------------------------------------------------*/
+
+INLINE void set_videoram_data(UINT16 data)
+{
+	neogeo_videoram[videoram_offset] = data;
+
+	/* auto increment/decrement the current offset - A15 is NOT effected */
+	videoram_offset = (videoram_offset & 0x8000) | ((videoram_offset + videoram_modulo) & 0x7fff);
+
+	/* read next value right away */
+	videoram_read_buffer = neogeo_videoram[videoram_offset];
+}
+
+
+/*------------------------------------------------------
+	Read VRAM modulo ($3c0005)
+------------------------------------------------------*/
+
+INLINE UINT16 get_videoram_modulo(void)
+{
+	return videoram_modulo;
+}
+
+
+/*------------------------------------------------------
+	Write VRAM modulo ($3c0005)
+------------------------------------------------------*/
+
+INLINE void set_videoram_modulo(UINT16 data)
+{
+	videoram_modulo = data;
 }
 
 
 /*---------------------------------------------------------
-	Read video control data ($3c0006)
+	Read video control data ($3c0007)
 ---------------------------------------------------------*/
 
-INLINE UINT16 neogeo_control_16_r(void)
+INLINE UINT16 get_video_control(void)
 {
-	int res;
-
 	scanline_read = 1;
 
-	if (neogeo_driver_type == NORMAL)
+	if (neogeo_driver_type == NORMAL && neogeo_ngh != NGH_crsword2)
 	{
-		current_rasterline = timer_getscanline();
+		raster_line = timer_getscanline();
 
-		if (current_rasterline == RASTER_LINES)
-			current_rasterline = 0;
+		if (raster_line == RASTER_LINES) raster_line = 0;
 
-		if (current_rasterline < RASTER_LINE_RELOAD)
-			current_rastercounter = RASTER_COUNTER_START + current_rasterline;
+		if (raster_line < RASTER_LINE_RELOAD)
+			raster_counter = RASTER_COUNTER_START + raster_line;
 		else
-			current_rastercounter = RASTER_COUNTER_RELOAD + current_rasterline - RASTER_LINE_RELOAD;
+			raster_counter = RASTER_COUNTER_RELOAD + raster_line - RASTER_LINE_RELOAD;
 	}
 
-	res = ((current_rastercounter << 7) & 0xff80) |	/* raster counter */
-		   (neogeo_frame_counter & 0x0007);			/* frame counter */
-
-	return res;
+	return ((raster_counter << 7) & 0xff80) | (auto_animation_counter & 0x0007);
 }
 
 
 /*---------------------------------------------------------
-	Write video control data ($3c0006)
+	Write video control data ($3c0007)
 ---------------------------------------------------------*/
 
-INLINE void neogeo_control_16_w(UINT16 data)
+INLINE void set_video_control(UINT16 data)
 {
-	/* Auto-Anim Speed Control */
-	neogeo_frame_counter_speed = (data >> 8) & 0xff;
+	auto_animation_speed = data >> 8;
+	auto_animation_disabled = data & 0x0008;
 
-	irq1control = data & 0xff;
+	display_position_interrupt_control = data & 0x00f0;
 }
 
 
 /*------------------------------------------------------
-	Write IRQ position     (0x3c0008, 0x3c000a)
+	Set display counter (MSB) (0x3c0008)
 ------------------------------------------------------*/
 
-INLINE void neogeo_irq2pos_16_w(UINT32 offset, UINT16 data)
+INLINE void neogeo_set_display_counter_msb(UINT16 data)
 {
 	if (neogeo_driver_type == NORMAL) return;
 
-	if (offset)
-		irq1pos_value = (irq1pos_value & 0xffff0000) | (UINT32)data;
-	else
-		irq1pos_value = (irq1pos_value & 0x0000ffff) | ((UINT32)data << 16);
+	display_counter = (display_counter & 0x0000ffff) | ((UINT32)data << 16);
+}
 
-	if (irq1control & IRQ1CTRL_LOAD_RELATIVE)
-		irq1start = current_rasterline + (irq1pos_value + 0x3b) / 0x180;
+
+/*------------------------------------------------------
+	Set display counter (LSB) (0x3c000a)
+------------------------------------------------------*/
+
+INLINE void neogeo_set_display_counter_lsb(UINT16 data)
+{
+	if (neogeo_driver_type == NORMAL) return;
+
+	display_counter = (display_counter & 0xffff0000) | data;
+
+	if (display_position_interrupt_control & IRQ1CTRL_LOAD_RELATIVE)
+	{
+		if (neogeo_driver_type == RASTER_AOF2)
+			adjust_display_position_interrupt();
+		else
+			display_position_interrupt_start = raster_line + (display_counter + 0x3b) / 0x180;
+	}
 }
 
 
@@ -767,14 +679,12 @@ INLINE void neogeo_irq2pos_16_w(UINT32 offset, UINT16 data)
 	Write IRQ acknowledge ($3c000c)
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( neogeo_irqack_16_w )
+INLINE void neogeo_acknowledge_interrupt(UINT16 data)
 {
-	if (ACCESSING_LSB)
-	{
-		if (data & 4) vblank_int = 0;
-		if (data & 2) scanline_int = 0;
-		update_interrupts();
-	}
+	if (data & 0x02) display_position_interrupt_pending = 0;
+	if (data & 0x04) vblank_interrupt_pending = 0;
+
+	update_interrupts();
 }
 
 
@@ -782,7 +692,7 @@ INLINE WRITE16_HANDLER( neogeo_irqack_16_w )
 	Hardware upload ($ff0061)
 ------------------------------------------------------*/
 
-static WRITE16_HANDLER( hardware_upload_16_w )
+static WRITE16_HANDLER( hardware_upload_w )
 {
 	if (data == 0x00)	// Clear upload info
 	{
@@ -886,7 +796,7 @@ static WRITE16_HANDLER( hardware_upload_16_w )
 	Set upload offset 1   ($ff0064)
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( upload_offset1_16_w )
+INLINE WRITE16_HANDLER( upload_offset1_w )
 {
 	if (offset)
 		upload_offset1 = (upload_offset1 & 0xffff0000) | (UINT32)data;
@@ -899,7 +809,7 @@ INLINE WRITE16_HANDLER( upload_offset1_16_w )
 	Set upload offset 2   ($ff0068)
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( upload_offset2_16_w )
+INLINE WRITE16_HANDLER( upload_offset2_w )
 {
 	if (offset)
 		upload_offset2 = (upload_offset2 & 0xffff0000) | (UINT32)data;
@@ -914,7 +824,7 @@ INLINE WRITE16_HANDLER( upload_offset2_16_w )
 	Set upload pattern data   ($ff006c)
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( upload_pattern_16_w )
+INLINE WRITE16_HANDLER( upload_pattern_w )
 {
 	upload_pattern = data;
 	upload_mode = UPLOAD_PATTERN;
@@ -925,7 +835,7 @@ INLINE WRITE16_HANDLER( upload_pattern_16_w )
 	Set upload length  ($ff0070)
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( upload_length_16_w )
+INLINE WRITE16_HANDLER( upload_length_w )
 {
 	if (offset)
 		upload_length = (upload_length & 0xffff0000) | (UINT32)data;
@@ -938,7 +848,7 @@ INLINE WRITE16_HANDLER( upload_length_16_w )
 	Set external memory type ($ff0105)
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( exmem_type_16_w )
+INLINE WRITE16_HANDLER( exmem_type_w )
 {
 	exmem[exmem_counter] = data;
 
@@ -958,7 +868,7 @@ INLINE WRITE16_HANDLER( exmem_type_16_w )
 	Disable draw SPR plane ($ff0111)
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( spr_disable_16_w )
+INLINE WRITE16_HANDLER( spr_plane_disable_w )
 {
 	spr_disable = data & 0xff;
 }
@@ -968,7 +878,7 @@ INLINE WRITE16_HANDLER( spr_disable_16_w )
 	Disable draw FIX plane ($ff0115)
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( fix_disable_16_w )
+INLINE WRITE16_HANDLER( fix_plane_disable_w )
 {
 	fix_disable = data & 0xff;
 }
@@ -978,7 +888,7 @@ INLINE WRITE16_HANDLER( fix_disable_16_w )
 	Enable video output ($ff0119)
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( video_enable_16_w )
+INLINE WRITE16_HANDLER( video_output_enable_w )
 {
 	video_enable = data & 0xff;
 }
@@ -991,7 +901,7 @@ INLINE WRITE16_HANDLER( video_enable_16_w )
 	                             ($ff0129) - FIX RAM
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( exmem_latch_16_w )
+INLINE WRITE16_HANDLER( exmem_latch_w )
 {
 	if (exmem_counter < 0xff)
 	{
@@ -1008,7 +918,7 @@ INLINE WRITE16_HANDLER( exmem_latch_16_w )
 	                             ($ff0149) - FIX RAM
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( exmem_latch_clear_16_w )
+INLINE WRITE16_HANDLER( exmem_latch_clear_w )
 {
 	offset &= 0x0f;
 
@@ -1027,7 +937,7 @@ INLINE WRITE16_HANDLER( exmem_latch_clear_16_w )
 	Set uploading flag ($ff0161)
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( upload_executing_16_w )
+INLINE WRITE16_HANDLER( upload_executing_w )
 {
 	upload_executing = data & 0xff;
 }
@@ -1037,7 +947,7 @@ INLINE WRITE16_HANDLER( upload_executing_16_w )
 	Z80 reset / enable ($ff0183)
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( z80_reset_16_w )
+INLINE WRITE16_HANDLER( z80_reset_w )
 {
 	z80_set_reset_line(data ? CLEAR_LINE : ASSERT_LINE);
 }
@@ -1048,7 +958,7 @@ INLINE WRITE16_HANDLER( z80_reset_16_w )
 	                          ($ff01a3) - PCM-A RAM
 ------------------------------------------------------*/
 
-INLINE WRITE16_HANDLER( exmem_bank_16_w )
+INLINE WRITE16_HANDLER( exmem_bank_w )
 {
 	offset &= 0x0f;
 	exmem_bank[offset] = data & 0x03;
@@ -1063,17 +973,17 @@ INLINE WRITE16_HANDLER( exmem_bank_16_w )
 	Reset watchdog counter ($300000 - $300001)
 ------------------------------------------------------*/
 
-WRITE16_HANDLER( watchdog_reset_16_w )
+WRITE16_HANDLER( watchdog_reset_w )
 {
 	watchdog_counter = FPS * 3;
 }
 
 
 /*------------------------------------------------------
-	Read controller 1 ($300000 - $300001)
+	Read controller 1 ($380000 - $380001)
 ------------------------------------------------------*/
 
-READ16_HANDLER( neogeo_controller1_16_r )
+READ16_HANDLER( neogeo_controller1_r )
 {
 	return neogeo_port_value[0] << 8;
 }
@@ -1083,7 +993,7 @@ READ16_HANDLER( neogeo_controller1_16_r )
 	Read controller 2 ($340000 - $340001)
 ------------------------------------------------------*/
 
-READ16_HANDLER( neogeo_controller2_16_r )
+READ16_HANDLER( neogeo_controller2_r )
 {
 	return neogeo_port_value[1] << 8;
 }
@@ -1093,7 +1003,7 @@ READ16_HANDLER( neogeo_controller2_16_r )
 	Read controller 3 ($380000 - $380001)
 ------------------------------------------------------*/
 
-READ16_HANDLER( neogeo_controller3_16_r )
+READ16_HANDLER( neogeo_controller3_r )
 {
 	return neogeo_port_value[2] << 8;
 }
@@ -1113,10 +1023,16 @@ READ16_HANDLER( neogeo_z80_r )
 	return res;
 }
 
-
 /*------------------------------------------------------
 	Write Z80 communication data ($320001)
 ------------------------------------------------------*/
+
+TIMER_CALLBACK( neogeo_sound_write )
+{
+	sound_code = param;
+	z80_set_irq_line(IRQ_LINE_NMI, PULSE_LINE);
+}
+
 
 WRITE16_HANDLER( neogeo_z80_w )
 {
@@ -1126,17 +1042,17 @@ WRITE16_HANDLER( neogeo_z80_w )
 
 
 /*------------------------------------------------------
-	Write system control switch 2 ($3a0000 - $3a001f)
+	Write system control switch ($3a0000 - $3a001f)
 ------------------------------------------------------*/
 
-WRITE16_HANDLER( neogeo_syscontrol2_16_w )
+WRITE16_HANDLER( system_control_w )
 {
-	int flag = (offset >> 3) & 1;
+	UINT8 bit = (offset >> 3) & 1;
 
 	switch (offset & 7)
 	{
-	case 1: neogeo_select_vectors(flag); break;
-	case 7: neogeo_setpalbank(flag); break;
+	case 0x01: set_main_cpu_vector_table_source(bit); break;
+	case 0x07: neogeo_set_palette_bank(bit); break;
 	}
 }
 
@@ -1145,16 +1061,17 @@ WRITE16_HANDLER( neogeo_syscontrol2_16_w )
 	Read VRAM register (0x3c0000 - 0x3c000f)
 ------------------------------------------------------*/
 
-READ16_HANDLER( neogeo_video_16_r )
+READ16_HANDLER( neogeo_video_register_r )
 {
-	if (!ACCESSING_MSB) return 0xff;
+	if (mem_mask == 0xff00)
+		return 0xff;
 
 	switch (offset & 3)
 	{
-	case 0: return neogeo_vidram16[neogeo_vidram16_offset];
-	case 1: return neogeo_vidram16[neogeo_vidram16_offset];
-	case 2: return neogeo_vidram16_modulo;
-	case 3: return neogeo_control_16_r();
+	case 0x00:
+	case 0x01: return get_videoram_data();
+	case 0x02: return get_videoram_modulo();
+	case 0x03: return get_video_control();
 	}
 	return 0xffff;
 }
@@ -1164,19 +1081,38 @@ READ16_HANDLER( neogeo_video_16_r )
 	Write VRAM register (0x3c0000 - 0x3c000f)
 ------------------------------------------------------*/
 
-WRITE16_HANDLER( neogeo_video_16_w )
+WRITE16_HANDLER( neogeo_video_register_w )
 {
-	switch (offset & 7)
+	/* accessing the LSB only is not mapped */
+	if (mem_mask != 0xff00)
 	{
-	case 0: COMBINE_DATA(&neogeo_vidram16_offset); break;
-	case 1: neogeo_vidram16_data_w(0, data, mem_mask); break;
-	case 2: COMBINE_DATA(&neogeo_vidram16_modulo); break;
-	case 3: neogeo_control_16_w(data); break;
-	case 4: neogeo_irq2pos_16_w(0, data); break;
-	case 5: neogeo_irq2pos_16_w(1, data); break;
-	case 6: neogeo_irqack_16_w(0, data, mem_mask); break;
-	case 7: break; /* Unknown, see control_r */
+		/* accessing the MSB only stores same data in MSB and LSB */
+		if (mem_mask == 0x00ff)
+			data = (data & 0xff00) | (data >> 8);
+
+		switch (offset & 7)
+		{
+		case 0x00: set_videoram_offset(data); break;
+		case 0x01: set_videoram_data(data); break;
+		case 0x02: set_videoram_modulo(data); break;
+		case 0x03: set_video_control(data); break;
+		case 0x04: neogeo_set_display_counter_msb(data); break;
+		case 0x05: neogeo_set_display_counter_lsb(data); break;
+		case 0x06: neogeo_acknowledge_interrupt(data); break;
+		case 0x07: break; /* unknown, see get_video_control */
+		}
 	}
+}
+
+
+/*------------------------------------------------------
+	Read from palette RAM (0x400000 - 0x40ffff)
+------------------------------------------------------*/
+
+READ16_HANDLER( neogeo_paletteram_r )
+{
+	offset &= 0xfff;
+	return palettes[palette_bank][offset];
 }
 
 
@@ -1184,20 +1120,22 @@ WRITE16_HANDLER( neogeo_video_16_w )
 	Write to palette RAM (0x400000 - 0x40ffff)
 ------------------------------------------------------*/
 
-WRITE16_HANDLER( neogeo_paletteram16_w )
+WRITE16_HANDLER( neogeo_paletteram_w )
 {
-	UINT16 color;
+	UINT16 *addr;
 
 	offset &= 0xfff;
-	color = COMBINE_DATA(&neogeo_paletteram16[offset]);
+	addr = &palettes[palette_bank][offset];
+
+	COMBINE_DATA(addr);
 
 	if (offset & 0x0f)
-		video_palette[offset] = video_clut16[color & 0x7fff];
+		video_palette[offset] = video_clut16[*addr & 0x7fff];
 }
 
 
 /*------------------------------------------------------
-	Read from backup memory ($800000 - $803fff)
+	Read from memory card ($800000 - $8007ff)
 ------------------------------------------------------*/
 
 READ16_HANDLER( neogeo_memcard16_r )
@@ -1207,7 +1145,7 @@ READ16_HANDLER( neogeo_memcard16_r )
 
 
 /*------------------------------------------------------
-	Write to backup memory ($800000 - $803fff)
+	Write to memory card ($800000 - $8007ff)
 ------------------------------------------------------*/
 
 WRITE16_HANDLER( neogeo_memcard16_w )
@@ -1223,7 +1161,7 @@ WRITE16_HANDLER( neogeo_memcard16_w )
 	Read from external memory ($e00000 - $efffff)
 ------------------------------------------------------*/
 
-READ16_HANDLER( neogeo_externalmem_16_r )
+READ16_HANDLER( neogeo_externalmem_r )
 {
 	offset &= 0x7ffff;
 
@@ -1257,7 +1195,7 @@ READ16_HANDLER( neogeo_externalmem_16_r )
 	Write to external memory ($e00000 - $efffff)
 ------------------------------------------------------*/
 
-WRITE16_HANDLER( neogeo_externalmem_16_w )
+WRITE16_HANDLER( neogeo_externalmem_w )
 {
 	offset &= 0x7ffff;
 
@@ -1298,7 +1236,7 @@ WRITE16_HANDLER( neogeo_externalmem_16_w )
 	Read hadware control data ($ff0000 - $ff0fff)
 ------------------------------------------------------*/
 
-READ16_HANDLER( neogeo_hardcontrol_16_r )
+READ16_HANDLER( neogeo_hardcontrol_r )
 {
 	if ((offset >> 15) == 0xff)
 	{
@@ -1313,7 +1251,7 @@ READ16_HANDLER( neogeo_hardcontrol_16_r )
 	Write hardware control data ($ff0000 - $ff0fff)
 ------------------------------------------------------*/
 
-WRITE16_HANDLER( neogeo_hardcontrol_16_w )
+WRITE16_HANDLER( neogeo_hardcontrol_w )
 {
 	if ((offset >> 15) == 0xff)
 	{
@@ -1327,14 +1265,14 @@ WRITE16_HANDLER( neogeo_hardcontrol_16_w )
 		case 0x04/2: break;	// unknown, CD-ROM control ?
 		case 0x06/2: break;	// unknown
 
-		case 0x60/2: hardware_upload_16_w(0, data, mem_mask); break;
-		case 0x64/2: upload_offset1_16_w(0, data, mem_mask); break;
-		case 0x66/2: upload_offset1_16_w(1, data, mem_mask); break;
-		case 0x68/2: upload_offset2_16_w(0, data, mem_mask); break;
-		case 0x6a/2: upload_offset2_16_w(1, data, mem_mask); break;
-		case 0x6c/2: upload_pattern_16_w(0, data, mem_mask); break;
-		case 0x70/2: upload_length_16_w(0, data, mem_mask); break;
-		case 0x72/2: upload_length_16_w(1, data, mem_mask); break;
+		case 0x60/2: hardware_upload_w(0, data, mem_mask); break;
+		case 0x64/2: upload_offset1_w(0, data, mem_mask); break;
+		case 0x66/2: upload_offset1_w(1, data, mem_mask); break;
+		case 0x68/2: upload_offset2_w(0, data, mem_mask); break;
+		case 0x6a/2: upload_offset2_w(1, data, mem_mask); break;
+		case 0x6c/2: upload_pattern_w(0, data, mem_mask); break;
+		case 0x70/2: upload_length_w(0, data, mem_mask); break;
+		case 0x72/2: upload_length_w(1, data, mem_mask); break;
 
 		case 0x7e/2: break;	// unknown, Hardware upload settings ?
 		case 0x80/2: break;	// unknown, Hardware upload settings ?
@@ -1346,37 +1284,37 @@ WRITE16_HANDLER( neogeo_hardcontrol_16_w )
 		case 0x8c/2: break;	// unknown, Hardware upload settings ?
 		case 0x8e/2: break;	// unknown, Hardware upload settings ?
 
-		case 0x104/2: exmem_type_16_w(0, data, mem_mask); break;
+		case 0x104/2: exmem_type_w(0, data, mem_mask); break;
 
-		case 0x110/2: spr_disable_16_w(0, data, mem_mask); break;
-		case 0x114/2: fix_disable_16_w(0, data, mem_mask); break;
-		case 0x118/2: video_enable_16_w(0, data, mem_mask); break;
+		case 0x110/2: spr_plane_disable_w(0, data, mem_mask); break;
+		case 0x114/2: fix_plane_disable_w(0, data, mem_mask); break;
+		case 0x118/2: video_output_enable_w(0, data, mem_mask); break;
 		case 0x11c/2: break;	// machine settings (read only)
 
 		case 0x120/2:	// OBJ RAM latch
 		case 0x122/2:	// PCM-A RAM latch
 		case 0x126/2:	// Z80 RAM latch
 		case 0x128/2:	// FIX RAM latch
-			exmem_latch_16_w(offset, data, mem_mask);
+			exmem_latch_w(offset, data, mem_mask);
 			break;
 
 		case 0x140/2:	// OBJ RAM latch clear
 		case 0x142/2:	// PCM-A RAM latch clear
 		case 0x146/2:	// Z80 RAM latch clear
 		case 0x148/2:	// FIX RAM latch clear
-			exmem_latch_clear_16_w(offset, data, mem_mask);
+			exmem_latch_clear_w(offset, data, mem_mask);
 			break;
 
 		case 0x180/2: break;	// unknown
-		case 0x182/2: z80_reset_16_w(0, data, mem_mask); break;
+		case 0x182/2: z80_reset_w(0, data, mem_mask); break;
 
 		case 0x1a0/2:	// OBJ RAM bank
 		case 0x1a6/2:	// unknown (PAT bank?)
-			exmem_bank_16_w(offset, data, mem_mask);
+			exmem_bank_w(offset, data, mem_mask);
 			break;
 
 		case 0x1a2/2:	// PCM-A RAM bank
-			exmem_bank_16_w(offset, data, mem_mask);
+			exmem_bank_w(offset, data, mem_mask);
 			break;
 
 		default:
@@ -1471,17 +1409,6 @@ void neogeo_z80_port_w(UINT16 port, UINT8 data)
 
 
 /****************************************************************************
-	Sound data write handler
-****************************************************************************/
-
-void neogeo_sound_write(int data)
-{
-	sound_code = data;
-	z80_set_irq_line(IRQ_LINE_NMI, PULSE_LINE);
-}
-
-
-/****************************************************************************
 	Sound IRQ handler
 ****************************************************************************/
 
@@ -1500,18 +1427,27 @@ void neogeo_sound_irq(int irq)
 STATE_SAVE( driver )
 {
 	state_save_long(&neogeo_driver_type, 1);
-	state_save_long(&irq1start, 1);
-	state_save_long(&irq1control, 1);
-	state_save_long(&irq1pos_value, 1);
-	state_save_long(&vblank_int, 1);
-	state_save_long(&scanline_int, 1);
 	state_save_long(&scanline_read, 1);
-	state_save_long(&frame_counter, 1);
+
+	state_save_long(&raster_enable, 1);
+	state_save_word(&raster_counter, 1);
+	state_save_word(&raster_line, 1);
+
+	state_save_long(&display_counter, 1);
+	state_save_long(&display_position_interrupt_start, 1);
+	state_save_long(&display_position_interrupt_counter, 1);
+	state_save_long(&display_position_interrupt_control, 1);
+	state_save_long(&display_position_interrupt_pending, 1);
+	state_save_long(&vblank_interrupt_pending, 1);
+
 	state_save_long(&sound_code, 1);
 	state_save_long(&result_code, 1);
 	state_save_long(&pending_command, 1);
-	state_save_long(&neogeo_frame_counter, 1);
-	state_save_long(&neogeo_frame_counter_speed, 1);
+
+	state_save_byte(&auto_animation_frame_counter, 1);
+	state_save_byte(&auto_animation_speed, 1);
+	state_save_byte(&auto_animation_disabled, 1);
+	state_save_byte(&auto_animation_counter, 1);
 
 	state_save_byte(memory_region_hctrl, 0x200);
 }
@@ -1520,23 +1456,29 @@ STATE_SAVE( driver )
 STATE_LOAD( driver )
 {
 	state_load_long(&neogeo_driver_type, 1);
-	state_load_long(&irq1start, 1);
-	state_load_long(&irq1control, 1);
-	state_load_long(&irq1pos_value, 1);
-	state_load_long(&vblank_int, 1);
-	state_load_long(&scanline_int, 1);
 	state_load_long(&scanline_read, 1);
-	state_load_long(&frame_counter, 1);
+
+	state_load_long(&raster_enable, 1);
+	state_load_word(&raster_counter, 1);
+	state_load_word(&raster_line, 1);
+
+	state_load_long(&display_counter, 1);
+	state_load_long(&display_position_interrupt_start, 1);
+	state_load_long(&display_position_interrupt_counter, 1);
+	state_load_long(&display_position_interrupt_control, 1);
+	state_load_long(&display_position_interrupt_pending, 1);
+	state_load_long(&vblank_interrupt_pending, 1);
+
 	state_load_long(&sound_code, 1);
 	state_load_long(&result_code, 1);
 	state_load_long(&pending_command, 1);
-	state_load_long(&neogeo_frame_counter, 1);
-	state_load_long(&neogeo_frame_counter_speed, 1);
+
+	state_load_byte(&auto_animation_frame_counter, 1);
+	state_load_byte(&auto_animation_speed, 1);
+	state_load_byte(&auto_animation_disabled, 1);
+	state_load_byte(&auto_animation_counter, 1);
 
 	state_load_byte(memory_region_hctrl, 0x200);
-
-	current_rasterline = 0;
-	current_rastercounter = RASTER_COUNTER_START;
 
 	memset(exmem, 0, sizeof(exmem));
 	memset(exmem_latch, 0, sizeof(exmem_latch));

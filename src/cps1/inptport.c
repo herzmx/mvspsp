@@ -36,22 +36,6 @@ static int input_analog_value[2];
 static int input_ui_wait;
 static int service_switch;
 
-#ifdef ADHOC
-typedef struct
-{
-	UINT32 buttons;
-	int loop_flag;
-	UINT16 port_value[6];
-} ADHOC_DATA;
-
-static ADHOC_DATA ALIGN_PSPDATA send_data;
-static ADHOC_DATA ALIGN_PSPDATA recv_data;
-static SceUID adhoc_thread;
-static volatile int adhoc_active;
-static volatile int adhoc_update;
-static volatile UINT32 adhoc_paused;
-#endif
-
 
 /******************************************************************************
 	ローカル関数
@@ -623,265 +607,15 @@ static UINT32 adjust_input(UINT32 buttons)
 }
 
 
-#ifdef ADHOC
-/*------------------------------------------------------
-	入力ポートを更新
-------------------------------------------------------*/
-
-static int adhoc_update_inputport(SceSize args, void *argp)
-{
-	int i;
-	UINT32 buttons;
-
-	while (adhoc_active)
-	{
-		adhoc_update = 0;
-
-		do
-		{
-			sceKernelDelayThread(166);
-		} while (!adhoc_update && adhoc_active);
-
-		if (!adhoc_paused)
-		{
-			int serv_switch = 0;
-
-			buttons = poll_gamepad();
-
-			if (buttons & PSP_CTRL_HOME)
-			{
-				buttons = 0;
-				adhoc_paused = adhoc_server + 1;
-			}
-			else if ((buttons & PSP_CTRL_LTRIGGER) && (buttons & PSP_CTRL_RTRIGGER))
-			{
-				if (buttons & PSP_CTRL_SELECT)
-				{
-					buttons &= ~(PSP_CTRL_SELECT | PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER);
-					serv_switch = 1;
-				}
-			}
-
-			buttons = adjust_input(buttons);
-			buttons = update_autofire(buttons);
-
-			for (i = 0; i < MAX_INPUTS; i++)
-				input_flag[i] = (buttons & input_map[i]) != 0;
-
-			if (serv_switch) input_flag[SERV_SWITCH] = 1;
-
-			update_inputport0();
-			update_inputport1();
-			update_inputport2();
-			update_inputport3();
-			if (machine_input_type == INPTYPE_forgottn) forgottn_update_dial();
-
-			send_data.buttons = adhoc_paused;
-			send_data.loop_flag = Loop;
-
-			if (adhoc_server)
-			{
-				adhocSendBlocking(&send_data, sizeof(ADHOC_DATA));
-				if (frames_displayed <= 1)
-				{
-					if (adhocRecvBlocking(&recv_data, sizeof(ADHOC_DATA)) == 0)
-					{
-						ui_popup(TEXT(LOST_SYNC));
-						Loop = LOOP_BROWSER;
-					}
-				}
-				else
-				{
-					if (adhocRecvBlockingTimeout(&recv_data, sizeof(ADHOC_DATA), (1000000/60)*10) == 0)
-					{
-						adhocSendBlocking(&send_data, sizeof(ADHOC_DATA));
-						if (adhocRecvBlocking(&recv_data, sizeof(ADHOC_DATA)) == 0)
-						{
-							ui_popup(TEXT(LOST_SYNC));
-							Loop = LOOP_BROWSER;
-						}
-					}
-				}
-			}
-			else
-			{
-				if (adhocRecvBlocking(&recv_data, sizeof(ADHOC_DATA)) == 0)
-				{
-					ui_popup(TEXT(LOST_SYNC));
-					Loop = LOOP_BROWSER;
-				}
-				adhocSendBlocking(&send_data, sizeof(ADHOC_DATA));
-			}
-
-			if (Loop == LOOP_EXEC)
-				Loop = recv_data.loop_flag;
-
-			if (recv_data.buttons > adhoc_paused)
-				adhoc_paused = recv_data.buttons;
-		}
-		else
-		{
-			send_data.buttons = poll_gamepad();
-
-			if (adhoc_server)
-			{
-				adhocSendBlocking(&send_data, sizeof(ADHOC_DATA));
-				if (frames_displayed <= 1)
-				{
-					if (adhocRecvBlocking(&recv_data, sizeof(ADHOC_DATA)) == 0)
-					{
-						ui_popup(TEXT(LOST_SYNC));
-						Loop = LOOP_BROWSER;
-					}
-				}
-				else
-				{
-					if (adhocRecvBlockingTimeout(&recv_data, sizeof(ADHOC_DATA), (1000000/60)*10) == 0)
-					{
-						adhocSendBlocking(&send_data, sizeof(ADHOC_DATA));
-						if (adhocRecvBlocking(&recv_data, sizeof(ADHOC_DATA)) == 0)
-						{
-							ui_popup(TEXT(LOST_SYNC));
-							Loop = LOOP_BROWSER;
-						}
-					}
-				}
-			}
-			else
-			{
-				if (adhocRecvBlocking(&recv_data, sizeof(ADHOC_DATA)) == 0)
-				{
-					ui_popup(TEXT(LOST_SYNC));
-					Loop = LOOP_BROWSER;
-				}
-				adhocSendBlocking(&send_data, sizeof(ADHOC_DATA));
-			}
-		}
-	}
-
-	sceKernelExitThread(0);
-
-	return 0;
-}
-
-
-/*------------------------------------------------------
-	ポーズ
-------------------------------------------------------*/
-
-static void adhoc_pause(void)
-{
-	int control, sel = 0;
-	UINT32 buttons, frame = frames_displayed;
-	char buf[64];
-	RECT rect = { 140-8, 96-8, 340+8, 176+8 };
-
-	if ((adhoc_server && adhoc_paused == 2) || (!adhoc_server && adhoc_paused == 1))
-		control = 1;
-	else
-		control = 0;
-
-	sound_thread_enable(0);
-
-	video_copy_rect(show_frame, work_frame, &rect, &rect);
-
-	do
-	{
-		video_copy_rect(work_frame, draw_frame, &rect, &rect);
-
-		draw_dialog(140, 96, 340, 176);
-
-		sprintf(buf, TEXT(PAUSED_BY_x), (adhoc_paused == 2) ? TEXT(SERVER) : TEXT(CLIENT));
-		uifont_print_center(106, UI_COLOR(UI_PAL_INFO), buf);
-
-		if (sel == 0)
-		{
-			uifont_print_center(132, COLOR_WHITE, TEXT(RETURN_TO_GAME));
-			uifont_print_center(150, COLOR_GRAY, TEXT(DISCONNECT2));
-		}
-		else
-		{
-			uifont_print_center(132, COLOR_GRAY, TEXT(RETURN_TO_GAME));
-			uifont_print_center(150, COLOR_WHITE, TEXT(DISCONNECT2));
-		}
-
-		sceKernelDelayThread(1000000/60/2);
-		video_wait_vsync();
-		video_copy_rect(draw_frame, show_frame, &rect, &rect);
-		frame++;
-
-		if (frame & 1)
-		{
-			while (adhoc_update)
-			{
-				sceKernelDelayThread(50);
-			}
-
-			if (control)
-				buttons = send_data.buttons;
-			else
-				buttons = recv_data.buttons;
-			send_data.buttons = recv_data.buttons = 0;
-
-			adhoc_update = 1;
-
-			if (buttons & PSP_CTRL_UP)
-			{
-				sel = 0;
-			}
-			else if (buttons & PSP_CTRL_DOWN)
-			{
-				sel = 1;
-			}
-			else if (buttons & PSP_CTRL_CIRCLE)
-			{
-				adhoc_paused = 0;
-				if (sel == 1) Loop = LOOP_BROWSER;
-			}
-		}
-	} while (adhoc_paused);
-
-	autoframeskip_reset();
-	sound_thread_enable(1);
-}
-
-#endif
-
-
 /******************************************************************************
 	入力ポートインタフェース関数
 ******************************************************************************/
 
 /*------------------------------------------------------
-	入力ポートの初期化(AdHoc)
-------------------------------------------------------*/
-
-#ifdef ADHOC
-void adhoc_input_init(void)
-{
-	adhoc_thread = -1;
-	adhoc_update = 0;
-	adhoc_active = 0;
-	adhoc_paused = 0;
-
-	if (adhoc_enable)
-	{
-		adhoc_thread = sceKernelCreateThread("Input thread", adhoc_update_inputport, 0x11, 0x2000, 0, NULL);
-		if (adhoc_thread < 0)
-		{
-			adhocTerm();
-			adhoc_enable = 0;
-		}
-	}
-}
-#endif
-
-
-/*------------------------------------------------------
 	入力ポートの初期化
 ------------------------------------------------------*/
 
-void input_init(void)
+int input_init(void)
 {
 	input_ui_wait = 0;
 	service_switch = 0;
@@ -962,6 +696,13 @@ void input_init(void)
 		input_max_buttons = 2;
 		break;
 	}
+
+#ifdef ADHOC
+	if (adhoc_enable)
+		return adhoc_start_thread();
+#endif
+
+	return 1;
 }
 
 
@@ -973,17 +714,7 @@ void input_shutdown(void)
 {
 #ifdef ADHOC
 	if (adhoc_enable)
-	{
-		if (adhoc_thread >= 0)
-		{
-			adhoc_active = 0;
-			sceKernelWaitThreadEnd(adhoc_thread, NULL);
-
-			sceKernelDeleteThread(adhoc_thread);
-			adhoc_thread = -1;
-		}
-		adhocTerm();
-	}
+		adhoc_stop_thread();
 #endif
 }
 
@@ -1002,19 +733,7 @@ void input_reset(void)
 
 #ifdef ADHOC
 	if (adhoc_enable)
-	{
-		memset(send_data.port_value, 0xff, sizeof(send_data.port_value));
-		memset(recv_data.port_value, 0xff, sizeof(recv_data.port_value));
-
-		send_data.buttons = recv_data.buttons = 0;
-		send_data.loop_flag = recv_data.loop_flag = LOOP_EXEC;
-
-		if (!adhoc_active)
-		{
-			adhoc_active = 1;
-			sceKernelStartThread(adhoc_thread, 0, 0);
-		}
-	}
+		adhoc_reset_thread();
 #endif
 }
 
@@ -1044,19 +763,30 @@ void setup_autofire(void)
 
 void update_inputport(void)
 {
+	int i, serv_switch = 0;
+	UINT32 buttons;
+
 #ifdef ADHOC
 	if (adhoc_enable)
 	{
-		if (frames_displayed & 1)
+#if !ADHOC_UPDATE_EVERY_FRAME
+		if (adhoc_frame & 1)
+		{
+			adhoc_frame++;
+		}
+		else
+#endif
 		{
 			while (adhoc_update && Loop == LOOP_EXEC)
 			{
-				sceKernelDelayThread(50);
+				sceKernelDelayThread(1);
 			}
+
 			cps1_port_value[0] = send_data.port_value[0] & recv_data.port_value[0];
 			cps1_port_value[1] = send_data.port_value[1] & recv_data.port_value[1];
 			cps1_port_value[2] = send_data.port_value[2] & recv_data.port_value[2];
 			cps1_port_value[3] = send_data.port_value[3] & recv_data.port_value[3];
+
 			if (machine_input_type == INPTYPE_forgottn)
 			{
 				if (adhoc_server)
@@ -1070,24 +800,64 @@ void update_inputport(void)
 					input_analog_value[1] = send_data.port_value[5];
 				}
 			}
-			adhoc_update = 1;
 
-			if (adhoc_paused) adhoc_pause();
+			if (Loop == LOOP_EXEC)
+				Loop = recv_data.loop_flag;
+
+			if (recv_data.paused)
+				adhoc_paused = recv_data.paused;
+
+			if (adhoc_paused)
+			{
+				adhoc_pause();
+			}
+
+			buttons = poll_gamepad();
+
+			if (readHomeButton())
+			{
+				buttons = 0;
+				adhoc_paused = adhoc_server + 1;
+			}
+			else if ((buttons & PSP_CTRL_LTRIGGER) && (buttons & PSP_CTRL_RTRIGGER))
+			{
+				if (buttons & PSP_CTRL_SELECT)
+				{
+					buttons &= ~(PSP_CTRL_SELECT | PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER);
+					serv_switch = 1;
+				}
+			}
+
+			buttons = adjust_input(buttons);
+			buttons = update_autofire(buttons);
+
+			for (i = 0; i < MAX_INPUTS; i++)
+				input_flag[i] = (buttons & input_map[i]) != 0;
+
+			if (serv_switch) input_flag[SERV_SWITCH] = 1;
+
+			update_inputport0();
+			update_inputport1();
+			update_inputport2();
+			update_inputport3();
+			if (machine_input_type == INPTYPE_forgottn) forgottn_update_dial();
+
+			send_data.buttons   = buttons;
+			send_data.paused    = adhoc_paused;
+			send_data.loop_flag = Loop;
+			send_data.frame     = adhoc_frame++;
+
+			sceKernelDelayThread(100);
+
+			adhoc_update = 1;
 		}
 	}
 	else
 #endif
 	{
-		int i, serv_switch = 0;
-		UINT32 buttons;
-
 		buttons = poll_gamepad();
 
-#ifdef KERNEL_MODE
-		if (buttons & PSP_CTRL_HOME)
-#else
-		if ((buttons & PSP_CTRL_START) && (buttons & PSP_CTRL_SELECT))
-#endif
+		if (readHomeButton())
 		{
 			showmenu();
 			setup_autofire();

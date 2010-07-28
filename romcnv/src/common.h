@@ -7,14 +7,14 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-typedef unsigned char	u8;
-typedef unsigned short	u16;
-typedef unsigned int	u32;
-typedef char			s8;
-typedef short			s16;
-typedef int				s32;
-__extension__ typedef unsigned long long	u64;
-__extension__ typedef signed long long		s64;
+typedef unsigned char	UINT8;
+typedef unsigned short	UINT16;
+typedef unsigned int	UINT32;
+typedef char			INT8;
+typedef short			INT16;
+typedef int				INT32;
+__extension__ typedef unsigned long long	UINT64;
+__extension__ typedef signed long long		INT64;
 
 #ifdef WIN32
 #define COBJMACROS
@@ -41,10 +41,10 @@ __extension__ typedef signed long long		s64;
 
 struct rom_t
 {
-	u32 type;
-	u32 offset;
-	u32 length;
-	u32 crc;
+	UINT32 type;
+	UINT32 offset;
+	UINT32 length;
+	UINT32 crc;
 	int group;
 	int skip;
 	char name[32];
@@ -67,12 +67,12 @@ void error_memory(const char *mem_name);
 void error_file(const char *rom_name);
 void error_rom(const char *rom_name);
 
-int file_open(const char *fname1, const char *fname2, const u32 crc, char *fname);
+int file_open(const char *fname1, const char *fname2, const UINT32 crc, char *fname);
 void file_close(void);
 int file_read(void *buf, size_t length);
 int file_getc(void);
 
-int rom_load(struct rom_t *rom, u8 *mem, int idx, int max);
+int rom_load(struct rom_t *rom, UINT8 *mem, int idx, int max);
 
 int str_cmp(const char *s1, const char *s2);
 void check_byte_order(void);
@@ -86,7 +86,7 @@ void check_byte_order(void);
 extern int is_win9x;
 
 void check_windows_version(void);
-int file_dialog(HWND hwnd, LPCSTR filter, char *fname, u32 flags);
+int file_dialog(HWND hwnd, LPCSTR filter, char *fname, UINT32 flags);
 int folder_dialog(HWND hwnd, char *path);
 void convert_delimiter(char *path);
 #endif

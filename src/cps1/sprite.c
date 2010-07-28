@@ -228,19 +228,6 @@ static const int ALIGN_DATA swizzle_table_8bit[32] =
 };
 
 
-/*------------------------------------------------------------------------
-	'swizzle'テクスチャアドレス計算テーブル (16bitカラー)
-------------------------------------------------------------------------*/
-
-static const int ALIGN_DATA swizzle_table_16bit[32] =
-{
-	   0, 8, 8, 8, 8, 8, 8, 8,
-	4040, 8, 8, 8, 8, 8, 8, 8,
-	4040, 8, 8, 8, 8, 8, 8, 8,
-	4040, 8, 8, 8, 8, 8, 8, 8
-};
-
-
 /******************************************************************************
 	SCROLL2 ソフトウェア描画
 ******************************************************************************/
@@ -1502,13 +1489,17 @@ void blit_start(int high_layer)
 	scrollh_num = 0;
 
 	sceGuStart(GU_DIRECT, gulist);
+	sceGuDrawBufferList(GU_PSM_5551, draw_frame, BUF_WIDTH);
+	sceGuScissor(0, 0, SCR_WIDTH, SCR_HEIGHT);
+	sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);
+
 	sceGuDrawBufferList(GU_PSM_5551, work_frame, BUF_WIDTH);
-	sceGuScissor(0, 0, 512, 256);
+	sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);
+
 	sceGuEnable(GU_ALPHA_TEST);
-	sceGuClear(GU_COLOR_BUFFER_BIT);
 	sceGuTexFilter(GU_NEAREST, GU_NEAREST);
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
 }
 
 
@@ -1658,7 +1649,7 @@ void blit_finish_object(void)
 
 			if (total_sprites)
 			{
-				sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, 0, vertices);
+				sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, NULL, vertices);
 				total_sprites = 0;
 				vertices = vertices_tmp;
 			}
@@ -1675,10 +1666,10 @@ void blit_finish_object(void)
 	}
 
 	if (total_sprites)
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, NULL, vertices);
 
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
 }
 
 
@@ -1787,7 +1778,7 @@ void blit_finish_scroll1(void)
 		sceGuClutLoad(256/8, &clut[32 << 4]);
 
 		memcpy(vertices, vertices_scroll[0], clut0_num * sizeof(struct Vertex));
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut0_num, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut0_num, NULL, vertices);
 		vertices += clut0_num;
 
 		clut0_num = 0;
@@ -1797,13 +1788,13 @@ void blit_finish_scroll1(void)
 		sceGuClutLoad(256/8, &clut[48 << 4]);
 
 		memcpy(vertices, vertices_scroll[1], clut1_num * sizeof(struct Vertex));
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut1_num, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut1_num, NULL, vertices);
 
 		clut1_num = 0;
 	}
 
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
 }
 
 
@@ -1987,7 +1978,7 @@ void blit_finish_scroll2(void)
 		sceGuClutLoad(256/8, &clut[64 << 4]);
 
 		memcpy(vertices, vertices_scroll[0], clut0_num * sizeof(struct Vertex));
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut0_num, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut0_num, NULL, vertices);
 		vertices += clut0_num;
 
 		clut0_num = 0;
@@ -1997,13 +1988,13 @@ void blit_finish_scroll2(void)
 		sceGuClutLoad(256/8, &clut[80 << 4]);
 
 		memcpy(vertices, vertices_scroll[1], clut1_num * sizeof(struct Vertex));
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut1_num, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut1_num, NULL, vertices);
 
 		clut1_num = 0;
 	}
 
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
 }
 
 
@@ -2121,7 +2112,7 @@ void blit_finish_scroll3(void)
 		sceGuClutLoad(256/8, &clut[96 << 4]);
 
 		memcpy(vertices, vertices_scroll[0], clut0_num * sizeof(struct Vertex));
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut0_num, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut0_num, NULL, vertices);
 		vertices += clut0_num;
 
 		clut0_num = 0;
@@ -2131,13 +2122,13 @@ void blit_finish_scroll3(void)
 		sceGuClutLoad(256/8, &clut[112 << 4]);
 
 		memcpy(vertices, vertices_scroll[1], clut1_num * sizeof(struct Vertex));
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut1_num, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, clut1_num, NULL, vertices);
 
 		clut1_num = 0;
 	}
 
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
 }
 
 
@@ -2163,7 +2154,7 @@ void blit_draw_scroll1h(INT16 x, INT16 y, UINT32 code, UINT16 attr, UINT16 tpens
 		}
 
 		idx = scrollh_insert_sprite(key);
-		dst = SWIZZLED_8x8(tex_scrollh, idx);
+		dst = NONE_SWIZZLED_8x8(tex_scrollh, idx);
 		src = (UINT32 *)&gfx_scroll1[(code << 6) + (gfxset << 2)];
 		pal = &video_palette[((attr & 0x1f) + 32) << 4];
 
@@ -2189,7 +2180,7 @@ void blit_draw_scroll1h(INT16 x, INT16 y, UINT32 code, UINT16 attr, UINT16 tpens
 			dst[3] = pal[tile & 0x0f]; tile >>= 4;
 			dst[7] = pal[tile & 0x0f];
 			src += 2;
-			dst += 8;
+			dst += BUF_WIDTH;
 		}
 	}
 
@@ -2302,7 +2293,7 @@ static void blit_draw_scroll2h_hardware(INT16 x, INT16 y, UINT32 code, UINT16 at
 		}
 
 		idx = scrollh_insert_sprite(key);
-		dst = SWIZZLED_16x16(tex_scrollh, idx);
+		dst = NONE_SWIZZLED_16x16(tex_scrollh, idx);
 		src = (UINT32 *)&gfx_scroll2[code << 7];
 		pal = &video_palette[((attr & 0x1f) + 64) << 4];
 
@@ -2328,16 +2319,16 @@ static void blit_draw_scroll2h_hardware(INT16 x, INT16 y, UINT32 code, UINT16 at
 			dst[ 3] = pal[tile & 0x0f]; tile >>= 4;
 			dst[ 7] = pal[tile & 0x0f];
 			tile = src[1];
-			dst[64] = pal[tile & 0x0f]; tile >>= 4;
-			dst[68] = pal[tile & 0x0f]; tile >>= 4;
-			dst[65] = pal[tile & 0x0f]; tile >>= 4;
-			dst[69] = pal[tile & 0x0f]; tile >>= 4;
-			dst[66] = pal[tile & 0x0f]; tile >>= 4;
-			dst[70] = pal[tile & 0x0f]; tile >>= 4;
-			dst[67] = pal[tile & 0x0f]; tile >>= 4;
-			dst[71] = pal[tile & 0x0f];
+			dst[ 8] = pal[tile & 0x0f]; tile >>= 4;
+			dst[12] = pal[tile & 0x0f]; tile >>= 4;
+			dst[ 9] = pal[tile & 0x0f]; tile >>= 4;
+			dst[13] = pal[tile & 0x0f]; tile >>= 4;
+			dst[10] = pal[tile & 0x0f]; tile >>= 4;
+			dst[14] = pal[tile & 0x0f]; tile >>= 4;
+			dst[11] = pal[tile & 0x0f]; tile >>= 4;
+			dst[15] = pal[tile & 0x0f];
 			src += 2;
-			dst += swizzle_table_16bit[lines];
+			dst += BUF_WIDTH;
 		}
 	}
 
@@ -2374,15 +2365,15 @@ void blit_finish_scroll2h(void)
 
 	sceGuDrawBufferList(GU_PSM_5551, work_frame, BUF_WIDTH);
 	sceGuScissor(64, scroll2_min_y, 448, scroll2_max_y);
-	sceGuTexMode(GU_PSM_5551, 0, 0, GU_TRUE);
+	sceGuTexMode(GU_PSM_5551, 0, 0, GU_FALSE);
 	sceGuTexImage(0, 512, 512, BUF_WIDTH, tex_scrollh);
 
 	vertices = (struct Vertex *)sceGuGetMemory(scrollh_num * sizeof(struct Vertex));
 	memcpy(vertices, vertices_scrollh, scrollh_num * sizeof(struct Vertex));
-	sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, scrollh_num, 0, vertices);
+	sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, scrollh_num, NULL, vertices);
 
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
 
 	scrollh_num = 0;
 }
@@ -2410,7 +2401,7 @@ void blit_draw_scroll3h(INT16 x, INT16 y, UINT32 code, UINT16 attr, UINT16 tpens
 		}
 
 		idx = scrollh_insert_sprite(key);
-		dst = SWIZZLED_32x32(tex_scrollh, idx);
+		dst = NONE_SWIZZLED_32x32(tex_scrollh, idx);
 		src = (UINT32 *)&gfx_scroll3[code << 9];
 		pal = &video_palette[((attr & 0x1f) + 96) << 4];
 
@@ -2427,43 +2418,43 @@ void blit_draw_scroll3h(INT16 x, INT16 y, UINT32 code, UINT16 attr, UINT16 tpens
 		while (lines--)
 		{
 			tile = src[0];
-			dst[  0] = pal[tile & 0x0f]; tile >>= 4;
-			dst[  4] = pal[tile & 0x0f]; tile >>= 4;
-			dst[  1] = pal[tile & 0x0f]; tile >>= 4;
-			dst[  5] = pal[tile & 0x0f]; tile >>= 4;
-			dst[  2] = pal[tile & 0x0f]; tile >>= 4;
-			dst[  6] = pal[tile & 0x0f]; tile >>= 4;
-			dst[  3] = pal[tile & 0x0f]; tile >>= 4;
-			dst[  7] = pal[tile & 0x0f];
+			dst[ 0] = pal[tile & 0x0f]; tile >>= 4;
+			dst[ 4] = pal[tile & 0x0f]; tile >>= 4;
+			dst[ 1] = pal[tile & 0x0f]; tile >>= 4;
+			dst[ 5] = pal[tile & 0x0f]; tile >>= 4;
+			dst[ 2] = pal[tile & 0x0f]; tile >>= 4;
+			dst[ 6] = pal[tile & 0x0f]; tile >>= 4;
+			dst[ 3] = pal[tile & 0x0f]; tile >>= 4;
+			dst[ 7] = pal[tile & 0x0f];
 			tile = src[1];
-			dst[ 64] = pal[tile & 0x0f]; tile >>= 4;
-			dst[ 68] = pal[tile & 0x0f]; tile >>= 4;
-			dst[ 65] = pal[tile & 0x0f]; tile >>= 4;
-			dst[ 69] = pal[tile & 0x0f]; tile >>= 4;
-			dst[ 66] = pal[tile & 0x0f]; tile >>= 4;
-			dst[ 70] = pal[tile & 0x0f]; tile >>= 4;
-			dst[ 67] = pal[tile & 0x0f]; tile >>= 4;
-			dst[ 71] = pal[tile & 0x0f];
+			dst[ 8] = pal[tile & 0x0f]; tile >>= 4;
+			dst[12] = pal[tile & 0x0f]; tile >>= 4;
+			dst[ 9] = pal[tile & 0x0f]; tile >>= 4;
+			dst[13] = pal[tile & 0x0f]; tile >>= 4;
+			dst[10] = pal[tile & 0x0f]; tile >>= 4;
+			dst[14] = pal[tile & 0x0f]; tile >>= 4;
+			dst[11] = pal[tile & 0x0f]; tile >>= 4;
+			dst[15] = pal[tile & 0x0f];
 			tile = src[2];
-			dst[128] = pal[tile & 0x0f]; tile >>= 4;
-			dst[132] = pal[tile & 0x0f]; tile >>= 4;
-			dst[129] = pal[tile & 0x0f]; tile >>= 4;
-			dst[133] = pal[tile & 0x0f]; tile >>= 4;
-			dst[130] = pal[tile & 0x0f]; tile >>= 4;
-			dst[134] = pal[tile & 0x0f]; tile >>= 4;
-			dst[131] = pal[tile & 0x0f]; tile >>= 4;
-			dst[135] = pal[tile & 0x0f];
+			dst[16] = pal[tile & 0x0f]; tile >>= 4;
+			dst[20] = pal[tile & 0x0f]; tile >>= 4;
+			dst[17] = pal[tile & 0x0f]; tile >>= 4;
+			dst[21] = pal[tile & 0x0f]; tile >>= 4;
+			dst[18] = pal[tile & 0x0f]; tile >>= 4;
+			dst[22] = pal[tile & 0x0f]; tile >>= 4;
+			dst[19] = pal[tile & 0x0f]; tile >>= 4;
+			dst[23] = pal[tile & 0x0f];
 			tile = src[3];
-			dst[192] = pal[tile & 0x0f]; tile >>= 4;
-			dst[196] = pal[tile & 0x0f]; tile >>= 4;
-			dst[193] = pal[tile & 0x0f]; tile >>= 4;
-			dst[197] = pal[tile & 0x0f]; tile >>= 4;
-			dst[194] = pal[tile & 0x0f]; tile >>= 4;
-			dst[198] = pal[tile & 0x0f]; tile >>= 4;
-			dst[195] = pal[tile & 0x0f]; tile >>= 4;
-			dst[199] = pal[tile & 0x0f];
+			dst[24] = pal[tile & 0x0f]; tile >>= 4;
+			dst[28] = pal[tile & 0x0f]; tile >>= 4;
+			dst[25] = pal[tile & 0x0f]; tile >>= 4;
+			dst[29] = pal[tile & 0x0f]; tile >>= 4;
+			dst[26] = pal[tile & 0x0f]; tile >>= 4;
+			dst[30] = pal[tile & 0x0f]; tile >>= 4;
+			dst[27] = pal[tile & 0x0f]; tile >>= 4;
+			dst[31] = pal[tile & 0x0f];
 			src += 4;
-			dst += swizzle_table_16bit[lines];
+			dst += BUF_WIDTH;
 		}
 	}
 
@@ -2521,13 +2512,64 @@ void blit_finish_scrollh(void)
 
 	sceGuDrawBufferList(GU_PSM_5551, work_frame, BUF_WIDTH);
 	sceGuScissor(64, 16, 448, 240);
-	sceGuTexMode(GU_PSM_5551, 0, 0, GU_TRUE);
+	sceGuTexMode(GU_PSM_5551, 0, 0, GU_FALSE);
 	sceGuTexImage(0, 512, 512, BUF_WIDTH, tex_scrollh);
 
 	vertices = (struct Vertex *)sceGuGetMemory(scrollh_num * sizeof(struct Vertex));
 	memcpy(vertices, vertices_scrollh, scrollh_num * sizeof(struct Vertex));
-	sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, scrollh_num, 0, vertices);
+	sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, scrollh_num, NULL, vertices);
 
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
+}
+
+
+/*------------------------------------------------------------------------
+	STARSレイヤー描画
+------------------------------------------------------------------------*/
+
+void blit_draw_stars(UINT16 stars_x, UINT16 stars_y, UINT8 *col, UINT16 *pal)
+{
+	typedef struct Vertex_t
+	{
+		UINT16 color;
+		INT16 x, y, z;
+	} Vertex;
+
+	Vertex *vertices = (Vertex *)sceGuGetMemory(0x1000 * sizeof(Vertex));
+
+	if (vertices)
+	{
+		Vertex *vertices_tmp = vertices;
+		UINT16 offs;
+		int stars_num = 0;
+
+		for (offs = 0; offs < 0x1000; offs++, col += 8)
+		{
+			if (*col != 0x0f)
+			{
+				vertices_tmp->x     = (((offs >> 8) << 5) - stars_x + (*col & 0x1f)) & 0x1ff;
+				vertices_tmp->y     = ((offs & 0xff) - stars_y) & 0xff;
+				vertices_tmp->color = pal[(*col & 0xe0) >> 1];
+				vertices_tmp++;
+				stars_num++;
+			}
+		}
+
+		if (stars_num)
+		{
+			sceGuStart(GU_DIRECT, gulist);
+			sceGuDrawBufferList(GU_PSM_5551, work_frame, BUF_WIDTH);
+			sceGuScissor(64, 16, 448, 240);
+			sceGuDisable(GU_TEXTURE_2D);
+			sceGuDisable(GU_ALPHA_TEST);
+
+			sceGuDrawArray(GU_POINTS, GU_COLOR_5551 | GU_VERTEX_16BIT | GU_TRANSFORM_2D, stars_num, NULL, vertices);
+
+			sceGuEnable(GU_TEXTURE_2D);
+			sceGuEnable(GU_ALPHA_TEST);
+			sceGuFinish();
+			sceGuSync(0, GU_SYNC_FINISH);
+		}
+	}
 }

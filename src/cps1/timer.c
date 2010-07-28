@@ -126,7 +126,7 @@ static void timer_set_vblank_interrupt(void)
 static TIMER_CALLBACK( qsound_interrupt )
 {
 	z80_set_irq_line(0, HOLD_LINE);
-	timer_set(QSOUND_INTERRUPT, TIME_IN_HZ(250), 0, qsound_interrupt);
+	timer_set(QSOUND_INTERRUPT, (int)TIME_IN_HZ(250), 0, qsound_interrupt);
 }
 
 
@@ -167,7 +167,7 @@ void timer_reset(void)
 	{
 		cpu[CPU_Z80].usec_to_cycles = 8000000.0/1000000.0;
 		cpu[CPU_Z80].cycles_to_usec = 1000000.0/8000000.0;
-		timer_set(QSOUND_INTERRUPT, TIME_IN_HZ(250), 0, qsound_interrupt);
+		timer_set(QSOUND_INTERRUPT, (int)TIME_IN_HZ(250), 0, qsound_interrupt);
 	}
 }
 
@@ -277,7 +277,7 @@ void timer_set(int which, float duration, int param, void (*callback)(int param)
 	åªç›ÇÃÉtÉåÅ[ÉÄÇéÊìæ
 ------------------------------------------------------*/
 
-UINT32 timer_getcurrentframe(void)
+UINT32 timer_get_currentframe(void)
 {
 	return current_frame;
 }

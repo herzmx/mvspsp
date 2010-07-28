@@ -8,7 +8,7 @@
 
 ******************************************************************************/
 
-#if defined(COMMAND_LIST) && JAPANESE_UI
+#ifdef COMMAND_LIST
 
 #include "psp/psp.h"
 

@@ -35,10 +35,16 @@ enum
 };
 
 
+extern const char *bios_zip;
 extern const char *bios_name[BIOS_MAX];
+extern const char *sfix_name;
+extern const char *lorom_name;
+
 extern const UINT32 bios_crc[BIOS_MAX];
-extern const UINT32 bios_patch_address[BIOS_MAX];
 extern const UINT32 sfix_crc;
+extern const UINT32 lorom_crc;
+
+extern const UINT32 bios_patch_address[BIOS_MAX];
 
 void bios_select(int flag);
 

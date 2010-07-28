@@ -105,7 +105,7 @@ mslugx,メタルスラッグX - SUPER VEHICLE-001
 mutnat,ミューテーションネイション
 nam1975,NAM-1975
 ncombat,ニンジャコンバット (set 1)
-ncombata,ニンジャコンバット (set 2)
+ncombath,ニンジャコンバット (set 2)
 ncommand,ニンジャコマンドー
 neobombe,ネオボンバーマン
 neocup98,ネオジオカップ'98 - 勝利への道
@@ -172,9 +172,9 @@ stakwin,ステークスウイナー - GⅠ完全制覇への道
 stakwin2,ステークスウイナー2
 strhoop,ダンクドリーム
 superspy,ザ・スーパースパイ
-svc,SNK VS. CAPKOM SVC CHAOS  (MVS)
-svcpcb,SNK VS. CAPKOM SVC CHAOS (JAMMA PCB /set 1),GAME_NOT_WORK
-svcpcba,SNK VS. CAPKOM SVC CHAOS (JAMMA PCB / set 2)
+svc,SNK VS. CAPCOM SVC CHAOS
+svcpcb,SNK VS. CAPCOM SVC CHAOS (JAMMA PCB /set 1),GAME_NOT_WORK
+svcpcba,SNK VS. CAPCOM SVC CHAOS (JAMMA PCB / set 2)
 tophunta,トップハンター (set 2)
 tophuntr,トップハンター (set 1)
 tpgolf,トッププレイヤーズゴルフ
@@ -188,8 +188,10 @@ vlinero,V-Liner (set 2)
 wakuwak7,わくわく7
 wh1,ワールドヒーローズ (set 1)
 wh1h,ワールドヒーローズ (set 2)
+wh1ha,ワールドヒーローズ (set 3)
 wh2,ワールドヒーローズ2
-wh2j,ワールドヒーローズ2 JET
+wh2j,ワールドヒーローズ2 JET (set 1)
+wh2jh,ワールドヒーローズ2 JET (set 2)
 whp,ワールドヒーローズパーフェクト
 wjammers,フライングパワーディスク
 zedblade,オペレーションラグナロク
@@ -205,6 +207,7 @@ kf2k1pa,ザ・キング・オブ・ファイターズ2001 PLUS (set 2 / bootleg),GAME_BOOTLEG
 cthd2003,臥虎蔵龍 CROUCHING TIGER HIDDEN DRAGON 2003 (KOF2001 bootleg / set 1),GAME_BOOTLEG
 cthd2k3a,臥虎蔵龍 CROUCHING TIGER HIDDEN DRAGON 2003 (KOF2001 bootleg / set 2),GAME_BOOTLEG
 ct2k3sp,臥虎蔵龍 CROUCHING TIGER HIDDEN DRAGON 2003 SUPER PLUS (KOF2001 bootleg),GAME_BOOTLEG
+ct2k3sa,臥虎蔵龍 CROUCHING TIGER HIDDEN DRAGON 2003 SUPER PLUS alternate (KOF2001 bootleg),GAME_BOOTLEG
 kof2002b,ザ・キング・オブ・ファイターズ2002 (bootleg),GAME_BOOTLEG
 kf2k2pls,ザ・キング・オブ・ファイターズ2002 PLUS (set 1 / bootleg),GAME_BOOTLEG
 kf2k2pla,ザ・キング・オブ・ファイターズ2002 PLUS (set 2 / bootleg),GAME_BOOTLEG
@@ -219,10 +222,11 @@ kof2k4se,ザ・キング・オブ・ファイターズ Special Edition 2004 (KOF2002 bootleg),G
 kf2k4pls,ザ・キング・オブ・ファイターズ Special Edition 2004 PLUS (KOF2002 bootleg),GAME_BOOTLEG
 mslug5b,メタルスラッグ5 (bootleg),GAME_BOOTLEG
 ms5plus,メタルスラッグ5 PLUS (bootleg),GAME_BOOTLEG
-svcboot,SNK VS. CAPKOM SVC CHAOS (MVS) (bootleg),GAME_BOOTLEG
-svcplus,SNK VS. CAPKOM SVC CHAOS PLUS (set 1 / bootleg),GAME_BOOTLEG
-svcplusa,SNK VS. CAPKOM SVC CHAOS PLUS (set 2 / bootleg),GAME_BOOTLEG
-svcsplus,SNK VS. CAPKOM SVC CHAOS SUPER PLUS (bootleg),GAME_BOOTLEG
+nitdbl,ナイトメア・イン・ザ・ダーク (bootleg),GAME_BOOTLEG
+svcboot,SNK VS. CAPCOM SVC CHAOS (bootleg),GAME_BOOTLEG
+svcplus,SNK VS. CAPCOM SVC CHAOS PLUS (set 1 / bootleg),GAME_BOOTLEG
+svcplusa,SNK VS. CAPCOM SVC CHAOS PLUS (set 2 / bootleg),GAME_BOOTLEG
+svcsplus,SNK VS. CAPCOM SVC CHAOS SUPER PLUS (bootleg),GAME_BOOTLEG
 samsho5b,サムライスピリッツ零 (bootleg),GAME_BOOTLEG
 kf2k3bl,ザ・キング・オブ・ファイターズ2003 (set 1 / bootleg),GAME_BOOTLEG
 kf2k3bla,ザ・キング・オブ・ファイターズ2003 (set 2 / bootleg),GAME_BOOTLEG

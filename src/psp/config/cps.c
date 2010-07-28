@@ -22,8 +22,9 @@ static const char *inifile_name = "cps2psp.ini";
 
 #if (EMU_SYSTEM == CPS1)
 #define DEFAULT_SAMPLERATE	0	// 11025Hz
+#define DEFAULT_VSYNC		0	// off
 #else
-#define DEFAULT_SAMPLERATE	2	// 44100Hz
+#define DEFAULT_VSYNC		1	// on
 #endif
 
 /******************************************************************************
@@ -32,12 +33,16 @@ static const char *inifile_name = "cps2psp.ini";
 
 static cfg_type gamecfg_2buttons[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
+#if ENABLE_RASTER_OPTION
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"RasterEnable",			&cps_raster_enable,		1,	1	},
-
+#endif
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		2,	3	},
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			1,	1	},
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			DEFAULT_VSYNC,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},
@@ -45,7 +50,9 @@ static cfg_type gamecfg_2buttons[] =
 
 	{ CFG_NONE,	"[Audio Settings]", },
 	{ CFG_BOOL,	"EnableSound",			&option_sound_enable,	1,	1	},
+#if (EMU_SYSTEM == CPS1)
 	{ CFG_INT,	"SampleRate",			&option_samplerate,		DEFAULT_SAMPLERATE,	2	},
+#endif
 	{ CFG_INT,	"SoundVolume",			&option_sound_volume,	10,	10	},
 
 	{ CFG_NONE,	"[Input Settings]", },
@@ -84,17 +91,17 @@ static cfg_type gamecfg_2buttons[] =
 
 static cfg_type gamecfg_2buttons_rot[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
+#if ENABLE_RASTER_OPTION
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"RasterEnable",			&cps_raster_enable,		1,	1	},
-
+#endif
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"RotateScreen",			&cps_rotate_screen,		1,	1	},
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		2,	3	},
-#if (EMU_SYSTEM == CPS2)
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			1,	1	},
-#else
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
-#endif
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			DEFAULT_VSYNC,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},
@@ -102,7 +109,9 @@ static cfg_type gamecfg_2buttons_rot[] =
 
 	{ CFG_NONE,	"[Audio Settings]", },
 	{ CFG_BOOL,	"EnableSound",			&option_sound_enable,	1,	1	},
+#if (EMU_SYSTEM == CPS1)
 	{ CFG_INT,	"SampleRate",			&option_samplerate,		DEFAULT_SAMPLERATE,	2	},
+#endif
 	{ CFG_INT,	"SoundVolume",			&option_sound_volume,	10,	10	},
 
 	{ CFG_NONE,	"[Input Settings]", },
@@ -141,16 +150,16 @@ static cfg_type gamecfg_2buttons_rot[] =
 
 static cfg_type gamecfg_3buttons[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
+#if ENABLE_RASTER_OPTION
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"RasterEnable",			&cps_raster_enable,		1,	1	},
-
+#endif
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		2,	3	},
-#if (EMU_SYSTEM == CPS2)
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			1,	1	},
-#else
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
-#endif
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			DEFAULT_VSYNC,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},
@@ -158,7 +167,9 @@ static cfg_type gamecfg_3buttons[] =
 
 	{ CFG_NONE,	"[Audio Settings]", },
 	{ CFG_BOOL,	"EnableSound",			&option_sound_enable,	1,	1	},
+#if (EMU_SYSTEM == CPS1)
 	{ CFG_INT,	"SampleRate",			&option_samplerate,		DEFAULT_SAMPLERATE,	2	},
+#endif
 	{ CFG_INT,	"SoundVolume",			&option_sound_volume,	10,	10	},
 
 	{ CFG_NONE,	"[Input Settings]", },
@@ -200,17 +211,17 @@ static cfg_type gamecfg_3buttons[] =
 #if (EMU_SYSTEM == CPS2)
 static cfg_type gamecfg_3buttons_rot[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
+#if ENABLE_RASTER_OPTION
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"RasterEnable",			&cps_raster_enable,		1,	1	},
-
+#endif
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"RotateScreen",			&cps_rotate_screen,		1,	1	},
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		2,	3	},
-#if (EMU_SYSTEM == CPS2)
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			1,	1	},
-#else
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
-#endif
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			DEFAULT_VSYNC,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},
@@ -218,7 +229,6 @@ static cfg_type gamecfg_3buttons_rot[] =
 
 	{ CFG_NONE,	"[Audio Settings]", },
 	{ CFG_BOOL,	"EnableSound",			&option_sound_enable,	1,	1	},
-	{ CFG_INT,	"SampleRate",			&option_samplerate,		DEFAULT_SAMPLERATE,	2	},
 	{ CFG_INT,	"SoundVolume",			&option_sound_volume,	10,	10	},
 
 	{ CFG_NONE,	"[Input Settings]", },
@@ -253,16 +263,16 @@ static cfg_type gamecfg_3buttons_rot[] =
 
 static cfg_type gamecfg_4buttons[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
+#if ENABLE_RASTER_OPTION
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"RasterEnable",			&cps_raster_enable,		1,	1	},
-
+#endif
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		2,	3	},
-#if (EMU_SYSTEM == CPS2)
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			1,	1	},
-#else
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
-#endif
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			DEFAULT_VSYNC,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},
@@ -270,7 +280,6 @@ static cfg_type gamecfg_4buttons[] =
 
 	{ CFG_NONE,	"[Audio Settings]", },
 	{ CFG_BOOL,	"EnableSound",			&option_sound_enable,	1,	1	},
-	{ CFG_INT,	"SampleRate",			&option_samplerate,		DEFAULT_SAMPLERATE,	2	},
 	{ CFG_INT,	"SoundVolume",			&option_sound_volume,	10,	10	},
 
 	{ CFG_NONE,	"[Input Settings]", },
@@ -308,16 +317,16 @@ static cfg_type gamecfg_4buttons[] =
 
 static cfg_type gamecfg_6buttons[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
+#if ENABLE_RASTER_OPTION
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"RasterEnable",			&cps_raster_enable,		1,	1	},
-
+#endif
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		2,	3	},
-#if (EMU_SYSTEM == CPS2)
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			1,	1	},
-#else
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
-#endif
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			DEFAULT_VSYNC,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},
@@ -325,7 +334,9 @@ static cfg_type gamecfg_6buttons[] =
 
 	{ CFG_NONE,	"[Audio Settings]", },
 	{ CFG_BOOL,	"EnableSound",			&option_sound_enable,	1,	1	},
+#if (EMU_SYSTEM == CPS1)
 	{ CFG_INT,	"SampleRate",			&option_samplerate,		DEFAULT_SAMPLERATE,	2	},
+#endif
 	{ CFG_INT,	"SoundVolume",			&option_sound_volume,	10,	10	},
 
 	{ CFG_NONE,	"[Input Settings]", },
@@ -372,16 +383,16 @@ static cfg_type gamecfg_6buttons[] =
 
 static cfg_type gamecfg_quiz[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
+#if ENABLE_RASTER_OPTION
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"RasterEnable",			&cps_raster_enable,		1,	1	},
-
+#endif
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		2,	3	},
-#if (EMU_SYSTEM == CPS2)
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			1,	1	},
-#else
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
-#endif
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			DEFAULT_VSYNC,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},
@@ -389,7 +400,9 @@ static cfg_type gamecfg_quiz[] =
 
 	{ CFG_NONE,	"[Audio Settings]", },
 	{ CFG_BOOL,	"EnableSound",			&option_sound_enable,	1,	1	},
+#if (EMU_SYSTEM == CPS1)
 	{ CFG_INT,	"SampleRate",			&option_samplerate,		DEFAULT_SAMPLERATE,	2	},
+#endif
 	{ CFG_INT,	"SoundVolume",			&option_sound_volume,	10,	10	},
 
 	{ CFG_NONE,	"[Input Settings]", },
@@ -422,12 +435,17 @@ static cfg_type gamecfg_quiz[] =
 #if (EMU_SYSTEM == CPS1)
 static cfg_type gamecfg_forgottn[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
+#if ENABLE_RASTER_OPTION
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"RasterEnable",			&cps_raster_enable,		1,	1	},
+#endif
 
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		2,	3	},
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			DEFAULT_VSYNC,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},
@@ -475,12 +493,17 @@ static cfg_type gamecfg_forgottn[] =
 
 static cfg_type gamecfg_sfzch[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
+#if ENABLE_RASTER_OPTION
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"RasterEnable",			&cps_raster_enable,		1,	1	},
+#endif
 
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		2,	3	},
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			DEFAULT_VSYNC,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},
@@ -533,16 +556,16 @@ static cfg_type gamecfg_sfzch[] =
 #else
 static cfg_type gamecfg_progear[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
+#if ENABLE_RASTER_OPTION
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"RasterEnable",			&cps_raster_enable,		1,	1	},
-
+#endif
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		2,	3	},
-#if (EMU_SYSTEM == CPS2)
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			1,	1	},
-#else
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
-#endif
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			DEFAULT_VSYNC,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},
@@ -550,7 +573,6 @@ static cfg_type gamecfg_progear[] =
 
 	{ CFG_NONE,	"[Audio Settings]", },
 	{ CFG_BOOL,	"EnableSound",			&option_sound_enable,	1,	1	},
-	{ CFG_INT,	"SampleRate",			&option_samplerate,		DEFAULT_SAMPLERATE,	2	},
 	{ CFG_INT,	"SoundVolume",			&option_sound_volume,	10,	10	},
 
 	{ CFG_NONE,	"[Input Settings]", },
@@ -587,16 +609,16 @@ static cfg_type gamecfg_progear[] =
 
 static cfg_type gamecfg_pzloop2[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
+#if ENABLE_RASTER_OPTION
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"RasterEnable",			&cps_raster_enable,		1,	1	},
-
+#endif
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		2,	3	},
-#if (EMU_SYSTEM == CPS2)
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			1,	1	},
-#else
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
-#endif
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			DEFAULT_VSYNC,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},
@@ -604,7 +626,6 @@ static cfg_type gamecfg_pzloop2[] =
 
 	{ CFG_NONE,	"[Audio Settings]", },
 	{ CFG_BOOL,	"EnableSound",			&option_sound_enable,	1,	1	},
-	{ CFG_INT,	"SampleRate",			&option_samplerate,		DEFAULT_SAMPLERATE,	2	},
 	{ CFG_INT,	"SoundVolume",			&option_sound_volume,	10,	10	},
 
 	{ CFG_NONE,	"[Input Settings]", },
@@ -736,15 +757,6 @@ static cfg_type gamecfg_pzloop2[] =
 ******************************************************************************/
 
 #if (EMU_SYSTEM == CPS1)
-#ifdef ADHOC
-	if (adhoc_enable)
-	{
-		cps1_dipswitch[DIP_A] = 0xff;
-		cps1_dipswitch[DIP_B] = 0xff;
-		cps1_dipswitch[DIP_C] = 0xff;
-	}
-#endif
-
 	switch (machine_input_type)
 	{
 	case INPTYPE_forgottn:
@@ -841,41 +853,11 @@ static cfg_type gamecfg_pzloop2[] =
 		cps1_dipswitch[DIP_C] &= ~0x04;	// Allow Continue = On
 		break;
 
-	case INPTYPE_wof:
-	case INPTYPE_dino:
-	case INPTYPE_punisher:
-	case INPTYPE_slammast:
-		*gamecfg[11].value = 1;		// samplerate = 22KHz
-		break;
-
 	default:
 		cps1_dipswitch[DIP_C] &= ~0x20;	// Demo Sounds = On
 		cps1_dipswitch[DIP_C] &= ~0x40;	// Allow Continue = On
 		break;
 	}
-
-#ifdef ADHOC
-	dip[0] = cps1_dipswitch[DIP_A];
-	dip[1] = cps1_dipswitch[DIP_B];
-	dip[2] = cps1_dipswitch[DIP_C];
-#endif
-#endif
-
-#elif defined(INCLUDE_SET_DIPSWITCH_DEFAULT_VALUE)
-
-/******************************************************************************
-	DIP switchÇèâä˙ílÇ…ñﬂÇ∑ (CPS1ÇÃÇ›/AdHocóp)
-******************************************************************************/
-
-#if (EMU_SYSTEM == CPS1)
-#ifdef ADHOC
-	if (adhoc_enable)
-	{
-		cps1_dipswitch[DIP_A] = dip[0];
-		cps1_dipswitch[DIP_B] = dip[1];
-		cps1_dipswitch[DIP_C] = dip[2];
-	}
-#endif
 #endif
 
 #endif

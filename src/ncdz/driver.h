@@ -9,6 +9,22 @@
 #ifndef NEOCDZ_DRIVER_H
 #define NEOCDZ_DRIVER_H
 
+#define NEOGEO_MASTER_CLOCK					(24000000)
+#define NEOGEO_PIXEL_CLOCK					(NEOGEO_MASTER_CLOCK / 4)
+#define NEOGEO_HTOTAL						(0x180)
+#define NEOGEO_HBEND						(0x01e)	/* this should really be 29.5 */
+#define NEOGEO_HBSTART						(0x15e) /* this should really be 349.5 */
+#define NEOGEO_VTOTAL						(0x108)
+#define NEOGEO_VBEND						(0x010)
+#define NEOGEO_VBSTART						(0x0f0)
+#define NEOGEO_VSSTART						(0x000)
+#define NEOGEO_VBLANK_RELOAD_HPOS			(0x11f)
+
+/* VBLANK should fire on line 248 */
+#define RASTER_COUNTER_START				0x1f0	/* value assumed right after vblank */
+#define RASTER_COUNTER_RELOAD				0x0f8	/* value assumed after 0x1ff */
+#define RASTER_LINE_RELOAD					(0x200 - RASTER_COUNTER_START)
+
 #define FLAG_BRAZ	0x1000
 #define FLAG_PCB	0x2000
 
@@ -113,8 +129,6 @@
 
 
 #define RASTER_LINES			264
-#define FIRST_VISIBLE_LINE		16
-#define	LAST_VISIBLE_LINE		239
 
 #define GAME_NAME(name)  		(!strcmp(name, game_name))
 #define NGH_NUMBER(value)		(neogeo_ngh == value)
@@ -155,9 +169,9 @@
 
 enum
 {
-	RASTER = 0,
-	BUSY,
-	NORMAL
+	NORMAL = 0,
+	RASTER,
+	RASTER_AOF2
 };
 
 typedef struct game_t
@@ -173,9 +187,14 @@ extern const char default_name[16];
 
 extern int neogeo_driver_type;
 extern int neogeo_raster_enable;
-extern int neogeo_ngh;
-extern UINT32 neogeo_frame_counter;
-extern UINT32 neogeo_frame_counter_speed;
+extern UINT16 neogeo_ngh;
+
+extern UINT8 auto_animation_speed;
+extern UINT8 auto_animation_disabled;
+extern UINT8 auto_animation_counter;
+
+extern UINT16 raster_line;
+extern UINT16 raster_counter;
 
 extern int watchdog_counter;
 
@@ -185,41 +204,40 @@ int neogeo_check_game(void);
 void neogeo_reset_driver_type(void);
 
 void neogeo_interrupt(void);
-void neogeo_raster_interrupt(int line, int busy);
+extern void (*neogeo_raster_interrupt)(int line);
 
-READ16_HANDLER( neogeo_controller1_16_r );
-READ16_HANDLER( neogeo_controller2_16_r );
-READ16_HANDLER( neogeo_controller3_16_r );
+READ16_HANDLER( neogeo_controller1_r );
+READ16_HANDLER( neogeo_controller2_r );
+READ16_HANDLER( neogeo_controller3_r );
 
-WRITE16_HANDLER( watchdog_reset_16_w );
+WRITE16_HANDLER( watchdog_reset_w );
 
 READ16_HANDLER( neogeo_z80_r );
 WRITE16_HANDLER( neogeo_z80_w );
 
-//WRITE16_HANDLER( neogeo_syscontrol1_16_w );
-WRITE16_HANDLER( neogeo_syscontrol2_16_w );
+//WRITE16_HANDLER( io_control_w );
+WRITE16_HANDLER( system_control_w );
 
-READ16_HANDLER( neogeo_video_16_r );
-WRITE16_HANDLER( neogeo_video_16_w );
+READ16_HANDLER( neogeo_paletteram_r );
+WRITE16_HANDLER( neogeo_paletteram_w );
 
-WRITE16_HANDLER( neogeo_paletteram16_w );
+READ16_HANDLER( neogeo_video_register_r );
+WRITE16_HANDLER( neogeo_video_register_w );
 
 READ16_HANDLER( neogeo_memcard16_r );
 WRITE16_HANDLER( neogeo_memcard16_w );
 
-READ16_HANDLER( neogeo_externalmem_16_r );
-WRITE16_HANDLER( neogeo_externalmem_16_w );
+READ16_HANDLER( neogeo_externalmem_r );
+WRITE16_HANDLER( neogeo_externalmem_w );
 
-READ16_HANDLER( neogeo_hardcontrol_16_r );
-WRITE16_HANDLER( neogeo_hardcontrol_16_w );
+READ16_HANDLER( neogeo_hardcontrol_r );
+WRITE16_HANDLER( neogeo_hardcontrol_w );
 
 UINT8 neogeo_z80_port_r(UINT16 port);
 void neogeo_z80_port_w(UINT16 port, UINT8 value);
 
 void neogeo_sound_write(int data);
 void neogeo_sound_irq(int irq);
-
-#define neogeo_paletteram16_r(offset, mem_mask)	neogeo_paletteram16[offset & 0xfff]
 
 #ifdef SAVE_STATE
 STATE_SAVE( driver );

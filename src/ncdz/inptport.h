@@ -65,11 +65,7 @@ extern int analog_sensitivity;
 
 extern UINT8 neogeo_port_value[NCDZ_PORT_MAX];
 
-#ifdef ADHOC
-void adhoc_input_init(void);
-#endif
-
-void input_init(void);
+int input_init(void);
 void input_shutdown(void);
 void input_reset(void);
 void setup_autofire(void);

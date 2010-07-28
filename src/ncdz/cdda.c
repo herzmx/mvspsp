@@ -310,7 +310,6 @@ STATE_LOAD( cdda )
 			{
 				mp3_stop();
 			}
-			pad_wait_press(-1);
 		}
 		else cdda_stop();
 	}

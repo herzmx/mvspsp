@@ -61,7 +61,7 @@ typedef struct cfg2_t
 	ÉçÅ[ÉJÉãç\ë¢ëÃ/ïœêî
 ******************************************************************************/
 
-#define INIVERSION	20
+#define INIVERSION	23
 
 static int ini_version;
 
@@ -81,17 +81,12 @@ static cfg_type default_options[] =
 {
 	{ CFG_NONE,	"[System Settings]", },
 	{ CFG_INT,	"INIFileVersion",	&ini_version,	INIVERSION,		INIVERSION   },
-	{ CFG_INT,	"PSPClock",			&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
 #if (EMU_SYSTEM == MVS)
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"NeogeoBIOS",		&neogeo_bios,	-1,	BIOS_MAX-1 },
 #elif (EMU_SYSTEM == NCDZ)
 	{ CFG_NONE,	"[Emulation Settings]", },
-#if JAPANESE_UI
-	{ CFG_INT,	"NeogeoRegion",		&neogeo_region,	0,	2	},
-#else
 	{ CFG_INT,	"NeogeoRegion",		&neogeo_region,	1,	2	},
-#endif
 #endif
 
 #if PSP_VIDEO_32BPP
@@ -129,6 +124,7 @@ static cfg_type default_options[] =
 	{ CFG_INT,	"FileSelect2G",			&ui_palette[UI_PAL_FILESEL2].g,	120, 255 },
 	{ CFG_INT,	"FileSelect2B",			&ui_palette[UI_PAL_FILESEL2].b,	120, 255 },
 #endif
+
 	{ CFG_NONE, NULL, }
 };
 
@@ -446,6 +442,19 @@ void load_settings(void)
 		if (default_options[i].value)
 			*default_options[i].value = default_options[i].def;
 	}
+#if (EMU_SYSTEM == NCDZ)
+	if (ui_text_get_language() == LANG_JAPANESE)
+	{
+		for (i = 0; default_options[i].name; i++)
+		{
+			if (strcmp(default_options[i].name, "NeogeoRegion") == 0)
+			{
+				*default_options[i].value = 0;
+				break;
+			}
+		}
+	}
+#endif
 
 	sprintf(path, "%s%s", launchDir, inifile_name);
 
@@ -460,8 +469,21 @@ void load_settings(void)
 			if (default_options[i].value)
 				*default_options[i].value = default_options[i].def;
 		}
+#if (EMU_SYSTEM == NCDZ)
+		if (ui_text_get_language() == LANG_JAPANESE)
+		{
+			for (i = 0; default_options[i].name; i++)
+			{
+				if (strcmp(default_options[i].name, "NeogeoRegion") == 0)
+				{
+					*default_options[i].value = 0;
+					break;
+				}
+			}
+		}
+#endif
 
-		memset(startupDir, 0, sizeof(startupDir));
+		sprintf(startupDir, "%sroms", launchDir);
 
 		sceIoRemove(inifile_name);
 		delete_files("nvram", "nv");
@@ -495,9 +517,6 @@ void load_gamecfg(const char *name)
 	int i;
 	char path[MAX_PATH];
 	cfg_type *gamecfg;
-#if defined(ADHOC) && (EMU_SYSTEM == CPS1)
-	int dip[3];
-#endif
 
 	sprintf(path, "%sconfig/%s.ini", launchDir, name);
 
@@ -536,17 +555,12 @@ void load_gamecfg(const char *name)
 #endif
 
 	if (load_inifile(path, gamecfg, NULL) == 0)
-		save_gamecfg(name);
-
+	{
 #ifdef ADHOC
-#define INCLUDE_SET_DIPSWITCH_DEFAULT_VALUE
-
-#if (EMU_SYSTEM == CPS1)
-#include "config/cps.c"
+		if (adhoc_enable)
 #endif
-
-#undef INCLUDE_SET_DIPSWITCH_DEFAULT_VALUE
-#endif
+			save_gamecfg(name);
+	}
 }
 
 

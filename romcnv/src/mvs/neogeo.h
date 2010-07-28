@@ -279,6 +279,9 @@ enum
 	INIT_fr2ch,			// 67
 	INIT_mslug5b,		// 68
 
+	// MAME 0.113 - 0.119
+	INIT_ct2k3sa,		// 69
+
 	MAX_INIT
 };
 

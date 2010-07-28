@@ -50,15 +50,13 @@ typedef struct cpuinfo_t
 } CPUINFO;
 
 
-static TIMER timer[MAX_TIMER];
-static CPUINFO cpu[MAX_CPU];
+static TIMER ALIGN_DATA timer[MAX_TIMER];
+static CPUINFO ALIGN_DATA cpu[MAX_CPU];
 
 
 /******************************************************************************
 	ローカル変数
 ******************************************************************************/
-
-static const int time_slice[3] = { 16666, 16667, 16667 };
 
 static int global_offset;
 static int base_time;
@@ -66,7 +64,6 @@ static int frame_base;
 static int timer_ticks;
 static int timer_left;
 static int active_cpu;
-static UINT32 current_frame;
 static int scanline;
 
 
@@ -156,7 +153,6 @@ void timer_reset(void)
 	global_offset = 0;
 	base_time = 0;
 	frame_base = 0;
-	current_frame = 0;
 
 	active_cpu = CPU_NOTACTIVE;
 	memset(&timer, 0, sizeof(timer));
@@ -181,10 +177,10 @@ void timer_reset(void)
 
 void timer_set_update_handler(void)
 {
-	if (neogeo_driver_type != NORMAL)
-		timer_update_cpu = timer_update_cpu_raster;
-	else
+	if (neogeo_driver_type == NORMAL)
 		timer_update_cpu = timer_update_cpu_normal;
+	else
+		timer_update_cpu = timer_update_cpu_raster;
 }
 
 
@@ -284,20 +280,10 @@ float timer_get_time(void)
 
 int timer_getscanline(void)
 {
-	if (neogeo_driver_type != NORMAL)
-		return scanline;
+	if (neogeo_driver_type == NORMAL)
+		return 1 + (frame_base >> 6);
 	else
-		return 1 + frame_base / USECS_PER_SCANLINE;
-}
-
-
-/*------------------------------------------------------
-	現在のフレームを取得
-------------------------------------------------------*/
-
-UINT32 timer_getcurrentframe(void)
-{
-	return current_frame;
+		return scanline;
 }
 
 
@@ -310,7 +296,7 @@ static void timer_update_cpu_normal(void)
 	int i, time;
 
 	frame_base = 0;
-	timer_left = (USECS_PER_SCANLINE) * RASTER_LINES;
+	timer_left = TICKS_PER_FRAME;
 
 	while (timer_left > 0)
 	{
@@ -345,7 +331,7 @@ static void timer_update_cpu_normal(void)
 
 	neogeo_interrupt();
 
-	base_time += time_slice[current_frame % 3];
+	base_time += TICKS_PER_FRAME;
 	if (base_time >= 1000000)
 	{
 		global_offset++;
@@ -357,8 +343,6 @@ static void timer_update_cpu_normal(void)
 				timer[i].expire -= 1000000;
 		}
 	}
-
-	current_frame++;
 
 	if (!skip_this_frame()) neogeo_screenrefresh();
 }
@@ -373,10 +357,11 @@ static void timer_update_cpu_raster(void)
 	int i, time;
 
 	frame_base = 0;
+	timer_left = 0;
 
 	for (scanline = 1; scanline <= RASTER_LINES; scanline++)
 	{
-		timer_left = USECS_PER_SCANLINE;
+		timer_left += USECS_PER_SCANLINE;
 
 		while (timer_left > 0)
 		{
@@ -402,17 +387,17 @@ static void timer_update_cpu_raster(void)
 
 			if (Loop != LOOP_EXEC) return;
 
-			for (i = 0; i < MAX_CPU; i++)
-				cpu_execute(i);
+			cpu_execute(CPU_M68000);
+			cpu_execute(CPU_Z80);
 
 			frame_base += timer_ticks;
 			timer_left -= timer_ticks;
 		}
 
-		neogeo_raster_interrupt(scanline, neogeo_driver_type);
+		neogeo_raster_interrupt(scanline);
 	}
 
-	base_time += time_slice[current_frame % 3];
+	base_time += TICKS_PER_FRAME;
 	if (base_time >= 1000000)
 	{
 		global_offset++;
@@ -425,9 +410,7 @@ static void timer_update_cpu_raster(void)
 		}
 	}
 
-	current_frame++;
-
-	if (!skip_this_frame()) neogeo_raster_screenrefresh();
+	if (!skip_this_frame()) neogeo_screenrefresh();
 }
 
 
@@ -440,7 +423,7 @@ void timer_update_subcpu(void)
 	int i, time;
 
 	frame_base = 0;
-	timer_left = time_slice[current_frame % 3];
+	timer_left = TICKS_PER_FRAME;
 
 	while (timer_left > 0)
 	{
@@ -470,7 +453,7 @@ void timer_update_subcpu(void)
 		timer_left -= timer_ticks;
 	}
 
-	base_time += time_slice[current_frame % 3];
+	base_time += TICKS_PER_FRAME;
 	if (base_time >= 1000000)
 	{
 		global_offset++;
@@ -482,8 +465,6 @@ void timer_update_subcpu(void)
 				timer[i].expire -= 1000000;
 		}
 	}
-
-	current_frame++;
 }
 
 
@@ -499,7 +480,6 @@ STATE_SAVE( timer )
 
 	state_save_long(&global_offset, 1);
 	state_save_long(&base_time, 1);
-	state_save_long(&current_frame, 1);
 
 	state_save_long(&cpu[0].suspended, 1);
 	state_save_long(&cpu[1].suspended, 1);
@@ -518,7 +498,6 @@ STATE_LOAD( timer )
 
 	state_load_long(&global_offset, 1);
 	state_load_long(&base_time, 1);
-	state_load_long(&current_frame, 1);
 
 	state_load_long(&cpu[0].suspended, 1);
 	state_load_long(&cpu[1].suspended, 1);

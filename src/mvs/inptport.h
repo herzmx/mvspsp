@@ -81,13 +81,9 @@ extern int analog_sensitivity;
 extern UINT8 neogeo_port_value[MVS_PORT_MAX];
 extern int input_analog_value[2];
 
-#ifdef ADHOC
-void adhoc_input_init(void);
-#endif
-
 void check_input_mode(void);
 
-void input_init(void);
+int input_init(void);
 void input_shutdown(void);
 void input_reset(void);
 void setup_autofire(void);

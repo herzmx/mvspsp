@@ -24,6 +24,9 @@ static const char *inifile_name = "mvspsp.ini";
 
 static cfg_type gamecfg_mvs[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"NeogeoRegion",			&neogeo_region,			0,	3	},
 	{ CFG_INT,	"NeogeoMachineMode",	&neogeo_machine_mode,	0,	2	},
@@ -31,7 +34,7 @@ static cfg_type gamecfg_mvs[] =
 
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		1,	3	},
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	0	},
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},
@@ -92,6 +95,9 @@ static cfg_type gamecfg_mvs[] =
 
 static cfg_type gamecfg_irrmaze[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"NeogeoRegion",			&neogeo_region,			0,	3	},
 	{ CFG_INT,	"NeogeoMachineMode",	&neogeo_machine_mode,	0,	2	},
@@ -139,6 +145,9 @@ static cfg_type gamecfg_irrmaze[] =
 
 static cfg_type gamecfg_popbounc[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"NeogeoRegion",			&neogeo_region,			0,	3	},
 	{ CFG_INT,	"NeogeoMachineMode",	&neogeo_machine_mode,	0,	2	},
@@ -188,6 +197,9 @@ static cfg_type gamecfg_popbounc[] =
 
 static cfg_type gamecfg_vliner[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"NeogeoRegion",			&neogeo_region,			0,	3	},
 	{ CFG_INT,	"NeogeoMachineMode",	&neogeo_machine_mode,	0,	2	},
@@ -238,6 +250,9 @@ static cfg_type gamecfg_vliner[] =
 
 static cfg_type gamecfg_jockeygp[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"NeogeoRegion",			&neogeo_region,			0,	3	},
 	{ CFG_INT,	"NeogeoMachineMode",	&neogeo_machine_mode,	0,	2	},

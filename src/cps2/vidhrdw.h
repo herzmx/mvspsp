@@ -35,7 +35,9 @@ enum
 
 extern int cps_rotate_screen;
 extern int cps_flip_screen;
+#if ENABLE_RASTER_OPTION
 extern int cps_raster_enable;
+#endif
 extern int cps2_has_mask;
 extern UINT16 video_palette[2048];
 
@@ -54,6 +56,9 @@ void cps2_video_exit(void);
 void cps2_video_reset(void);
 void cps2_screenrefresh(int start, int end);
 void cps2_objram_latch(void);
+#ifdef PSP_SLIM
+void cps2_gfx_decode(void);
+#endif
 
 READ16_HANDLER( cps1_output_r );
 WRITE16_HANDLER( cps1_output_w );

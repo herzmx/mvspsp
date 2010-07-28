@@ -9,22 +9,6 @@
 #ifndef PSP_INPUT_H
 #define PSP_INPUT_H
 
-#ifdef KERNEL_MODE
-#define PSP_CTRL_ANY		\
-	(PSP_CTRL_SELECT |		\
-	 PSP_CTRL_START |		\
-	 PSP_CTRL_UP |			\
-	 PSP_CTRL_RIGHT |		\
-	 PSP_CTRL_DOWN |		\
-	 PSP_CTRL_LEFT |		\
-	 PSP_CTRL_LTRIGGER |	\
-	 PSP_CTRL_RTRIGGER |	\
-	 PSP_CTRL_TRIANGLE |	\
-	 PSP_CTRL_CIRCLE |		\
-	 PSP_CTRL_CROSS |		\
-	 PSP_CTRL_SQUARE |		\
-	 PSP_CTRL_HOME)
-#else
 #define PSP_CTRL_ANY		\
 	(PSP_CTRL_SELECT |		\
 	 PSP_CTRL_START |		\
@@ -38,7 +22,6 @@
 	 PSP_CTRL_CIRCLE |		\
 	 PSP_CTRL_CROSS |		\
 	 PSP_CTRL_SQUARE)
-#endif
 
 #define PAD_WAIT_INFINITY	-1
 

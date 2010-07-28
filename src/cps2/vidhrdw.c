@@ -15,7 +15,9 @@
 
 int cps_flip_screen;
 int cps_rotate_screen;
+#if ENABLE_RASTER_OPTION
 int cps_raster_enable;
+#endif
 
 int cps2_has_mask;
 int cps2_objram_bank;
@@ -166,12 +168,10 @@ WRITE16_HANDLER( cps1_output_w )
 	switch (offset)
 	{
 	case CPS2_SCANLINE1/2:
-		cps1_port(CPS2_SCANLINE1) &= 0x1ff;
 		scanline1 = data & 0x1ff;
 		break;
 
 	case CPS2_SCANLINE2/2:
-		cps1_port(CPS2_SCANLINE2) &= 0x1ff;
 		scanline2 = data & 0x1ff;
 		break;
 	}
@@ -190,28 +190,30 @@ WRITE16_HANDLER( cps1_output_w )
 
 static void unshuffle(UINT64 *buf, int len)
 {
-	int i;
+	int i, len2;
 	UINT64 t;
 
 	if (len == 2) return;
 
-	len /= 2;
+	len >>= 1;
 
 	unshuffle(buf, len);
 	unshuffle(buf + len, len);
 
-	for (i = 0; i < len / 2; i++)
+	len2 = len >> 1;
+
+	for (i = 0; i < len2; i++)
 	{
-		t = buf[len / 2 + i];
-		buf[len / 2 + i] = buf[len + i];
+		t = buf[len2 + i];
+		buf[len2 + i] = buf[len + i];
 		buf[len + i] = t;
 	}
 }
 
 
-static void cps2_gfx_decode(void)
+void cps2_gfx_decode(void)
 {
-	UINT32 i, j, k, size;
+	UINT32 i, j, count;
 	UINT32 *tile, data;
 	UINT8 *gfx = memory_region_gfx1;
 
@@ -233,7 +235,7 @@ static void cps2_gfx_decode(void)
 			if (mask & 0x00ff0000) n |= 4;
 			if (mask & 0xff000000) n |= 8;
 
-			dw |= n << (j * 4);
+			dw |= n << (j << 2);
 		}
 
 		data = ((dw & 0x0000000f) >>  0) | ((dw & 0x000000f0) <<  4)
@@ -249,72 +251,71 @@ static void cps2_gfx_decode(void)
 
 	for (i = 0; i < gfx_total_elements[TILE08]; i++)
 	{
-		int count = 0;
-		UINT32 offset = (0x20000 + i) << 6;
-
-		tile = (UINT32 *)&memory_region_gfx1[offset];
+		tile = (UINT32 *)&memory_region_gfx1[(0x20000 + i) << 6];
+		count = 0;
 
 		for (j = 0; j < 8; j++)
 		{
-			tile++;
-			data = *tile++;
-			for (k = 0; k < 8; k++)
+			data = ~(*tile + 1);
+			tile += 2;
+
+			if (data)
 			{
-				if ((data & 0x0f) == 0x0f)
-					count++;
-				data >>= 4;
+				count++;
+
+				if (data != 0xffffffff)
+					break;
 			}
 		}
-		if (count == 0)
-			gfx_pen_usage[TILE08][i] = SPRITE_OPAQUE;
-		else if (count != 8*8)
-			gfx_pen_usage[TILE08][i] = SPRITE_TRANSPARENT;
+
+		if (count)
+			gfx_pen_usage[TILE08][i] = (count == 8) ? SPRITE_OPAQUE : SPRITE_TRANSPARENT;
 	}
 
 	for (i = 0; i < gfx_total_elements[TILE16]; i++)
 	{
-		int count = 0;
-		UINT32 offset = i << 7;
-
-		tile = (UINT32 *)&memory_region_gfx1[offset];
+		tile = (UINT32 *)&memory_region_gfx1[i << 7];
+		count = 0;
 
 		for (j = 0; j < 2*16; j++)
 		{
-			data = *tile++;
-			for (k = 0; k < 8; k++)
+			data = ~*tile;
+			tile++;
+
+			if (data)
 			{
-				if ((data & 0x0f) == 0x0f)
-					count++;
-				data >>= 4;
+				count++;
+
+				if (data != 0xffffffff)
+					break;
 			}
 		}
-		if (count == 0)
-			gfx_pen_usage[TILE16][i] = SPRITE_OPAQUE;
-		else if (count != 2*16*8)
-			gfx_pen_usage[TILE16][i] = SPRITE_TRANSPARENT;
+
+		if (count)
+			gfx_pen_usage[TILE16][i] = (count == 2*16) ? SPRITE_OPAQUE : SPRITE_TRANSPARENT;
 	}
 
 	for (i = 0; i < gfx_total_elements[TILE32]; i++)
 	{
-		int count  = 0;
-		UINT32 offset = (0x4000 + i) << 9;
-
-		tile = (UINT32 *)&memory_region_gfx1[offset];
+		tile = (UINT32 *)&memory_region_gfx1[(0x4000 + i) << 9];
+		count = 0;
 
 		for (j = 0; j < 4*32; j++)
 		{
-			data = *tile++;
-			for (k = 0; k < 8; k++)
+			data = ~*tile;
+			tile++;
+
+			if (data)
 			{
-				if ((data & 0x0f) == 0x0f)
-					count++;
-				data >>= 4;
+				count++;
+
+				if (data != 0xffffffff)
+					break;
 			}
 		}
-		if (count == 0)
-			gfx_pen_usage[TILE32][i] = SPRITE_OPAQUE;
-		else if (count != 4*32*8)
-			gfx_pen_usage[TILE32][i] = SPRITE_TRANSPARENT;
+
+		if (count)
+			gfx_pen_usage[TILE32][i] = (count == 4*32) ? SPRITE_OPAQUE : SPRITE_TRANSPARENT;
 	}
 }
 
@@ -395,16 +396,6 @@ int cps2_video_init(void)
 	cps_pen_usage[TILE16] = gfx_pen_usage[TILE16];
 	cps_pen_usage[TILE32] = gfx_pen_usage[TILE32] - 0x4000;
 
-#if !USE_CACHE
-	ui_popup_reset(POPUP_MENU);
-	ui_popup(TEXT(DECODING_GFX));
-	ui_show_popup(1);
-	video_flip_screen(0);
-	ui_popup_reset(POPUP_GAME);
-
-	cps2_gfx_decode();
-#endif
-
 	cps2_init_tables();
 
 	return 1;
@@ -462,14 +453,14 @@ void  cps2_video_reset(void)
 
 static void cps2_build_palette_normal(void)
 {
-	UINT32 offset;
+	UINT16 offset;
 	UINT16 palette;
 
 	cps2_palette = cps1_base(CPS1_PALETTE_BASE, cps2_palette_mask);
 
 	for (offset = 0; offset < cps2_palette_size >> 1; offset++)
 	{
-		if (!(video_palette[offset] & 0x8000))
+		if (~offset & 0x000f)
 		{
 			palette = cps2_palette[offset];
 
@@ -489,14 +480,14 @@ static void cps2_build_palette_normal(void)
 
 static void cps2_build_palette_delay(void)
 {
-	UINT32 offset;
+	UINT16 offset;
 	UINT16 palette;
 
 	cps2_palette = cps1_base(CPS1_PALETTE_BASE, cps2_palette_mask);
 
 	for (offset = 0; offset < cps2_palette_size >> 3; offset++)
 	{
-		if (!(video_palette[offset] & 0x8000))
+		if (~offset & 0x000f)
 		{
 			palette = cps2_buffered_palette[offset];
 
@@ -515,7 +506,7 @@ static void cps2_build_palette_delay(void)
 
 	for (; offset < cps2_palette_size >> 1; offset++)
 	{
-		if (!(video_palette[offset] & 0x8000))
+		if (~offset & 0x000f)
 		{
 			palette = cps2_palette[offset];
 
@@ -809,6 +800,7 @@ static void cps2_check_scroll2_distort(int distort)
 
 		scroll2[0].value = cps_scroll2x + cps_other[(line + otheroffs) & 0x3ff];
 
+#if ENABLE_RASTER_OPTION
 		if (!cps_raster_enable && !(driver->flags & 1))
 		{
 			line  = ((cps2_scanline_end + 1) - cps2_scanline_start) >> 1;
@@ -816,6 +808,7 @@ static void cps2_check_scroll2_distort(int distort)
 			scroll2[0].value = cps_scroll2x + cps_other[(line + otheroffs) & 0x3ff];
 			distort = 0;
 		}
+#endif
 
 		if (distort)
 		{
@@ -840,6 +833,7 @@ static void cps2_check_scroll2_distort(int distort)
 				}
 			}
 
+#if ENABLE_RASTER_OPTION
 			if (!cps_raster_enable)
 			{
 				if (block >= 1 && scroll2[0].end - cps2_scanline_start > 16)
@@ -858,6 +852,7 @@ static void cps2_check_scroll2_distort(int distort)
 					block = 0;
 				}
 			}
+#endif
 		}
 	}
 	else
@@ -1121,16 +1116,16 @@ void cps2_objram_latch(void)
 STATE_SAVE( video )
 {
 	state_save_long(&cps2_objram_bank, 1);
-	state_save_word(cps2_old_palette, 2048);
-	state_save_word(video_palette, 2048);
+	state_save_word(cps2_old_palette, 512);
+	state_save_word(video_palette, 512);
 	state_save_word(cps2_buffered_palette, 512);
 }
 
 STATE_LOAD( video )
 {
 	state_load_long(&cps2_objram_bank, 1);
-	state_load_word(cps2_old_palette, 2048);
-	state_load_word(video_palette, 2048);
+	state_load_word(cps2_old_palette, 512);
+	state_load_word(video_palette, 512);
 	state_load_word(cps2_buffered_palette, 512);
 	cps2_objram_latch();
 }

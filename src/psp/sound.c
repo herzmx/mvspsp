@@ -11,15 +11,22 @@
 
 
 /******************************************************************************
+	プロトタイプ
+******************************************************************************/
+
+int sceAudio_38553111(unsigned short samples, unsigned short freq, char unknown);
+int sceAudio_5C37C0AE(void);
+int sceAudio_E0727056(int volume, void *buffer);
+
+
+/******************************************************************************
 	ローカル変数
 ******************************************************************************/
 
 static volatile int sound_active;
-static int sound_handle;
 static SceUID sound_thread;
 static int sound_volume;
 static int sound_enable;
-static int sound_pause;
 static INT16 ALIGN_PSPDATA sound_buffer[2][SOUND_BUFFER_SIZE];
 
 static struct sound_t sound_info;
@@ -55,18 +62,16 @@ static int sound_update_thread(SceSize args, void *argp)
 		}
 
 		if (sound_enable)
-		{
 			(*sound->update)(sound_buffer[flip]);
-			sceAudioOutputPannedBlocking(sound_handle, sound_volume, sound_volume, (char *)sound_buffer[flip]);
-		}
 		else
-		{
-			sound_pause = 1;
-			memset(sound_buffer[flip], 0, SOUND_BUFFER_SIZE);
-			sceAudioOutputPannedBlocking(sound_handle, 0, 0, (char *)sound_buffer[flip]);
-		}
+			memset(sound_buffer[flip], 0, SOUND_BUFFER_SIZE * 2);
+
+		sceAudio_E0727056(sound_volume, sound_buffer[flip]);
 		flip ^= 1;
 	}
+
+	sceKernelExitThread(0);
+
 	return 0;
 }
 
@@ -83,7 +88,6 @@ void sound_thread_init(void)
 {
 	sound_active = 0;
 	sound_thread = -1;
-	sound_handle = -1;
 	sound_volume = 0;
 	sound_enable = 0;
 }
@@ -110,15 +114,9 @@ void sound_thread_enable(int enable)
 		sound_enable = enable;
 
 		if (sound_enable)
-		{
-			sound_pause = 0;
 			sound_thread_set_volume();
-		}
 		else
-		{
 			sound_volume = 0;
-			while (!sound_pause) sceKernelDelayThread(1);
-		}
 	}
 }
 
@@ -129,8 +127,7 @@ void sound_thread_enable(int enable)
 
 void sound_thread_set_volume(void)
 {
-	if (sound_active)
-		sound_volume = PSP_AUDIO_VOLUME_MAX * (option_sound_volume * 10) / 100;
+	sound_volume = PSP_AUDIO_VOLUME_MAX * (option_sound_volume * 10) / 100;
 }
 
 
@@ -142,17 +139,15 @@ int sound_thread_start(void)
 {
 	sound_active = 0;
 	sound_thread = -1;
-	sound_handle = -1;
+	sound_volume = 0;
 	sound_enable = 0;
 
-	memset((void *)sound_buffer[0], 0, SOUND_BUFFER_SIZE);
-	memset((void *)sound_buffer[1], 0, SOUND_BUFFER_SIZE);
+	memset(sound_buffer[0], 0, sizeof(sound_buffer[0]));
+	memset(sound_buffer[1], 0, sizeof(sound_buffer[1]));
 
-	if (sound->stereo)
-		sound_handle = sceAudioChReserve(PSP_AUDIO_NEXT_CHANNEL, SOUND_SAMPLES, PSP_AUDIO_FORMAT_STEREO);
-	else
-		sound_handle = sceAudioChReserve(PSP_AUDIO_NEXT_CHANNEL, SOUND_SAMPLES, PSP_AUDIO_FORMAT_MONO);
-	if (sound_handle < 0)
+	sceAudio_5C37C0AE();
+
+	if (sceAudio_38553111(sound->samples, sound->frequency, 2))
 	{
 		fatalerror(TEXT(COULD_NOT_RESERVE_AUDIO_CHANNEL_FOR_SOUND));
 		return 0;
@@ -162,8 +157,7 @@ int sound_thread_start(void)
 	if (sound_thread < 0)
 	{
 		fatalerror(TEXT(COULD_NOT_START_SOUND_THREAD));
-		sceAudioChRelease(sound_handle);
-		sound_handle = -1;
+		sceAudio_5C37C0AE();
 		return 0;
 	}
 
@@ -193,7 +187,6 @@ void sound_thread_stop(void)
 		sceKernelDeleteThread(sound_thread);
 		sound_thread = -1;
 
-		sceAudioChRelease(sound_handle);
-		sound_handle = -1;
+		sceAudio_5C37C0AE();
 	}
 }

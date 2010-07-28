@@ -174,7 +174,7 @@ void load_commandlist(const char *game_name, const char *parent_name)
 {
 	FILE *fp;
 	char path[MAX_PATH];
-	char *p, linebuf[256];
+	char lf, *p, *buf, linebuf[256];
 	const char *name = game_name;
 	int i, found, line, item;
 	int size, start, end, pos;
@@ -191,26 +191,47 @@ void load_commandlist(const char *game_name, const char *parent_name)
 	if ((fp = fopen(path, "rb")) == NULL)
 		return;
 
-	if (fgets(linebuf, 255, fp) == NULL)
+	fseek(fp, 0, SEEK_END);
+	size = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+
+	if (size == 0 || (buf = (char *)malloc(size)) == NULL)
 	{
-		// 空のファイル
 		fclose(fp);
 		return;
 	}
 
+	fread(buf, 1, size, fp);
+	fclose(fp);
+
 	// 改行コードチェック
 	lf_code = check_linefeed_code(linebuf);
+	if (lf_code == LF_MAC)
+		lf = _CR;
+	else
+		lf = _LF;
 
 	// コマンド解析開始
 retry:
-	fseek(fp, 0, SEEK_SET);
 	found = 0;
 	line  = 0;
 	start = 0;
 	end   = 0;
 	pos   = 0;
-	while (fgets(linebuf, 255, fp) != NULL)
+
+	i = 0;
+	while (i < size)
 	{
+		p = &buf[i];
+
+		while (buf[i] != lf && buf[i] != '\0' && buf[i] != EOF)
+			i++;
+
+		buf[i++] = '\0';
+
+		strcpy(linebuf, p);
+		strcat(linebuf, "\n");
+
 		if (linebuf[0] == '$')
 		{
 			switch (cmdlist_get_tag(linebuf))
@@ -252,7 +273,7 @@ retry:
 			case TAG_END:
 				if (start)
 				{
-					end = ftell(fp);
+					end = i;
 					num_lines = line + 1;
 				}
 				break;
@@ -280,7 +301,7 @@ retry:
 		}
 
 		if (start) line++;
-		else pos = ftell(fp);
+		else pos = i;
 	}
 
 	if (!found)
@@ -292,19 +313,19 @@ retry:
 		}
 
 		// 見つからなかった場合は終了
-		fclose(fp);
+		free(buf);
 		return;
 	}
+
+	free(buf);
 
 	// バッファを確保し、読み込み
 	size = end - start;
 
 	if ((cmdbuf = calloc(1, size)) == NULL)
-	{
-		fclose(fp);
 		return;
-	}
 
+	fp = fopen(path, "rb");
 	fseek(fp, start, SEEK_SET);
 	fread(cmdbuf, 1, size, fp);
 	fclose(fp);
@@ -312,14 +333,6 @@ retry:
 	// 文字コードチェック
 	if (charset == CHARSET_DEFAULT)
 		charset = check_text_encode(cmdbuf, size);
-
-#if !JAPANESE_UI
-	if (charset == CHARSET_SHIFTJIS)
-	{
-		if (!load_jpnfont(1))
-			goto error;
-	}
-#endif
 
 	// 行分割用メモリを確保
 	if ((cmdline = calloc(num_lines, sizeof(char *))) == NULL)
@@ -479,14 +492,6 @@ void free_commandlist(void)
 		free(cmdbuf);
 		cmdbuf = NULL;
 	}
-
-#if !JAPANESE_UI
-	if (charset == CHARSET_SHIFTJIS)
-	{
-		free_jpnfont();
-	}
-#endif
-
 }
 
 
@@ -525,7 +530,7 @@ void commandlist(int flag)
 
 	pad_wait_clear();
 	load_background(WP_CMDLIST);
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 
 	sprintf(title, TEXT(COMMAND_LIST_TITLE), game_name);
 
@@ -694,7 +699,7 @@ void commandlist(int flag)
 
 	if (flag)
 	{
-		ui_popup_reset(POPUP_GAME);
+		ui_popup_reset();
 
 		set_cpu_clock(psp_cpuclock);
 
@@ -712,7 +717,7 @@ void commandlist(int flag)
 	}
 	else
 	{
-		ui_popup_reset(POPUP_MENU);
+		ui_popup_reset();
 		load_background(WP_LOGO);
 	}
 }
@@ -776,7 +781,7 @@ int commandlist_size_reduction(void)
 		return 0;
 
 	pad_wait_clear();
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 	msg_screen_init(WP_CMDLIST, ICON_COMMANDDAT, TEXT(COMMAND_DAT_SIZE_REDUCTION));
 
 	num_games  = 0;
@@ -1146,7 +1151,7 @@ error:
 cancel:
 	pad_wait_press(PAD_WAIT_INFINITY);
 	pad_wait_clear();
-	ui_popup_reset(POPUP_MENU);
+	ui_popup_reset();
 
 	load_background(WP_FILER);
 	return 1;

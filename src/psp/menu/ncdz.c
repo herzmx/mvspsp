@@ -15,7 +15,7 @@
 static gamecfg2_t gamecfg_ncdz[] =
 {
 	{ MACHINE_REGION,      &neogeo_region,        CFG_RESTART,  2,  { REGION_JAPAN,REGION_USA,REGION_EUROPE } },
-	{ RASTER_EFFECTS,      &neogeo_raster_enable, CFG_CONTINUE, 1,  { OFF, ON } },
+	{ RASTER_EFFECTS,      &neogeo_raster_enable, CFG_RESET,    1,  { OFF, ON } },
 	{ EMULATE_LOAD_SCREEN, &neogeo_loadscreen,    CFG_RESTART,  1,  { NO, YES } },
 	{ CDROM_SPEED_LIMIT,   &neogeo_cdspeed_limit, CFG_CONTINUE, 1,  { NO, YES } },
 	MENU_BLANK,
@@ -34,7 +34,7 @@ static gamecfg2_t gamecfg_ncdz[] =
 	MENU_BLANK,
 	{ CONTROLLER,          &option_controller,    CFG_CONTINUE, 1,  { CONTROLLER1,CONTROLLER2 } },
 	MENU_BLANK,
-	{ PSP_CLOCK,           &psp_cpuclock,         CFG_CONTINUE, 2,  { CLK222MHz,CLK266MHz,CLK333MHz } },
+	{ PSP_CLOCK,           &psp_cpuclock,         CFG_CONTINUE, 3,  { CLK222MHz,CLK266MHz,CLK300MHz,CLK333MHz } },
 	MENU_BLANK,
 	MENU_RETURN,
 	MENU_END
@@ -48,12 +48,11 @@ static gamecfg2_t gamecfg_ncdz[] =
 
 	gamecfg2 = gamecfg_ncdz;
 
-	if (neogeo_ngh == NGH_tpgolf
+	if (neogeo_ngh == NGH_aof2
+	||	neogeo_ngh == NGH_tpgolf
 	||	neogeo_ngh == NGH_trally
 	||	neogeo_ngh == NGH_neodrift)
-	{
-		gamecfg[6].enable = 0;
-	}
+		gamecfg[1].enable = 0;
 
 #elif defined(INCLUDE_KEYCFG_STRUCT)
 

@@ -8,9 +8,18 @@
 
 #ifndef STATE_H
 #define STATE_H
+
 #ifdef SAVE_STATE
 
-#define STATE_BUFFER_SIZE	0x60000
+#if (EMU_SYSTEM == CPS1)
+#define STATE_BUFFER_SIZE	0x4e000		// CPS1PSP: 0x4d5e7
+#elif (EMU_SYSTEM == CPS2)
+#define STATE_BUFFER_SIZE	0x54000		// CPS2PSP: 0x5370b
+#elif (EMU_SYSTEM == MVS)
+#define STATE_BUFFER_SIZE	0x50000		// MVSPSP: 0x4f2b6
+#elif (EMU_SYSTEM == NCDZ)
+#define STATE_BUFFER_SIZE	(3*1024*1024)
+#endif
 
 #define state_save_byte(v, n)	{ memcpy(state_buffer, v, 1 * n); state_buffer += 1 * n; }
 #define state_save_word(v, n)	{ memcpy(state_buffer, v, 2 * n); state_buffer += 2 * n; }
@@ -18,7 +27,7 @@
 #define state_save_float(v, n)	{ memcpy(state_buffer, v, 4 * n); state_buffer += 4 * n; }
 #define state_save_double(v, n)	{ memcpy(state_buffer, v, 8 * n); state_buffer += 8 * n; }
 
-#if (EMU_SYSTEM == NCDZ)
+#if defined(ADHOC) || (EMU_SYSTEM == NCDZ)
 #define state_load_byte(v, n)	{ memcpy(v, state_buffer, 1 * n); state_buffer += 1 * n; }
 #define state_load_word(v, n)	{ memcpy(v, state_buffer, 2 * n); state_buffer += 2 * n; }
 #define state_load_long(v, n)	{ memcpy(v, state_buffer, 4 * n); state_buffer += 4 * n; }
@@ -35,7 +44,7 @@
 #endif
 
 #define STATE_SAVE(name)	void state_save_##name(void)
-#if (EMU_SYSTEM == NCDZ)
+#if defined(ADHOC) || (EMU_SYSTEM == NCDZ)
 #define STATE_LOAD(name)	void state_load_##name(void)
 #else
 #define STATE_LOAD(name)	void state_load_##name(FILE *fp)
@@ -46,7 +55,7 @@ extern char time_str[16];
 extern char stver_str[16];
 extern int  current_state_version;
 extern int  state_version;
-extern UINT8   *state_buffer;
+extern UINT8 *state_buffer;
 #if (EMU_SYSTEM == MVS)
 extern int  state_reload_bios;
 #endif
@@ -58,5 +67,11 @@ void state_make_thumbnail(void);
 int state_load_thumbnail(int slot);
 void state_clear_thumbnail(void);
 
+#ifdef ADHOC
+int adhoc_send_state(UINT32 *frame);
+int adhoc_recv_state(UINT32 *frame);
+#endif
+
 #endif /* SAVE_STATE */
+
 #endif /* STATE_H */

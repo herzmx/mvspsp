@@ -9,7 +9,7 @@
 #include "emumain.h"
 #include "libmad/mad.h"
 
-#define MP3_SAMPLES			SOUND_SAMPLES
+#define MP3_SAMPLES			(736 * 2)
 #define MP3_BUFFER_SIZE		(MP3_SAMPLES * 4)
 
 

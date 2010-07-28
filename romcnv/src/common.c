@@ -81,7 +81,7 @@ void file_close(void)
 	ROMファイルを開く
 --------------------------------------------------------*/
 
-int file_open(const char *fname1, const char *fname2, const u32 crc, char *fname)
+int file_open(const char *fname1, const char *fname2, const UINT32 crc, char *fname)
 {
 	int found = 0, res = -1;
 	struct zip_find_t file;
@@ -197,7 +197,7 @@ int file_getc(void)
 	ROMを指定メモリエリアに読み込む
 --------------------------------------------------------*/
 
-int rom_load(struct rom_t *rom, u8 *mem, int idx, int max)
+int rom_load(struct rom_t *rom, UINT8 *mem, int idx, int max)
 {
 	int offset, length;
 
@@ -277,7 +277,7 @@ int str_cmp(const char *s1, const char *s2)
 
 void check_byte_order(void)
 {
-	s32 temp = 0x12345678;
+	INT32 temp = 0x12345678;
 	char *p = (char *)&temp;
 
 	if (*p == 0x78)
@@ -318,7 +318,7 @@ void check_windows_version(void)
 	ファイルダイアログ処理
 --------------------------------------------------------*/
 
-int file_dialog(HWND hwnd, LPCSTR filter, char *fname, u32 flags)
+int file_dialog(HWND hwnd, LPCSTR filter, char *fname, UINT32 flags)
 {
 	OPENFILENAME OFN;
 
@@ -382,7 +382,7 @@ void convert_delimiter(char *path)
 		{
 			if (*p == '\\')
 			{
-				if (i == 0 || !issjis1(*(u8 *)(p - 1)))
+				if (i == 0 || !issjis1(*(UINT8 *)(p - 1)))
 					*p = '/';
 			}
 			p++;

@@ -145,6 +145,51 @@ int draw_battery_status(int draw)
 
 
 /******************************************************************************
+	メインボリューム表示
+******************************************************************************/
+
+/*------------------------------------------------------
+	メインボリューム表示
+------------------------------------------------------*/
+
+int draw_volume_status(int draw)
+{
+	if (devkit_version >= 0x03050210)
+	{
+		static TICKER disp_end = 0;
+		int volume = readMainVolume();
+		int update = 0;
+
+		if (volume < 0 || volume > 30)
+			return 0;
+
+		if (readVolumeButtons())
+		{
+			disp_end = ticker() + 2 * TICKS_PER_SEC;
+			update = UI_FULL_REFRESH;
+			draw = 1;
+		}
+
+		if (disp_end != 0)
+		{
+			if (ticker() < disp_end)
+			{
+				if (draw)
+					draw_volume(volume);
+			}
+			else
+			{
+				disp_end = 0;
+				update |= UI_FULL_REFRESH;
+			}
+		}
+		return update;
+	}
+	return 0;
+}
+
+
+/******************************************************************************
 	ダイアログボックス表示
 ******************************************************************************/
 
@@ -305,8 +350,6 @@ void show_progress(const char *text)
 	}
 
 	video_flip_screen(1);
-
-	sceKernelDelayThread(1000000);
 }
 
 
@@ -314,7 +357,6 @@ void show_progress(const char *text)
 	ポップアップメッセージ
 ******************************************************************************/
 
-static int ui_popup_mode = POPUP_MENU;
 static int ui_popup_updated = 0;
 static int ui_popup_counter = 0;
 static int ui_popup_prev_counter = 0;
@@ -325,10 +367,9 @@ static char ui_popup_message[128];
 	ポップアップメッセージをリセット
 --------------------------------------------------------*/
 
-void ui_popup_reset(int mode)
+void ui_popup_reset(void)
 {
 	memset(ui_popup_message, 0, sizeof(ui_popup_message));
-	ui_popup_mode = mode;
 	ui_popup_updated = 0;
 	ui_popup_counter = 0;
 	ui_popup_prev_counter = 0;
@@ -372,10 +413,7 @@ int ui_show_popup(int draw)
 			int width = uifont_get_string_width(ui_popup_message);
 
 			sx = (SCR_WIDTH - width) >> 1;
-			if (ui_popup_mode == POPUP_MENU)
-				sy = (SCR_HEIGHT - FONTSIZE) >> 1;
-			else
-				sy = SCR_HEIGHT - (FONTSIZE << 1);
+			sy = (SCR_HEIGHT - FONTSIZE) >> 1;
 			ex = sx + width;
 			ey = sy + (FONTSIZE - 1);
 
@@ -386,7 +424,7 @@ int ui_show_popup(int draw)
 		ui_popup_counter--;
 		ui_popup_prev_counter = ui_popup_counter;
 
-		if (update || !ui_popup_counter) return 1;
+		if (update || !ui_popup_counter) return UI_FULL_REFRESH;
 	}
 	return update;
 }
@@ -493,6 +531,7 @@ void msg_printf(const char *text, ...)
 
 	show_background();
 	draw_battery_status(1);
+	draw_volume_status(1);
 
 	for (y = 0; y <= cy; y++)
 		uifont_print(MIN_X, MIN_Y + y * 16, msg_r[y], msg_g[y], msg_b[y], msg_lines[y]);
@@ -635,7 +674,7 @@ static UI_MESSAGEBOX *messagebox_init(int number)
 		MB_END
 		break;
 
-#ifdef PSP_SLIM
+#if defined(PSP_SLIM) && ((EMU_SYSTEM == CPS2) || (EMU_SYSTEM == MVS))
 	case MB_PSPVERSIONERROR:
 		MB_SET_TYPE(MBT_OKONLY)
 		MB_SET_TEXT(WARNING, THIS_PROGRAM_REQUIRES_PSP2000)
@@ -696,18 +735,6 @@ static UI_MESSAGEBOX *messagebox_init(int number)
 		MB_SET_TEXT(SELECT, LAUNCH_OR_CANCEL)
 		MB_END
 		break;
-
-#ifdef ADHOC
-	case MB_STARTEMULATION_ADHOC_NOMP3:
-		MB_SET_TYPE(MBT_YESNO)
-		MB_SET_TEXT(INFO, START_EMULATION_ADHOC)
-		MB_SET_BLANK()
-		MB_SET_TEXT(WARNING, MP3_NOT_FOUND)
-		MB_SET_BLANK()
-		MB_SET_TEXT(SELECT, LAUNCH_OR_CANCEL)
-		MB_END
-		break;
-#endif
 
 	case MB_BOOTBIOS:
 		MB_SET_TYPE(MBT_YESNO)

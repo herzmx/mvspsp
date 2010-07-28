@@ -81,11 +81,7 @@ extern int input_coin_chuter;
 extern int analog_sensitivity;
 extern int af_interval;
 
-#ifdef ADHOC
-void adhoc_input_init(void);
-#endif
-
-void input_init(void);
+int input_init(void);
 void input_shutdown(void);
 void input_reset(void);
 void update_inputport(void);

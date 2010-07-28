@@ -24,6 +24,9 @@ static const char *inifile_name = "ncdzpsp.ini";
 
 static cfg_type gamecfg_ncdz[] =
 {
+	{ CFG_NONE,	"[System Settings]", },
+	{ CFG_INT,	"PSPClock",				&psp_cpuclock,	PSPCLOCK_333,	PSPCLOCK_333 },
+
 	{ CFG_NONE,	"[Emulation Settings]", },
 	{ CFG_INT,	"RasterEnable",			&neogeo_raster_enable,	0,	1	},
 	{ CFG_BOOL,	"EnableLoadScreen",		&neogeo_loadscreen,		0,	1	},
@@ -31,7 +34,7 @@ static cfg_type gamecfg_ncdz[] =
 
 	{ CFG_NONE,	"[Video Settings]", },
 	{ CFG_INT,	"StretchScreen",		&option_stretch,		1,	3	},
-	{ CFG_BOOL,	"VideoSync",			&option_vsync,			1,	0	},
+	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
 	{ CFG_BOOL,	"ShowFPS",				&option_showfps,		0,	1	},

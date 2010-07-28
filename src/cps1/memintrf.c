@@ -29,10 +29,10 @@ enum
 	REGION_SKIP
 };
 
-#define MAX_CPU1ROM		8
+#define MAX_CPU1ROM		16
 #define MAX_CPU2ROM		8
 #define MAX_GFX1ROM		32
-#define MAX_SND1ROM		8
+#define MAX_SND1ROM		16
 
 
 /******************************************************************************
@@ -193,15 +193,11 @@ static int load_rom_gfx1(void)
 	int i, res;
 	char fname[32], *parent;
 
-#ifdef PSP_SLIM
-	memory_region_gfx1 = (UINT8 *)PSP2K_MEM_TOP;
-#else
 	if ((memory_region_gfx1 = memalign(MEM_ALIGN, memory_length_gfx1)) == NULL)
 	{
 		error_memory("REGION_GFX1");
 		return 0;
 	}
-#endif
 	memset(memory_region_gfx1, 0, memory_length_gfx1);
 
 	parent = strlen(parent_name) ? parent_name : NULL;
@@ -299,9 +295,11 @@ static int load_rom_user1(void)
 
 static int load_rom_info(const char *game_name)
 {
-	FILE *fp;
+	SceUID fd;
 	char path[MAX_PATH];
-	char buf[256];
+	char *buf;
+	char linebuf[256];
+	int i, size;
 	int rom_start = 0;
 	int region = 0;
 
@@ -317,26 +315,49 @@ static int load_rom_info(const char *game_name)
 
 	sprintf(path, "%srominfo.cps1", launchDir);
 
-	if ((fp = fopen(path, "r")) != NULL)
+	if ((fd = sceIoOpen(path, PSP_O_RDONLY, 0777)) >= 0)
 	{
-		while (fgets(buf, 255, fp))
+		size = sceIoLseek(fd, 0, SEEK_END);
+		sceIoLseek(fd, 0, SEEK_SET);
+
+		if ((buf = (char *)malloc(size)) == NULL)
 		{
-			if (buf[0] == '/' && buf[1] == '/')
+			sceIoClose(fd);
+			return 3;	// 手抜き
+		}
+
+		sceIoRead(fd, buf, size);
+		sceIoClose(fd);
+
+		i = 0;
+		while (i < size)
+		{
+			char *p = &buf[i];
+
+			while (buf[i] != '\n' && buf[i] != EOF)
+				i++;
+
+			buf[i++] = '\0';
+
+			strcpy(linebuf, p);
+			strcat(linebuf, "\n");
+
+			if (linebuf[0] == '/' && linebuf[1] == '/')
 				continue;
 
-			if (buf[0] != '\t')
+			if (linebuf[0] != '\t')
 			{
-				if (buf[0] == '\r' || buf[0] == '\n')
+				if (linebuf[0] == '\r' || linebuf[0] == '\n')
 				{
 					// 改行
 					continue;
 				}
-				else if (str_cmp(buf, "FILENAME(") == 0)
+				else if (str_cmp(linebuf, "FILENAME(") == 0)
 				{
 					char *name, *parent;
 					char *machine, *input, *init, *rotate;
 
-					strtok(buf, " ");
+					strtok(linebuf, " ");
 					name    = strtok(NULL, " ,");
 					parent  = strtok(NULL, " ,");
 					machine = strtok(NULL, " ,");
@@ -358,19 +379,19 @@ static int load_rom_info(const char *game_name)
 						rom_start = 1;
 					}
 				}
-				else if (rom_start && str_cmp(buf, "END") == 0)
+				else if (rom_start && str_cmp(linebuf, "END") == 0)
 				{
-					fclose(fp);
+					free(buf);
 					return 0;
 				}
 			}
 			else if (rom_start)
 			{
-				if (str_cmp(&buf[1], "REGION(") == 0)
+				if (str_cmp(&linebuf[1], "REGION(") == 0)
 				{
 					char *size, *type, *flag;
 
-					strtok(&buf[1], " ");
+					strtok(&linebuf[1], " ");
 					size = strtok(NULL, " ,");
 					type = strtok(NULL, " ,");
 					flag = strtok(NULL, " ");
@@ -405,11 +426,11 @@ static int load_rom_info(const char *game_name)
 						region = REGION_SKIP;
 					}
 				}
-				else if (str_cmp(&buf[1], "ROM(") == 0)
+				else if (str_cmp(&linebuf[1], "ROM(") == 0)
 				{
 					char *type, *name, *offset, *length, *crc;
 
-					strtok(&buf[1], " ");
+					strtok(&linebuf[1], " ");
 					type   = strtok(NULL, " ,");
 					if (type[0] != '1')
 						name = strtok(NULL, " ,");
@@ -466,12 +487,12 @@ static int load_rom_info(const char *game_name)
 						break;
 					}
 				}
-				else if (str_cmp(&buf[1], "ROMX(") == 0)
+				else if (str_cmp(&linebuf[1], "ROMX(") == 0)
 				{
 					char *type, *name, *offset, *length, *crc;
 					char *group, *skip;
 
-					strtok(&buf[1], " ");
+					strtok(&linebuf[1], " ");
 					type   = strtok(NULL, " ,");
 					if (type[0] != '1')
 						name = strtok(NULL, " ,");
@@ -510,7 +531,7 @@ static int load_rom_info(const char *game_name)
 				}
 			}
 		}
-		fclose(fp);
+		free(buf);
 		return 2;
 	}
 	return 3;
@@ -592,6 +613,7 @@ int memory_init(void)
 	{
 		/* AdHoc通信時は一部オプションで固定の設定を使用 */
 		cps_raster_enable    = 1;
+		psp_cpuclock         = PSPCLOCK_333;
 		option_vsync         = 0;
 		option_autoframeskip = 0;
 		option_frameskip     = 0;
@@ -599,11 +621,6 @@ int memory_init(void)
 		option_speedlimit    = 1;
 		option_sound_enable  = 1;
 		option_samplerate    = 0;
-
-		if (adhoc_server)
-			option_controller = INPUT_PLAYER1;
-		else
-			option_controller = INPUT_PLAYER2;
 	}
 	else
 #endif
@@ -615,6 +632,8 @@ int memory_init(void)
 			load_commandlist(game_name, NULL);
 #endif
 	}
+
+	set_cpu_clock(psp_cpuclock);
 
 	if (load_rom_cpu1() == 0) return 0;
 	if (load_rom_cpu2() == 0) return 0;
@@ -638,11 +657,13 @@ int memory_init(void)
 		z80_read_memory_8 = cps1_qsound_readmem;
 		z80_write_memory_8 = cps1_qsound_writemem;
 		memory_length_user2 = 0x8000;
-		if ((memory_region_user2 = (UINT8 *)calloc(1, 0x8000)) == NULL)
+
+		if ((memory_region_user2 = (UINT8 *)memalign(MEM_ALIGN, 0x8000)) == NULL)
 		{
 			fatalerror(TEXT(COULD_NOT_ALLOCATE_MEMORY_0x8000BYTE));
 			return 0;
 		}
+		memset(memory_region_user2, 0, 0x8000);
 	}
 	else
 	{
@@ -693,9 +714,7 @@ void memory_shutdown(void)
 {
 	if (memory_region_cpu1)   free(memory_region_cpu1);
 	if (memory_region_cpu2)   free(memory_region_cpu2);
-#ifndef PSP_SLIM
 	if (memory_region_gfx1)   free(memory_region_gfx1);
-#endif
 	if (memory_region_sound1) free(memory_region_sound1);
 	if (memory_region_user1)  free(memory_region_user1);
 	if (memory_length_user2)  free(memory_region_user2);

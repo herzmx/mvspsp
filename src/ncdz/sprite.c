@@ -8,6 +8,7 @@
 
 #include "ncdz.h"
 
+
 /******************************************************************************
 	定数/マクロ等
 ******************************************************************************/
@@ -33,7 +34,7 @@ struct sprite_t
 	SPRITE *next;
 };
 
-static RECT mvs_src_clip = { 8, 16, 8 + 304, 16 + 224 };
+static RECT mvs_src_clip = { 24, 16, 24 + 304, 16 + 224 };
 
 static RECT mvs_clip[4] =
 {
@@ -45,7 +46,8 @@ static RECT mvs_clip[4] =
 
 static int clip_min_y;
 static int clip_max_y;
-static int clear_texture;
+static int clear_spr_texture;
+static int clear_fix_texture;
 
 static UINT16 *scrbitmap;
 
@@ -67,7 +69,6 @@ static UINT8 *tex_fix;
 static struct Vertex ALIGN_DATA vertices_fix[FIX_MAX_SPRITES * 2];
 static UINT16 fix_num;
 static UINT16 fix_texture_num;
-static int clear_fix_texture;
 
 
 /*------------------------------------------------------------------------
@@ -89,7 +90,6 @@ static UINT16 ALIGN_DATA spr_flags[SPR_MAX_SPRITES];
 static UINT16 spr_num;
 static UINT16 spr_texture_num;
 static UINT16 spr_index;
-static int clear_spr_texture;
 
 
 /*------------------------------------------------------------------------
@@ -121,27 +121,6 @@ static const int ALIGN_DATA swizzle_table_8bit[16] =
 /******************************************************************************
 	FIXスプライト管理
 ******************************************************************************/
-
-/*------------------------------------------------------------------------
-	FIXテクスチャをリセット
-------------------------------------------------------------------------*/
-
-static void blit_reset_fix_sprite(void)
-{
-	int i;
-
-	for (i = 0; i < FIX_TEXTURE_SIZE - 1; i++)
-		fix_data[i].next = &fix_data[i + 1];
-
-	fix_data[i].next = NULL;
-	fix_free_head = &fix_data[0];
-
-	memset(fix_head, 0, sizeof(SPRITE *) * FIX_HASH_SIZE);
-
-	fix_texture_num = 0;
-	clear_fix_texture = 0;
-}
-
 
 /*------------------------------------------------------------------------
 	FIXテクスチャからスプライト番号を取得
@@ -248,27 +227,6 @@ static void fix_delete_sprite(void)
 ******************************************************************************/
 
 /*------------------------------------------------------------------------
-	SPRテクスチャをリセット
-------------------------------------------------------------------------*/
-
-static void blit_reset_spr_sprite(void)
-{
-	int i;
-
-	for (i = 0; i < SPR_TEXTURE_SIZE - 1; i++)
-		spr_data[i].next = &spr_data[i + 1];
-
-	spr_data[i].next = NULL;
-	spr_free_head = &spr_data[0];
-
-	memset(spr_head, 0, sizeof(SPRITE *) * SPR_HASH_SIZE);
-
-	spr_texture_num = 0;
-	clear_spr_texture = 0;
-}
-
-
-/*------------------------------------------------------------------------
 	SPRテクスチャからスプライト番号を取得
 ------------------------------------------------------------------------*/
 
@@ -373,10 +331,10 @@ static void spr_delete_sprite(void)
 ******************************************************************************/
 
 /*------------------------------------------------------------------------
-	全てのスプライトを即座にクリアする
+	FIXスプライトを即座にクリアする
 ------------------------------------------------------------------------*/
 
-void blit_clear_all_sprite(void)
+void blit_clear_fix_sprite(void)
 {
 	int i;
 
@@ -386,20 +344,42 @@ void blit_clear_all_sprite(void)
 	fix_data[i].next = NULL;
 	fix_free_head = &fix_data[0];
 
+	memset(fix_head, 0, sizeof(SPRITE *) * FIX_HASH_SIZE);
+
+	fix_texture_num = 0;
+	clear_fix_texture = 0;
+}
+
+
+/*------------------------------------------------------------------------
+	SPRスプライトを即座にクリアする
+------------------------------------------------------------------------*/
+
+void blit_clear_spr_sprite(void)
+{
+	int i;
+
 	for (i = 0; i < SPR_TEXTURE_SIZE - 1; i++)
 		spr_data[i].next = &spr_data[i + 1];
 
 	spr_data[i].next = NULL;
 	spr_free_head = &spr_data[0];
 
-	memset(fix_head, 0, sizeof(SPRITE *) * FIX_HASH_SIZE);
 	memset(spr_head, 0, sizeof(SPRITE *) * SPR_HASH_SIZE);
 
-	fix_texture_num = 0;
 	spr_texture_num = 0;
-	clear_fix_texture = 0;
 	clear_spr_texture = 0;
-	clear_texture = 0;
+}
+
+
+/*------------------------------------------------------------------------
+	全てのスプライトを即座にクリアする
+------------------------------------------------------------------------*/
+
+void blit_clear_all_sprite(void)
+{
+	blit_clear_spr_sprite();
+	blit_clear_fix_sprite();
 }
 
 
@@ -407,7 +387,7 @@ void blit_clear_all_sprite(void)
 	FIXスプライトのクリアフラグを立てる
 ------------------------------------------------------------------------*/
 
-void blit_clear_fix_sprite(void)
+void blit_set_fix_clear_flag(void)
 {
 	clear_fix_texture = 1;
 }
@@ -417,7 +397,7 @@ void blit_clear_fix_sprite(void)
 	SPRスプライトのクリアフラグを立てる
 ------------------------------------------------------------------------*/
 
-void blit_clear_spr_sprite(void)
+void blit_set_spr_clear_flag(void)
 {
 	clear_spr_texture = 1;
 }
@@ -443,7 +423,7 @@ void blit_reset(void)
 	clip_min_y = FIRST_VISIBLE_LINE;
 	clip_max_y = LAST_VISIBLE_LINE;
 
-	clut = (UINT16 *)PSP_UNCACHE_PTR(&video_palettebank[neogeo_palette_index]);
+	clut = (UINT16 *)PSP_UNCACHE_PTR(&video_palettebank[palette_bank]);
 
 	blit_clear_all_sprite();
 }
@@ -463,35 +443,32 @@ void blit_start(int start, int end)
 
 	if (start == FIRST_VISIBLE_LINE)
 	{
-		clut = (UINT16 *)PSP_UNCACHE_PTR(&video_palettebank[neogeo_palette_index]);
+		clut = (UINT16 *)PSP_UNCACHE_PTR(&video_palettebank[palette_bank]);
 
 		fix_num = 0;
 
-		if (clear_texture)
-		{
-			blit_clear_all_sprite();
-		}
-		else
-		{
-			if (clear_fix_texture) blit_reset_fix_sprite();
-			if (clear_spr_texture) blit_reset_spr_sprite();
-		}
+		if (clear_spr_texture) blit_clear_spr_sprite();
+		if (clear_fix_texture) blit_clear_fix_sprite();
 
 		sceGuStart(GU_DIRECT, gulist);
 		sceGuDrawBufferList(GU_PSM_5551, draw_frame, BUF_WIDTH);
 		sceGuScissor(0, 0, BUF_WIDTH, SCR_WIDTH);
-		sceGuClear(GU_COLOR_BUFFER_BIT);
+		sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);
+
 		sceGuDrawBufferList(GU_PSM_5551, work_frame, BUF_WIDTH);
-		sceGuClear(GU_COLOR_BUFFER_BIT);
-		sceGuScissor(8, 16, 312, 240);
+		sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);
+
+		sceGuScissor(24, 16, 336, 240);
 		sceGuClearColor(CNVCOL15TO32(video_palette[4095]));
-		sceGuClear(GU_COLOR_BUFFER_BIT);
+		sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);
+
 		sceGuClearColor(0);
 		sceGuEnable(GU_ALPHA_TEST);
 		sceGuTexMode(GU_PSM_T8, 0, 0, GU_TRUE);
 		sceGuTexFilter(GU_NEAREST, GU_NEAREST);
+
 		sceGuFinish();
-		sceGuSync(0, 0);
+		sceGuSync(0, GU_SYNC_FINISH);
 	}
 }
 
@@ -574,16 +551,16 @@ void blit_finish_fix(void)
 
 	sceGuStart(GU_DIRECT, gulist);
 	sceGuDrawBufferList(GU_PSM_5551, work_frame, BUF_WIDTH);
-	sceGuScissor(8, 16, 312, 240);
+	sceGuScissor(24, 16, 336, 240);
 	sceGuTexImage(0, 512, 512, BUF_WIDTH, tex_fix);
 	sceGuClutLoad(256/8, clut);
 
 	vertices = (struct Vertex *)sceGuGetMemory(fix_num * sizeof(struct Vertex));
 	memcpy(vertices, vertices_fix, fix_num * sizeof(struct Vertex));
-	sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, fix_num, 0, vertices);
+	sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, fix_num, NULL, vertices);
 
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
 }
 
 
@@ -661,7 +638,7 @@ void blit_finish_spr(void)
 
 	sceGuStart(GU_DIRECT, gulist);
 	sceGuDrawBufferList(GU_PSM_5551, work_frame, BUF_WIDTH);
-	sceGuScissor(8, clip_min_y, 312, clip_max_y);
+	sceGuScissor(24, clip_min_y, 336, clip_max_y);
 	sceGuTexImage(0, 512, 512, BUF_WIDTH, tex_spr[flags & 3]);
 	sceGuClutLoad(256/8, &clut[flags & 0xf00]);
 
@@ -673,7 +650,7 @@ void blit_finish_spr(void)
 		{
 			if (total_sprites)
 			{
-				sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, 0, vertices);
+				sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, NULL, vertices);
 				total_sprites = 0;
 				vertices = vertices_tmp;
 			}
@@ -692,8 +669,287 @@ void blit_finish_spr(void)
 	}
 
 	if (total_sprites)
-		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, 0, vertices);
+		sceGuDrawArray(GU_SPRITES, TEXTURE_FLAGS, total_sprites, NULL, vertices);
 
 	sceGuFinish();
-	sceGuSync(0, 0);
+	sceGuSync(0, GU_SYNC_FINISH);
+}
+
+
+/******************************************************************************
+	SPR ソフトウェア描画
+******************************************************************************/
+
+static void drawgfxline_fixed(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom);
+static void drawgfxline_fixed_flip(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom);
+static void drawgfxline_zoom(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom);
+static void drawgfxline_zoom_flip(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom);
+
+static void drawgfxline_fixed_opaque(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom);
+static void drawgfxline_fixed_flip_opaque(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom);
+static void drawgfxline_zoom_opaque(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom);
+static void drawgfxline_zoom_flip_opaque(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom);
+
+static void ALIGN_DATA (*drawgfxline[8])(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom) =
+{
+	drawgfxline_zoom,					// 0000
+	drawgfxline_zoom_flip,				// 0001
+	drawgfxline_zoom_opaque,			// 0010
+	drawgfxline_zoom_flip_opaque,		// 0011
+	drawgfxline_fixed,					// 0100
+	drawgfxline_fixed_flip,				// 0101
+	drawgfxline_fixed_opaque,			// 0110
+	drawgfxline_fixed_flip_opaque		// 0111
+};
+
+
+static const UINT8 zoom_x_tables[][16] =
+{
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0 },
+	{ 0,0,1,0,1,0,0,0,1,0,0,0,1,0,0,0 },
+	{ 0,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0 },
+	{ 0,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0 },
+	{ 0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0 },
+	{ 1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0 },
+	{ 1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0 },
+	{ 1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0 },
+	{ 1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,1 },
+	{ 1,0,1,1,1,0,1,1,1,1,1,0,1,0,1,1 },
+	{ 1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,1 },
+	{ 1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1 },
+	{ 1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1 },
+//	{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 }
+};
+
+static void drawgfxline_zoom(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom)
+{
+	UINT32 tile;
+	const UINT8 *zoom_x_table = zoom_x_tables[zoom];
+
+	tile = src[0];
+	if (zoom_x_table[ 0]) { if (tile & 0x0000000f) *dst = pal[(tile >>  0) & 0x0f]; dst++; }
+	if (zoom_x_table[ 1]) { if (tile & 0x00000f00) *dst = pal[(tile >>  8) & 0x0f]; dst++; }
+	if (zoom_x_table[ 2]) { if (tile & 0x000f0000) *dst = pal[(tile >> 16) & 0x0f]; dst++; }
+	if (zoom_x_table[ 3]) { if (tile & 0x0f000000) *dst = pal[(tile >> 24) & 0x0f]; dst++; }
+	if (zoom_x_table[ 4]) { if (tile & 0x000000f0) *dst = pal[(tile >>  4) & 0x0f]; dst++; }
+	if (zoom_x_table[ 5]) { if (tile & 0x0000f000) *dst = pal[(tile >> 12) & 0x0f]; dst++; }
+	if (zoom_x_table[ 6]) { if (tile & 0x00f00000) *dst = pal[(tile >> 20) & 0x0f]; dst++; }
+	if (zoom_x_table[ 7]) { if (tile & 0xf0000000) *dst = pal[(tile >> 28) & 0x0f]; dst++; }
+
+	tile = src[1];
+	if (zoom_x_table[ 8]) { if (tile & 0x0000000f) *dst = pal[(tile >>  0) & 0x0f]; dst++; }
+	if (zoom_x_table[ 9]) { if (tile & 0x00000f00) *dst = pal[(tile >>  8) & 0x0f]; dst++; }
+	if (zoom_x_table[10]) { if (tile & 0x000f0000) *dst = pal[(tile >> 16) & 0x0f]; dst++; }
+	if (zoom_x_table[11]) { if (tile & 0x0f000000) *dst = pal[(tile >> 24) & 0x0f]; dst++; }
+	if (zoom_x_table[12]) { if (tile & 0x000000f0) *dst = pal[(tile >>  4) & 0x0f]; dst++; }
+	if (zoom_x_table[13]) { if (tile & 0x0000f000) *dst = pal[(tile >> 12) & 0x0f]; dst++; }
+	if (zoom_x_table[14]) { if (tile & 0x00f00000) *dst = pal[(tile >> 20) & 0x0f]; dst++; }
+	if (zoom_x_table[15]) { if (tile & 0xf0000000) *dst = pal[(tile >> 28) & 0x0f]; }
+}
+
+static void drawgfxline_zoom_opaque(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom)
+{
+	UINT32 tile;
+	const UINT8 *zoom_x_table = zoom_x_tables[zoom];
+
+	tile = src[0];
+	if (zoom_x_table[ 0]) { *dst = pal[(tile >>  0) & 0x0f]; dst++; }
+	if (zoom_x_table[ 1]) { *dst = pal[(tile >>  8) & 0x0f]; dst++; }
+	if (zoom_x_table[ 2]) { *dst = pal[(tile >> 16) & 0x0f]; dst++; }
+	if (zoom_x_table[ 3]) { *dst = pal[(tile >> 24) & 0x0f]; dst++; }
+	if (zoom_x_table[ 4]) { *dst = pal[(tile >>  4) & 0x0f]; dst++; }
+	if (zoom_x_table[ 5]) { *dst = pal[(tile >> 12) & 0x0f]; dst++; }
+	if (zoom_x_table[ 6]) { *dst = pal[(tile >> 20) & 0x0f]; dst++; }
+	if (zoom_x_table[ 7]) { *dst = pal[(tile >> 28) & 0x0f]; dst++; }
+
+	tile = src[1];
+	if (zoom_x_table[ 8]) { *dst = pal[(tile >>  0) & 0x0f]; dst++; }
+	if (zoom_x_table[ 9]) { *dst = pal[(tile >>  8) & 0x0f]; dst++; }
+	if (zoom_x_table[10]) { *dst = pal[(tile >> 16) & 0x0f]; dst++; }
+	if (zoom_x_table[11]) { *dst = pal[(tile >> 24) & 0x0f]; dst++; }
+	if (zoom_x_table[12]) { *dst = pal[(tile >>  4) & 0x0f]; dst++; }
+	if (zoom_x_table[13]) { *dst = pal[(tile >> 12) & 0x0f]; dst++; }
+	if (zoom_x_table[14]) { *dst = pal[(tile >> 20) & 0x0f]; dst++; }
+	if (zoom_x_table[15]) { *dst = pal[(tile >> 28) & 0x0f]; }
+}
+
+static void drawgfxline_zoom_flip(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom)
+{
+	UINT32 tile;
+	const UINT8 *zoom_x_table = zoom_x_tables[zoom];
+
+	tile = src[1];
+	if (zoom_x_table[ 0]) { if (tile & 0xf0000000) *dst = pal[(tile >> 28) & 0x0f]; dst++; }
+	if (zoom_x_table[ 1]) { if (tile & 0x00f00000) *dst = pal[(tile >> 20) & 0x0f]; dst++; }
+	if (zoom_x_table[ 2]) { if (tile & 0x0000f000) *dst = pal[(tile >> 12) & 0x0f]; dst++; }
+	if (zoom_x_table[ 3]) { if (tile & 0x000000f0) *dst = pal[(tile >>  4) & 0x0f]; dst++; }
+	if (zoom_x_table[ 4]) { if (tile & 0x0f000000) *dst = pal[(tile >> 24) & 0x0f]; dst++; }
+	if (zoom_x_table[ 5]) { if (tile & 0x000f0000) *dst = pal[(tile >> 16) & 0x0f]; dst++; }
+	if (zoom_x_table[ 6]) { if (tile & 0x00000f00) *dst = pal[(tile >>  8) & 0x0f]; dst++; }
+	if (zoom_x_table[ 7]) { if (tile & 0x0000000f) *dst = pal[(tile >>  0) & 0x0f]; dst++; }
+
+	tile = src[0];
+	if (zoom_x_table[ 8]) { if (tile & 0xf0000000) *dst = pal[(tile >> 28) & 0x0f]; dst++; }
+	if (zoom_x_table[ 9]) { if (tile & 0x00f00000) *dst = pal[(tile >> 20) & 0x0f]; dst++; }
+	if (zoom_x_table[10]) { if (tile & 0x0000f000) *dst = pal[(tile >> 12) & 0x0f]; dst++; }
+	if (zoom_x_table[11]) { if (tile & 0x000000f0) *dst = pal[(tile >>  4) & 0x0f]; dst++; }
+	if (zoom_x_table[12]) { if (tile & 0x0f000000) *dst = pal[(tile >> 24) & 0x0f]; dst++; }
+	if (zoom_x_table[13]) { if (tile & 0x000f0000) *dst = pal[(tile >> 16) & 0x0f]; dst++; }
+	if (zoom_x_table[14]) { if (tile & 0x00000f00) *dst = pal[(tile >>  8) & 0x0f]; dst++; }
+	if (zoom_x_table[15]) { if (tile & 0x0000000f) *dst = pal[(tile >>  0) & 0x0f]; }
+}
+
+static void drawgfxline_zoom_flip_opaque(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom)
+{
+	UINT32 tile;
+	const UINT8 *zoom_x_table = zoom_x_tables[zoom];
+
+	tile = src[1];
+	if (zoom_x_table[ 0]) { *dst = pal[(tile >> 28) & 0x0f]; dst++; }
+	if (zoom_x_table[ 1]) { *dst = pal[(tile >> 20) & 0x0f]; dst++; }
+	if (zoom_x_table[ 2]) { *dst = pal[(tile >> 12) & 0x0f]; dst++; }
+	if (zoom_x_table[ 3]) { *dst = pal[(tile >>  4) & 0x0f]; dst++; }
+	if (zoom_x_table[ 4]) { *dst = pal[(tile >> 24) & 0x0f]; dst++; }
+	if (zoom_x_table[ 5]) { *dst = pal[(tile >> 16) & 0x0f]; dst++; }
+	if (zoom_x_table[ 6]) { *dst = pal[(tile >>  8) & 0x0f]; dst++; }
+	if (zoom_x_table[ 7]) { *dst = pal[(tile >>  0) & 0x0f]; dst++; }
+
+	tile = src[0];
+	if (zoom_x_table[ 8]) { *dst = pal[(tile >> 28) & 0x0f]; dst++; }
+	if (zoom_x_table[ 9]) { *dst = pal[(tile >> 20) & 0x0f]; dst++; }
+	if (zoom_x_table[10]) { *dst = pal[(tile >> 12) & 0x0f]; dst++; }
+	if (zoom_x_table[11]) { *dst = pal[(tile >>  4) & 0x0f]; dst++; }
+	if (zoom_x_table[12]) { *dst = pal[(tile >> 24) & 0x0f]; dst++; }
+	if (zoom_x_table[13]) { *dst = pal[(tile >> 16) & 0x0f]; dst++; }
+	if (zoom_x_table[14]) { *dst = pal[(tile >>  8) & 0x0f]; dst++; }
+	if (zoom_x_table[15]) { *dst = pal[(tile >>  0) & 0x0f]; }
+}
+
+static void drawgfxline_fixed(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom)
+{
+	UINT32 tile;
+
+	tile = src[0];
+	if (tile)
+	{
+		if (tile & 0x000f) dst[ 0] = pal[(tile >>  0) & 0x0f];
+		if (tile & 0x00f0) dst[ 4] = pal[(tile >>  4) & 0x0f];
+		if (tile & 0x0f00) dst[ 1] = pal[(tile >>  8) & 0x0f];
+		if (tile & 0xf000) dst[ 5] = pal[(tile >> 12) & 0x0f];
+		tile >>= 16;
+		if (tile & 0x000f) dst[ 2] = pal[(tile >>  0) & 0x0f];
+		if (tile & 0x00f0) dst[ 6] = pal[(tile >>  4) & 0x0f];
+		if (tile & 0x0f00) dst[ 3] = pal[(tile >>  8) & 0x0f];
+		if (tile & 0xf000) dst[ 7] = pal[(tile >> 12) & 0x0f];
+	}
+	tile = src[1];
+	if (tile)
+	{
+		if (tile & 0x000f) dst[ 8] = pal[(tile >>  0) & 0x0f];
+		if (tile & 0x00f0) dst[12] = pal[(tile >>  4) & 0x0f];
+		if (tile & 0x0f00) dst[ 9] = pal[(tile >>  8) & 0x0f];
+		if (tile & 0xf000) dst[13] = pal[(tile >> 12) & 0x0f];
+		tile >>= 16;
+		if (tile & 0x000f) dst[10] = pal[(tile >>  0) & 0x0f];
+		if (tile & 0x00f0) dst[14] = pal[(tile >>  4) & 0x0f];
+		if (tile & 0x0f00) dst[11] = pal[(tile >>  8) & 0x0f];
+		if (tile & 0xf000) dst[15] = pal[(tile >> 12) & 0x0f];
+	}
+}
+
+static void drawgfxline_fixed_opaque(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom)
+{
+	UINT32 tile;
+
+	tile = src[0];
+	dst[ 0] = pal[(tile >>  0) & 0x0f];
+	dst[ 4] = pal[(tile >>  4) & 0x0f];
+	dst[ 1] = pal[(tile >>  8) & 0x0f];
+	dst[ 5] = pal[(tile >> 12) & 0x0f];
+	dst[ 2] = pal[(tile >> 16) & 0x0f];
+	dst[ 6] = pal[(tile >> 20) & 0x0f];
+	dst[ 3] = pal[(tile >> 24) & 0x0f];
+	dst[ 7] = pal[(tile >> 28) & 0x0f];
+
+	tile = src[1];
+	dst[ 8] = pal[(tile >>  0) & 0x0f];
+	dst[12] = pal[(tile >>  4) & 0x0f];
+	dst[ 9] = pal[(tile >>  8) & 0x0f];
+	dst[13] = pal[(tile >> 12) & 0x0f];
+	dst[10] = pal[(tile >> 16) & 0x0f];
+	dst[14] = pal[(tile >> 20) & 0x0f];
+	dst[11] = pal[(tile >> 24) & 0x0f];
+	dst[15] = pal[(tile >> 28) & 0x0f];
+}
+
+static void drawgfxline_fixed_flip(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom)
+{
+	UINT32 tile;
+
+	tile = src[0];
+	if (tile)
+	{
+		if (tile & 0x000f) dst[15] = pal[(tile >>  0) & 0x0f];
+		if (tile & 0x00f0) dst[11] = pal[(tile >>  4) & 0x0f];
+		if (tile & 0x0f00) dst[14] = pal[(tile >>  8) & 0x0f];
+		if (tile & 0xf000) dst[10] = pal[(tile >> 12) & 0x0f];
+		tile >>= 16;
+		if (tile & 0x000f) dst[13] = pal[(tile >>  0) & 0x0f];
+		if (tile & 0x00f0) dst[ 9] = pal[(tile >>  4) & 0x0f];
+		if (tile & 0x0f00) dst[12] = pal[(tile >>  8) & 0x0f];
+		if (tile & 0xf000) dst[ 8] = pal[(tile >> 12) & 0x0f];
+	}
+	tile = src[1];
+	if (tile)
+	{
+		if (tile & 0x000f) dst[ 7] = pal[(tile >>  0) & 0x0f];
+		if (tile & 0x00f0) dst[ 3] = pal[(tile >>  4) & 0x0f];
+		if (tile & 0x0f00) dst[ 6] = pal[(tile >>  8) & 0x0f];
+		if (tile & 0xf000) dst[ 2] = pal[(tile >> 12) & 0x0f];
+		tile >>= 16;
+		if (tile & 0x000f) dst[ 5] = pal[(tile >>  0) & 0x0f];
+		if (tile & 0x00f0) dst[ 1] = pal[(tile >>  4) & 0x0f];
+		if (tile & 0x0f00) dst[ 4] = pal[(tile >>  8) & 0x0f];
+		if (tile & 0xf000) dst[ 0] = pal[(tile >> 12) & 0x0f];
+	}
+}
+
+static void drawgfxline_fixed_flip_opaque(UINT32 *src, UINT16 *dst, UINT16 *pal, int zoom)
+{
+	UINT32 tile;
+
+	tile = src[1];
+	dst[ 0] = pal[(tile >> 28) & 0x0f];
+	dst[ 1] = pal[(tile >> 20) & 0x0f];
+	dst[ 2] = pal[(tile >> 12) & 0x0f];
+	dst[ 3] = pal[(tile >>  4) & 0x0f];
+	dst[ 4] = pal[(tile >> 24) & 0x0f];
+	dst[ 5] = pal[(tile >> 16) & 0x0f];
+	dst[ 6] = pal[(tile >>  8) & 0x0f];
+	dst[ 7] = pal[(tile >>  0) & 0x0f];
+
+	tile = src[0];
+	dst[ 8] = pal[(tile >> 28) & 0x0f];
+	dst[ 9] = pal[(tile >> 20) & 0x0f];
+	dst[10] = pal[(tile >> 12) & 0x0f];
+	dst[11] = pal[(tile >>  4) & 0x0f];
+	dst[12] = pal[(tile >> 24) & 0x0f];
+	dst[13] = pal[(tile >> 16) & 0x0f];
+	dst[14] = pal[(tile >>  8) & 0x0f];
+	dst[15] = pal[(tile >>  0) & 0x0f];
+}
+
+void blit_draw_spr_line(int x, int y, int zoom_x, int sprite_y, UINT32 code, UINT16 attr, UINT8 opaque)
+{
+	UINT32 src = code << 7;
+	UINT32 dst = (y << 9) + x;
+	UINT8 flag = (attr & 1) | (opaque & SPRITE_OPAQUE) | ((zoom_x & 0x10) >> 2);
+
+	if (attr & 0x0002) sprite_y ^= 0x0f;
+	src += sprite_y << 3;
+
+	(*drawgfxline[flag])((UINT32 *)&memory_region_gfx2[src], &scrbitmap[dst], &video_palette[(attr >> 8) << 4], zoom_x);
 }

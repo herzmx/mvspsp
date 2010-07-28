@@ -9,6 +9,9 @@
 #ifndef UI_TEXT_H
 #define UI_TEXT_H
 
+#define LANG_ENGLISH	0
+#define LANG_JAPANESE	1
+
 enum
 {
 	EOM = 0,
@@ -17,6 +20,10 @@ enum
 	/* psp/filer.c */
 	PLEASE_WAIT,
 	COULD_NOT_OPEN_ZIPNAME_DAT,
+#ifdef ADHOC
+	PLEASE_TURN_ON_THE_WLAN_SWITCH,
+	FAILED_TO_LOAD_ADHOC_MODULES,
+#endif
 
 	/* psp/sound.c */
 	COULD_NOT_RESERVE_AUDIO_CHANNEL_FOR_SOUND,
@@ -50,7 +57,11 @@ enum
 #ifdef SAVE_STATE
 	START_SAVESTATE,
 	START_LOADSTATE,
+#endif
+#if defined(SAVE_STATE) || defined(COMMAND_LIST)
 	COMPLETE,
+#endif
+#ifdef SAVE_STATE
 	DELETE_STATE_FILE,
 #endif
 #if (EMU_SYSTEM == NCDZ)
@@ -152,6 +163,7 @@ enum
 	PSP_CLOCK,
 	CLK222MHz,
 	CLK266MHz,
+	CLK300MHz,
 	CLK333MHz,
 #if (EMU_SYSTEM == MVS)
 	DEFAULT,
@@ -342,10 +354,13 @@ enum
 
 	/* psp/adhoc.c*/
 #ifdef ADHOC
+	LOBBY,
+	SERVER,
+	CLIENT,
 	WAITING_FOR_ANOTHER_PSP_TO_JOIN,
-	CONNECTING,
+	CONNECTING_TO_x,
 	CONNECTED,
-	DISCONNECTING,
+	DISCONNECTING_FROM_x,
 	DISCONNECTED,
 	FAILED,
 	SELECT_A_SERVER_TO_CONNECT_TO,
@@ -353,6 +368,7 @@ enum
 	TO_CANCEL_PRESS_CROSS,
 	x_HAS_REQUESTED_A_CONNECTION,
 	TO_ACCEPT_THE_CONNECTION_PRESS_CIRCLE_TO_CANCEL_PRESS_CIRCLE,
+	WAITING_FOR_SYNCHRONIZATION,
 #endif
 
 	/* psp/png.c */
@@ -437,16 +453,14 @@ enum
 #ifdef ADHOC
 	LOST_SYNC,
 	PAUSED_BY_x,
-	SERVER,
-	CLIENT,
 	RETURN_TO_GAME,
 	DISCONNECT2,
 #endif
 
 	/* memintrf.c */
-#if (EMU_SYSTEM != NCDZ)
 	LOADING,
 	LOAD_ROM,
+#if (EMU_SYSTEM != NCDZ)
 	CHECKING_ROM_INFO,
 	THIS_GAME_NOT_SUPPORTED,
 	ROM_NOT_FOUND,
@@ -457,12 +471,6 @@ enum
 
 #if (EMU_SYSTEM == CPS1)
 
-	/* driver.c */
-#ifdef ADHOC
-	SENDING_EEPROM_DATA,
-	RECIEVING_EEPROM_DATA,
-#endif
-
 	/* memintrf.c */
 	ROMINFO_NOT_FOUND,
 	COULD_NOT_ALLOCATE_MEMORY_0x8000BYTE,
@@ -472,12 +480,6 @@ enum
 	/* cps2crpt.c */
 	DECRYPTING_x,
 	DECRYPTING_100,
-
-	/* driver.c */
-#ifdef ADHOC
-	SENDING_EEPROM_DATA,
-	RECIEVING_EEPROM_DATA,
-#endif
 
 	/* memintrf.c */
 	ROMINFO_NOT_FOUND,
@@ -492,13 +494,11 @@ enum
 	/* biosmenu.c */
 	BIOS_SELECT_MENU,
 	BIOS_NOT_FOUND,
-	SFIX_NOT_FOUND,
 	SELECT_BIOS_AND_PRESS_CIRCLE_BUTTON,
 	ALL_NVRAM_FILES_ARE_REMOVED,
 
 	/* memintrf.c */
 	ROMINFO_NOT_FOUND,
-	LOADING_SFIX,
 	LOADING_BIOS,
 	LOADING_DECRYPTED_GFX2_ROM,
 	LOADING_DECRYPTED_SOUND1_ROM,
@@ -521,7 +521,11 @@ enum
 	CDROM_SPEED_LIMIT_OFF,
 	CDROM_SPEED_LIMIT_ON,
 
+	/* memintrf.c */
+	CHECKING_GAME_ID,
+
 #endif
+	END_OF_TEXT,
 
 	UI_TEXT_MAX
 };
@@ -529,5 +533,8 @@ enum
 #define TEXT(s)		ui_text[s]
 
 extern const char *ui_text[UI_TEXT_MAX];
+
+void ui_text_init(void);
+int ui_text_get_language(void);
 
 #endif /* UI_TEXT_H */

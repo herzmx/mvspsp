@@ -12,11 +12,6 @@
 
 #define FRAMESKIP_LEVELS	12
 
-#if (EMU_SYSTEM == MVS)
-#define TICKS_PER_FRAME_MVS	16896		// 1000000 / 15625 * RASTER_LINES
-#define TICKS_PER_FRAME_PSP	16683
-#endif
-
 
 /******************************************************************************
 	ÉOÉçÅ[ÉoÉãïœêî
@@ -41,7 +36,6 @@ int option_stretch;
 int option_sound_enable;
 int option_samplerate;
 int option_sound_volume;
-int option_sound_filter;
 
 int machine_driver_type;
 int machine_init_type;
@@ -51,17 +45,6 @@ int machine_sound_type;
 
 UINT32 frames_displayed;
 int fatal_error;
-
-#ifdef ADHOC
-int adhoc_enable;
-int adhoc_server;
-char adhoc_matching[32];
-#endif
-
-#if (EMU_SYSTEM == MVS)
-int TICKS_PER_FRAME;
-float FPS;
-#endif
 
 
 /******************************************************************************
@@ -169,67 +152,14 @@ void emu_main(void)
 #endif
 
 	snap_no = -1;
-#ifdef ADHOC
-	if (adhoc_enable)
-	{
-#if (EMU_SYSTEM == MVS)
-		const char *bios[] =
-		{
-			"EURO2", "EURO1",
-			"USA2", "USA1",
-			"ASIA3",
-			"JPN3", "JPN2", "JPN1"
-		};
-
-		bios_select(2);
-		if (neogeo_bios == -1)
-		{
-			neogeo_bios = save_neogeo_bios;
-			adhoc_enable = 0;
-			return;
-		}
-
-		sprintf(adhoc_matching, "%s_%s_%s", PBPNAME_STR, game_name, bios[neogeo_bios]);
-#elif (EMU_SYSTEM == NCDZ)
-		const char *region[] = { "JPN", "USA", "EURO" };
-		UINT8 temp[0x200];
-
-		memory_region_cpu1 = temp;
-		if (!neogeo_check_game())
-		{
-			error_file("IPL.TXT");
-			adhoc_enable = 0;
-			return;
-		}
-		sprintf(adhoc_matching, "%s_%s_%s", PBPNAME_STR, game_name, region[neogeo_region]);
-#else
-		sprintf(adhoc_matching, "%s_%s", PBPNAME_STR, game_name);
-#endif
-
-		adhoc_server = -1;
-		if (adhocInit(adhoc_matching) == 0)
-		{
-			adhoc_server = adhocSelect();
-		}
-		if (adhoc_server < 0)
-			adhoc_enable = 0;
-		else
-			adhoc_input_init();
-
-		if (!adhoc_enable) return;
-	}
-#endif
 
 	sound_thread_init();
 	machine_main();
 	sound_thread_exit();
 
-#ifdef ADHOC
-#if (EMU_SYSTEM == MVS)
+#if defined(ADHOC) && (EMU_SYSTEM == MVS)
 	if (adhoc_enable)
 		neogeo_bios = save_neogeo_bios;
-#endif
-	adhoc_enable = 0;
 #endif
 }
 
@@ -248,20 +178,7 @@ void autoframeskip_reset(void)
 	frames_since_last_fps = 0;
 
 	game_speed_percent = 100;
-#if (EMU_SYSTEM == MVS)
-	if (option_vsync)
-	{
-		TICKS_PER_FRAME = TICKS_PER_FRAME_PSP;
-		FPS = 60.0;
-	}
-	else
-	{
-		TICKS_PER_FRAME = TICKS_PER_FRAME_MVS;
-		FPS = MVS_FPS;
-	}
-#endif
-	frames_per_second = FPS;
-
+	frames_per_second = PSP_REFRESH_RATE;
 	frames_displayed = 0;
 
 	warming_up = 1;
@@ -289,21 +206,25 @@ void update_screen(void)
 	if (!skipped_it)
 	{
 		if (option_showfps) show_fps();
+		draw_volume_status(1);
 		show_battery_warning();
 		ui_show_popup(1);
 	}
-	else ui_show_popup(0);
+	else
+	{
+		draw_volume_status(0);
+		ui_show_popup(0);
+	}
 
 	if (warming_up)
 	{
 		sceDisplayWaitVblankStart();
-		last_skipcount0_time = ticker() - FRAMESKIP_LEVELS * TICKS_PER_FRAME;
-		while (sceDisplayIsVblank()) sceKernelDelayThread(100);
+		last_skipcount0_time = ticker() - (int)((float)FRAMESKIP_LEVELS * PSP_TICKS_PER_FRAME);
 		warming_up = 0;
 	}
 
 	if (frameskip_counter == 0)
-		this_frame_base = last_skipcount0_time + FRAMESKIP_LEVELS * TICKS_PER_FRAME;
+		this_frame_base = last_skipcount0_time + (int)((float)FRAMESKIP_LEVELS * PSP_TICKS_PER_FRAME);
 
 	frames_displayed++;
 	frames_since_last_fps++;
@@ -311,30 +232,25 @@ void update_screen(void)
 	if (!skipped_it)
 	{
 		TICKER curr = ticker();
+		int flip = 0;
 
 		if (option_speedlimit)
 		{
-			TICKER target = this_frame_base + frameskip_counter * TICKS_PER_FRAME;
+			TICKER target = this_frame_base + (int)((float)frameskip_counter * PSP_TICKS_PER_FRAME);
 
-			if (option_vsync && curr < target - 50)
+			if (option_vsync)
 			{
-				video_flip_screen(1);
-				while (curr < target)
+				if (curr < target - 100)
 				{
-					curr = ticker();
+					video_flip_screen(1);
+					flip = 1;
 				}
 			}
-			else
-			{
-				while (curr < target)
-				{
-					curr = ticker();
-				}
-				video_flip_screen(0);
-			}
+
+			while (curr < target)
+				curr = ticker();
 		}
-		else
-			video_flip_screen(0);
+		if (!flip) video_flip_screen(0);
 
 		rendered_frames_since_last_fps++;
 
@@ -343,7 +259,7 @@ void update_screen(void)
 			float seconds_elapsed = (float)(curr - last_skipcount0_time) * (1.0 / 1000000.0);
 			float frames_per_sec = (float)frames_since_last_fps / seconds_elapsed;
 
-			game_speed_percent = (int)(100.0 * frames_per_sec / FPS + 0.5);
+			game_speed_percent = (int)(100.0 * frames_per_sec / PSP_REFRESH_RATE + 0.5);
 			frames_per_second = (int)((float)rendered_frames_since_last_fps / seconds_elapsed + 0.5);
 
 			last_skipcount0_time = curr;
@@ -440,11 +356,13 @@ void show_fatal_error(void)
 				uifont_print_shadow_center(sy, UI_COLOR(UI_PAL_SELECT), fatal_error_message);
 
 				update = draw_battery_status(1);
+				update |= draw_volume_status(1);
 				video_flip_screen(1);
 			}
 			else
 			{
 				update = draw_battery_status(0);
+				update |= draw_volume_status(0);
 				video_wait_vsync();
 			}
 

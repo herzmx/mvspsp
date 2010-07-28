@@ -14,17 +14,17 @@ BUILD_CPS2PSP = 1
 #BUILD_NCDZPSP = 1
 
 #PSP_SLIM = 1
-KERNEL_MODE = 1
-SAVE_STATE = 1
-#ADHOC = 1
+#KERNEL_MODE = 1
 COMMAND_LIST = 1
-#JAPANESE_UI = 1
+ADHOC = 1
+SAVE_STATE = 1
 #UI_32BPP = 1
-#RELEASE = 1
+RELEASE = 1
 
 VERSION_MAJOR = 2
-VERSION_MINOR = 2
+VERSION_MINOR = 3
 VERSION_BUILD = 1
+
 
 #------------------------------------------------------------------------------
 # Defines
@@ -59,10 +59,7 @@ endif
 
 ifdef BUILD_NCDZPSP
 TARGET = NCDZPSP
-endif
-
-ifdef ADHOC
-KERNEL_MODE = 1
+ADHOC =
 endif
 
 PBPNAME_STR = $(TARGET)
@@ -93,10 +90,13 @@ endif
 
 INCDIR = \
 	src \
-	src/SDK/include \
 	src/zip \
 	src/zlib \
 	src/libmad
+
+ifdef PSP_SLIM
+INCDIR += src/SDK/include
+endif
 
 
 #------------------------------------------------------------------------------
@@ -128,6 +128,10 @@ MAINOBJS = \
 	$(OBJ)/common/cache.o \
 	$(OBJ)/common/loadrom.o
 
+ifdef ADHOC
+MAINOBJS += $(OBJ)/common/adhoc.o
+endif
+
 ifdef COMMAND_LIST
 MAINOBJS += $(OBJ)/common/cmdlist.o
 endif
@@ -147,12 +151,10 @@ FONTOBJS = \
 	$(OBJ)/$(OS)/font/jpn_h14.o \
 	$(OBJ)/$(OS)/font/jpn_h14p.o \
 	$(OBJ)/$(OS)/font/jpn_z14.o \
-	$(OBJ)/$(OS)/font/sjis_tbl.o \
-	$(OBJ)/$(OS)/font/jpnfont.o
+	$(OBJ)/$(OS)/font/sjis_tbl.o
 
 OSOBJS = \
 	$(OBJ)/$(OS)/$(OS).o \
-	$(OBJ)/$(OS)/blend.o \
 	$(OBJ)/$(OS)/config.o \
 	$(OBJ)/$(OS)/filer.o \
 	$(OBJ)/$(OS)/input.o \
@@ -163,11 +165,13 @@ OSOBJS = \
 	$(OBJ)/$(OS)/ui_text.o \
 	$(OBJ)/$(OS)/video.o \
 	$(OBJ)/$(OS)/sound.o \
-	$(OBJ)/$(OS)/png.o
+	$(OBJ)/$(OS)/png.o \
 
 ifdef ADHOC
 OSOBJS += $(OBJ)/$(OS)/adhoc.o
 endif
+
+OSOBJS += $(OBJ)/$(OS)/SystemButtons.o
 
 ifdef UI_32BPP
 OSOBJS += $(OBJ)/$(OS)/wallpaper.o
@@ -197,8 +201,14 @@ include src/makefiles/$(TARGET).mak
 #------------------------------------------------------------------------------
 
 CFLAGS = \
+	-O2 \
 	-fomit-frame-pointer \
 	-fstrict-aliasing \
+	-falign-functions=32 \
+	-falign-loops \
+	-falign-labels \
+	-falign-jumps \
+	-Wall \
 	-Wundef \
 	-Wpointer-arith  \
 	-Wbad-function-cast \
@@ -207,11 +217,6 @@ CFLAGS = \
 	-Wsign-compare \
 	-Werror
 
-ifdef ADHOC
-CFLAGS += -G0 -O2
-else
-CFLAGS += -O2
-endif
 
 #------------------------------------------------------------------------------
 # Compiler Defines
@@ -228,26 +233,21 @@ CDEFS = -DINLINE='static __inline' \
 	-DVERSION_BUILD=$(VERSION_BUILD) \
 	-DPSP
 
-ifdef KERNEL_MODE
-CDEFS += -DKERNEL_MODE=1
-endif
-
 ifdef PSP_SLIM
 CDEFS += -DPSP_SLIM=1
 endif
 
-ifdef SAVE_STATE
-CDEFS += -DSAVE_STATE=1
+ifdef KERNEL_MODE
+CDEFS += -DKERNEL_MODE=1
 endif
 
 ifdef ADHOC
 CDEFS += -DADHOC=1
+SAVE_STATE = 1
 endif
 
-ifdef JAPANESE_UI
-CDEFS += -DJAPANESE_UI=1
-else
-CDEFS += -DJAPANESE_UI=0
+ifdef SAVE_STATE
+CDEFS += -DSAVE_STATE=1
 endif
 
 ifdef COMMAND_LIST
@@ -265,6 +265,7 @@ CDEFS += -DRELEASE=1
 else
 CDEFS += -DRELEASE=0
 endif
+
 
 #------------------------------------------------------------------------------
 # Linker Flags
@@ -306,6 +307,7 @@ OBJS = $(MAINOBJS) $(COREOBJS) $(OSOBJS) $(FONTOBJS) $(ICONOBJS) $(ZLIB)
 
 include src/makefiles/build.mak
 
+
 #------------------------------------------------------------------------------
 # Rules to manage files
 #------------------------------------------------------------------------------
@@ -313,6 +315,12 @@ include src/makefiles/build.mak
 $(OBJ)/%.o: src/%.c
 	@echo Compiling $<...
 	@$(CC) $(CDEFS) $(CFLAGS) -c $< -o$@
+
+ifdef KERNEL_MODE
+$(OBJ)/psp/adhoc.o: src/psp/adhoc.c
+	@echo Compiling [-G0] $<...
+	@$(CC) -G0 $(CDEFS) $(CFLAGS) -c $< -o$@
+endif
 
 $(OBJ)/%.o: src/%.S
 	@echo Assembling $<...
