@@ -1,0 +1,45 @@
+Estas versiones han sido moficadas por mi (Herz) en base a las versiones 2.2.1 y 2.3.1 de los emuladores
+El problema del porque no cargaba en HBL y que nos lanzara el error 0x80020146 start systembuttons.prx
+es debido a que el HBL al igal que el CFW 5.50 GEN-B es que no perniten la carga del archivo que liga
+las funciones de los botones del sistema HOME Volume + Volume -.
+El procedimieto por cierto algo dificil fue quitar la carga de este archivo asi como las funciones que
+realizaba; como al pulsar HOME recuerdo que cuando servia mi PSP FAT regresaba al menu de juego pero bueno
+despues todo y de dormir algo tarde |-) al fin quedaron compiladas las versiones compatibles con HBL...
+
+Descripción de los emuladores
+
+MVSPSP:
+
+*Emulador del sistema Neo-Geo MVS y AES
+
+*Se necesita crear cache del juego; pero una vez creado el cache podemos borrar del zip los archivos utilizados
+estos se muestran al crear el cache del juego como; Loading "xxx-xxx.xxx". Estos son lo archivos que podemos quitar del zip
+
+CPS1PSP
+
+*Emulador Capcom Play Sistem 1
+
+*No necesita creacion de cache_sleep
+
+CPS2PSP
+
+*Emulador Capcom Play Sistem 1
+
+*Es necesario crear cache tengo la idea de que tambien podemos eliminar los fuentes utilizados (no probado)
+
+NCDZPSP
+
+*Emulador de NeoGeo
+
+*Se necesitan neocd.bin y 000-lo-lo dentro de la carpeta del emuladores
+
+*Los juegos can dentro de la carpeta rom
+
+*Se debe descomprimir el iso del juego y crear una carpeta con el nombre del juego donde iran los archivos este,
+dentro de la carpeta del juego crear otra carpeta llamada mp3 y meter todos los archivos *.mp3, si estan en formato
+wav hay que convertirlos
+
+Lo siento por todas la faltas de ortogrfía pero mmm estoy algo cansado :D; espero que lo disfruten XD
+
+By Herz
+
