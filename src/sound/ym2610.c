@@ -3068,7 +3068,7 @@ void YM2610_set_samplerate(void)
 	int i, samplerate = PSP_SAMPLERATE >> (2 - option_samplerate);
 
 	YM2610.OPN.ST.rate = samplerate;
-	SSG.step = ((float)SSG_STEP * samplerate * 8) / YM2610.OPN.ST.clock;
+	//SSG.step = ((float)SSG_STEP * samplerate * 8) / YM2610.OPN.ST.clock;
 	OPNSetPres(&YM2610.OPN, 6*24, 6*24, 4*2); /* OPN 1/6, SSG 1/4 */
 
 	for (i = 0; i < 6; i++)
