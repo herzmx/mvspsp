@@ -670,7 +670,6 @@ static int menu_keycfg(void)
 					keycfg[8].value = 8;
 					keycfg[9].value = 5;
 					break;
-				}
 					
 				case NEOGEO_MVS:
 					keycfg[6].value = 7;
