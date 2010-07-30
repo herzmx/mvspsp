@@ -300,6 +300,7 @@ static const char *text[2][UI_TEXT_MAX] =
 		"Button Layout",
 		"Type 1 (NEOGEO PAD)",
 		"Type 2 (MVS)",
+		"Type 3 (PlaySation)",
 		"User Define",
 #endif
 
@@ -832,6 +833,7 @@ static const char *text[2][UI_TEXT_MAX] =
 		"Plantilla de Botones",
 		"Tipo 1 (NEOGEO PAD)",
 		"Tipo 2 (MVS)",
+		"Tipo 3 (PlayStation)",
 		"Definido por el usuario",
 #endif
 
