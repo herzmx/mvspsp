@@ -15,12 +15,8 @@
 
 void YM2151_sh_start(int type)
 {
-	int samplerate = PSP_SAMPLERATE;
-
-	samplerate >>= (2 - option_samplerate);
-
-	YM2151Init(3579545, samplerate, cps1_sound_interrupt);
-	OKIM6295Init(1000000, samplerate, 1);
+	YM2151Init(3579545, cps1_sound_interrupt);
+	OKIM6295Init(1000000, 1);
 }
 
 

@@ -51,7 +51,7 @@ UINT32 poll_gamepad(void)
 
 	sceCtrlPeekBufferPositive(&paddata, 1);
 
-	//paddata.Buttons &= PSP_CTRL_ANY;
+	paddata.Buttons &= PSP_CTRL_ANY;
 
 	if (paddata.Ly >= 0xd0) paddata.Buttons |= PSP_CTRL_DOWN;
 	if (paddata.Ly <= 0x30) paddata.Buttons |= PSP_CTRL_UP;
@@ -73,7 +73,7 @@ UINT32 poll_gamepad_fatfursp(void)
 
 	sceCtrlPeekBufferPositive(&paddata, 1);
 
-	//paddata.Buttons &= PSP_CTRL_ANY;
+	paddata.Buttons &= PSP_CTRL_ANY;
 
 	if (!(paddata.Buttons & PSP_CTRL_UP)    && paddata.Ly >= 0xd0) paddata.Buttons |= PSP_CTRL_DOWN;
 	if (!(paddata.Buttons & PSP_CTRL_DOWN)  && paddata.Ly <= 0x30) paddata.Buttons |= PSP_CTRL_UP;
@@ -97,7 +97,7 @@ UINT32 poll_gamepad_analog(void)
 
 	sceCtrlPeekBufferPositive(&paddata, 1);
 
-	//paddata.Buttons &= PSP_CTRL_ANY;
+	paddata.Buttons &= PSP_CTRL_ANY;
 
 	if (paddata.Ly >= 0xd0) paddata.Buttons |= PSP_CTRL_DOWN;
 	if (paddata.Ly <= 0x30) paddata.Buttons |= PSP_CTRL_UP;
@@ -121,9 +121,8 @@ void pad_update(void)
 {
 	UINT32 data;
 
-	//data = poll_gamepad();
-	data = poll_gamepad() & PSP_CTRL_ANY;
-	
+	data = poll_gamepad();
+
 	if (data)
 	{
 		if (!pressed_check)

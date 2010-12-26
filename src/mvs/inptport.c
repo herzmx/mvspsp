@@ -100,8 +100,6 @@ void check_input_mode(void)
 	case UNI_V20:
 	case UNI_V21:
 	case UNI_V22:
-	case UNI_V23old:
-	case UNI_V23:
 		neogeo_input_mode = (neogeo_sram16[0x02 >> 1] & 0x8000) != 0;
 		break;
 
@@ -711,7 +709,7 @@ void update_inputport(void)
 
 			buttons = (*poll_pad)();
 
-			if ((buttons & PSP_CTRL_START) && (buttons & PSP_CTRL_SELECT))
+			if (readHomeButton())
 			{
 				buttons = 0;
 				adhoc_paused = adhoc_server + 1;
@@ -753,7 +751,7 @@ void update_inputport(void)
 
 		buttons = (*poll_pad)();
 
-		if ((buttons & PSP_CTRL_START) && (buttons & PSP_CTRL_SELECT))
+		if (readHomeButton())
 		{
 			showmenu();
 			setup_autofire();

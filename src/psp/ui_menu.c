@@ -262,14 +262,14 @@ static int menu_gamecfg(void)
 			}
 
 			update  = draw_battery_status(1);
-			//update |= draw_volume_status(1);
+			update |= draw_volume_status(1);
 			update |= ui_show_popup(1);
 			video_flip_screen(1);
 		}
 		else
 		{
 			update  = draw_battery_status(0);
-			//update |= draw_volume_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_wait_vsync();
 		}
@@ -374,7 +374,6 @@ static const int button_value[13] =
 	PSP_CTRL_SQUARE,
 	PSP_CTRL_TRIANGLE,
 	PSP_CTRL_LTRIGGER,
-
 	PSP_CTRL_RTRIGGER,
 	PSP_CTRL_START,
 	PSP_CTRL_SELECT
@@ -398,7 +397,6 @@ enum
 {
 	NEOGEO_PAD = 0,
 	NEOGEO_MVS,
-	NEOGEO_PLAY = 2,
 	USER_DEFINE
 };
 #endif
@@ -433,7 +431,7 @@ static int menu_keycfg(void)
 #if (EMU_SYSTEM == CPS2)
 	const char *progear_p2[2];
 #elif (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
-	const char *layout[4];
+	const char *layout[3];
 #endif
 
 #define INCLUDE_KEYCFG_MENU
@@ -461,8 +459,7 @@ static int menu_keycfg(void)
 #elif (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
 	layout[0] = TEXT(LAYOUT_TYPE1);
 	layout[1] = TEXT(LAYOUT_TYPE2);
-	layout[2] = TEXT(LAYOUT_TYPE3);
-	layout[3] = TEXT(LAYOUT_USER);
+	layout[2] = TEXT(LAYOUT_USER);
 #endif
 
 	i = 0;
@@ -514,9 +511,6 @@ static int menu_keycfg(void)
 	{
 		keycfg[0].value = NEOGEO_MVS;
 	}
-	else if (keycfg[6].value == 7 && keycfg[7].value == 6 && keycfg[8].value == 8 && keycfg[9].value == 5){
-		keycfg[0].value = NEOGEO_PLAY;
-	}
 	else
 	{
 		keycfg[0].value = USER_DEFINE;
@@ -546,7 +540,7 @@ static int menu_keycfg(void)
 				if (keycfg[sel].type == KEYCFG_NUMBER && keycfg[sel].value < 10) arrowr = 1;
 				if (keycfg[sel].type == KEYCFG_ANALOG && keycfg[sel].value < 2) arrowr = 1;
 #if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
-				if (keycfg[sel].type == KEYCFG_LAYOUT && keycfg[sel].value < 2) arrowr = 1;
+				if (keycfg[sel].type == KEYCFG_LAYOUT && keycfg[sel].value < 1) arrowr = 1;
 #endif
 			}
 
@@ -619,14 +613,14 @@ static int menu_keycfg(void)
 			}
 
 			update  = draw_battery_status(1);
-			//update |= draw_volume_status(1);
+			update |= draw_volume_status(1);
 			update |= ui_show_popup(1);
 			video_flip_screen(1);
 		}
 		else
 		{
 			update  = draw_battery_status(0);
-			//update |= draw_volume_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_wait_vsync();
 		}
@@ -666,22 +660,13 @@ static int menu_keycfg(void)
 					keycfg[8].value = 7;
 					keycfg[9].value = 8;
 					break;
-					
-					
+
 				case NEOGEO_MVS:
 					keycfg[6].value = 7;
 					keycfg[7].value = 8;
 					keycfg[8].value = 6;
 					keycfg[9].value = 5;
 					break;
-				
-				case NEOGEO_PLAY:
-					keycfg[6].value = 7;
-					keycfg[7].value = 6;
-					keycfg[8].value = 8;
-					keycfg[9].value = 5;
-					break;	
-					
 				}
 			}
 #endif
@@ -719,19 +704,10 @@ static int menu_keycfg(void)
 				{
 					keycfg[sel].value++;
 					update = 1;
+
 					keycfg[6].value = 7;
 					keycfg[7].value = 8;
 					keycfg[8].value = 6;
-					keycfg[9].value = 5;
-				}
-				
-				else if (keycfg[sel].value == 1)
-				{
-					keycfg[sel].value++;
-					update = 1;
-					keycfg[6].value = 7;
-					keycfg[7].value = 6;
-					keycfg[8].value = 8;
 					keycfg[9].value = 5;
 				}
 			}
@@ -767,9 +743,6 @@ static int menu_keycfg(void)
 			else if (keycfg[6].value == 7 && keycfg[7].value == 8 && keycfg[8].value == 6 && keycfg[9].value == 5)
 			{
 				keycfg[0].value = NEOGEO_MVS;
-			}
-			else if (keycfg[6].value == 7 && keycfg[7].value == 6 && keycfg[8].value == 8 && keycfg[9].value == 5){
-				keycfg[0].value = NEOGEO_PLAY;
 			}
 			else
 			{
@@ -913,14 +886,14 @@ static int menu_dipswitch(void)
 			}
 
 			update  = draw_battery_status(1);
-			//update |= draw_volume_status(1);
+			update |= draw_volume_status(1);
 			update |= ui_show_popup(1);
 			video_flip_screen(1);
 		}
 		else
 		{
 			update  = draw_battery_status(0);
-			//update |= draw_volume_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_wait_vsync();
 		}
@@ -1287,7 +1260,7 @@ static int menu_state(void)
 			state_refresh_screen((prev_sel == state_sel) ? 0 : 1);
 
 			update  = draw_battery_status(1);
-			//update |= draw_volume_status(1);
+			update |= draw_volume_status(1);
 			update |= ui_show_popup(1);
 			video_flip_screen(1);
 		}
@@ -1320,14 +1293,14 @@ static int menu_state(void)
 			video_copy_rect(tex_frame, draw_frame, &clip2, &clip1);
 
 			update  = draw_battery_status(0);
-			//update |= draw_volume_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_flip_screen(1);
 		}
 		else
 		{
 			update  = draw_battery_status(0);
-			//update |= draw_volume_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_wait_vsync();
 		}
@@ -1542,7 +1515,7 @@ void showmenu(void)
 			}
 
 			update  = draw_battery_status(1);
-			//update |= draw_volume_status(1);
+			update |= draw_volume_status(1);
 			update |= ui_show_popup(1);
 			video_flip_screen(1);
 		}
@@ -1578,14 +1551,14 @@ void showmenu(void)
 			video_copy_rect(tex_frame, draw_frame, &clip2, &clip1);
 
 			update  = draw_battery_status(0);
-			//update |= draw_volume_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_flip_screen(1);
 		}
 		else
 		{
 			update  = draw_battery_status(0);
-			//update |= draw_volume_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_wait_vsync();
 		}
@@ -1652,26 +1625,16 @@ void showmenu(void)
 	video_set_mode(16);
 	video_clear_screen();
 	video_clear_frame(work_frame);
-//#if (EMU_SYSTEM != CPS2)
-	//sound_set_samplerate();
-//#endif
+#if (EMU_SYSTEM != CPS2)
+	sound_set_samplerate();
+#endif
 	set_cpu_clock(psp_cpuclock);
 
 #if USE_CACHE
 	cache_sleep(0);
 #endif
 
-#if (EMU_SYSTEM == CPS1)
-    if (machine_sound_type == SOUND_QSOUND)
-        qsound_set_samplerate();
-    else
-        YM2151_set_samplerate();
-#elif (EMU_SYSTEM == CPS2)
-    qsound_set_samplerate();
-#elif (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
-    YM2610_set_samplerate();
-	
-//#if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
+#if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
 	neogeo_reset_driver_type();
 #endif
 
@@ -2042,4 +2005,3 @@ void show_color_menu(void)
 }
 
 #endif
-

@@ -12,7 +12,6 @@
 void qsound_sh_start(void);
 void qsound_sh_stop(void);
 void qsound_sh_reset(void);
-void qsound_set_samplerate(void);
 
 WRITE8_HANDLER( qsound_data_h_w );
 WRITE8_HANDLER( qsound_data_l_w );

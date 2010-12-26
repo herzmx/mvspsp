@@ -926,14 +926,13 @@ void file_browser(void)
 	i = uifont_get_string_width(APPNAME_STR " " VERSION_STR) / 2;
 #ifdef PSP_SLIM
 	draw_dialog(240-(i+32), 136-48, 240+(i+32), 136+48);
-	uifont_print_shadow_center(136-30, 255,255,120, APPNAME_STR " " VERSION_STR " for PSP Slim");
-	uifont_print_shadow_center(136- 7, 255,255,255, "HBL mod by Herz");
+	uifont_print_shadow_center(136-30, 255,255,120, APPNAME_STR " " VERSION_STR);
+	uifont_print_shadow_center(136- 7, 255,255,255, "for PSP Slim");
 	uifont_print_shadow_center(136+16, 200,200,200, "NJ (http://nj-emu.tfact.jp)");
 #else
-	draw_dialog(240-(i+32), 136-48, 240+(i+32), 136+48);
-	uifont_print_shadow_center(136-30, 255,255,120, APPNAME_STR " " VERSION_STR);
-	uifont_print_shadow_center(136- 7, 255,255,255, "HBL mod by Herz");
-	uifont_print_shadow_center(136+16, 200,200,200, "NJ (http://nj-emu.tfact.jp)");
+	draw_dialog(240-(i+32), 136-40, 240+(i+32), 136+40);
+	uifont_print_shadow_center(136-20, 255,255,120, APPNAME_STR " " VERSION_STR);
+	uifont_print_shadow_center(136+10, 200,200,200, "NJ (http://nj-emu.tfact.jp)");
 #endif
 	video_flip_screen(1);
 
@@ -950,8 +949,7 @@ void file_browser(void)
 	getDir(curr_dir);
 
 #if defined(PSP_SLIM) && ((EMU_SYSTEM == CPS2) || (EMU_SYSTEM == MVS))
-	//if (devkit_version < 0x03070110 || kuKernelGetModel() != PSP_MODEL_SLIM_AND_LITE)
-	if (devkit_version < 0x03070110 || kuKernelGetModel() != PSP_MODEL_STANDARD)
+	if (devkit_version < 0x03070110 || kuKernelGetModel() != PSP_MODEL_SLIM_AND_LITE)
 	{
 		show_background();
 		small_icon_shadow(6, 3, UI_COLOR(UI_PAL_TITLE), ICON_SYSTEM);
@@ -1146,7 +1144,7 @@ void file_browser(void)
 			draw_scrollbar(469, 26, 479, 270, rows, nfiles, sel);
 
 			update  = draw_battery_status(1);
-			//update |= draw_volume_status(1);
+			update |= draw_volume_status(1);
 			update |= ui_show_popup(1);
 			video_flip_screen(1);
 		}
@@ -1183,14 +1181,14 @@ void file_browser(void)
 			video_copy_rect(tex_frame, draw_frame, &clip2, &clip1);
 
 			update = draw_battery_status(0);
-			//update |= draw_volume_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_flip_screen(1);
 		}
 		else
 		{
 			update = draw_battery_status(0);
-			//update |= draw_volume_status(0);
+			update |= draw_volume_status(0);
 			update |= ui_show_popup(0);
 			video_wait_vsync();
 		}
@@ -1314,7 +1312,7 @@ void file_browser(void)
 #ifdef ADHOC
 					else if (adhoc_enable)
 					{
-						if (!1)
+						if (!readWLANSwitch())
 						{
 							ui_popup(TEXT(PLEASE_TURN_ON_THE_WLAN_SWITCH));
 							adhoc_enable = 0;

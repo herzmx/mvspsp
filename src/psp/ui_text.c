@@ -2,7 +2,7 @@
 
 	ui_text.c
 
-	e†[eUeCe“e^ntƒF[ƒXƒeƒLƒXƒgŠÇo
+	ƒ†[ƒUƒCƒ“ƒ^ƒtƒF[ƒXƒeƒLƒXƒgŠÇ—
 
 ******************************************************************************/
 
@@ -300,7 +300,6 @@ static const char *text[2][UI_TEXT_MAX] =
 		"Button Layout",
 		"Type 1 (NEOGEO PAD)",
 		"Type 2 (MVS)",
-		"Type 3 (PlaySation)",
 		"User Define",
 #endif
 
@@ -552,133 +551,133 @@ static const char *text[2][UI_TEXT_MAX] =
 		"\n",
 
 		/* psp/filer.c */
-		"Por favor espere...",
-		"No se pudo abrir zipname.%s",
+		"‚µ‚Î‚ç‚­‚¨‘Ò‚¿‚­‚¾‚³‚¢B",
+		"zipname.%s‚ğƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñB",
 #ifdef ADHOC
-		"Por favor, active el interruptor WLAN.",
-		"No se pudo cargar los modulos AdHoc.",
+		"WLANƒXƒCƒbƒ`‚ğON‚É‚µ‚Ä‚­‚¾‚³‚¢B",
+		"AdHocƒ‚ƒWƒ…[ƒ‹‚ğƒ[ƒho—ˆ‚Ü‚¹‚ñ‚Å‚µ‚½B",
 #endif
 
 		/* psp/sound.c */
-		"No se puede reservar canal de audio para el sonido.",
-		"No se pudo iniciar la tarea de sonido.",
+		"ƒI[ƒfƒBƒIƒ`ƒƒƒlƒ‹‚ğŠm•Û‚Å‚«‚Ü‚¹‚ñB",
+		"ƒTƒEƒ“ƒhƒXƒŒƒbƒh‚ğŠJn‚Å‚«‚Ü‚¹‚ñB",
 
 		/* psp/ui.c */
-		"Advertencia: La bateria esta baja (%d%%). Por favor, carga la bateria!",
+		"Œx: ƒoƒbƒeƒŠ[‚Ìc—e—Ê‚ª‚ ‚è‚Ü‚¹‚ñ(%d%%)B[“d‚µ‚Ä‚­‚¾‚³‚¢I",
 
-		FONT_CIRCLE " para cargar, " FONT_CROSS " para cancelar",
-		FONT_CIRCLE " para confirmar, " FONT_CROSS " para cancelar",
+		FONT_CIRCLE " ‹N“®      " FONT_CROSS " ’†~",
+		FONT_CIRCLE " ‘±s      " FONT_CROSS " ’†~",
 #ifdef SAVE_STATE
-		FONT_CIRCLE " regresar al juego, " FONT_CROSS " regresar al menu",
+		FONT_CIRCLE " ƒQ[ƒ€‚É–ß‚é   " FONT_CROSS " ƒƒjƒ…[‚É–ß‚é",
 #endif
-		"Pulsa cualquier boton.",
-		"Comenzar emulacion.",
+		"‰½‚©ƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B",
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ğŠJn‚µ‚Ü‚·B",
 #ifdef ADHOC
-		"Comenzar emulacion. (AdHoc)",
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ğŠJn‚µ‚Ü‚·B(AdHoc)",
 #endif
-		"Salir del emulador.",
-		"Resetear la emulacion.",
-		"Es necesario reiniciar la emulacion.",
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ğI—¹‚µ‚Ü‚·B",
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ğƒŠƒZƒbƒg‚µ‚Ü‚·B",
+		"ƒGƒ~ƒ…ƒŒ[ƒ^‚ğÄ‹N“®‚µ‚Ü‚·B",
 #if (EMU_SYSTEM != NCDZ)
-		"ESTE JEUGO NO FUNCIONA.",
-		"No sera capaz de hacer que funcione correctamente.",
-		"No se moleste.",
+		"‚±‚ÌƒQ[ƒ€‚Í“®ì‚µ‚Ü‚¹‚ñB",
+		"‚±‚ÌƒQ[ƒ€‚ÍŒ»ó‚Å‚Í‚Ç‚¤‚â‚Á‚Ä‚à³í‚É“®ì‚µ‚Ü‚¹‚ñ‚ªA",
+		"‹C‚É‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B",
 #endif
-		"Convertir este directorio en el de inicio?",
+		"‚±‚ÌƒfƒBƒŒƒNƒgƒŠ‚ğ‰ŠúƒfƒBƒŒƒNƒgƒŠ‚Éİ’è‚µ‚Ü‚·B",
 #ifdef PSP_SLIM
-		"Este programa requiere PSP-2000 + FW 3.71 M33 o posterior.",
+		"‚±‚ÌƒvƒƒOƒ‰ƒ€‚ÍPSP-2000 + FW 3.71 M33ˆÈ~ê—p‚Å‚·B",
 #endif
 #ifdef SAVE_STATE
-		"Iniciar el guardardado.",
-		"Iniciar la carga.",
+		"ƒXƒe[ƒgƒZ[ƒu‚ğŠJn‚µ‚Ü‚·B",
+		"ƒXƒe[ƒgƒ[ƒh‚ğŠJn‚µ‚Ü‚·B",
 #endif
 #if defined(SAVE_STATE) || defined(COMMAND_LIST)
-		"Completo.",
+		"Š®—¹‚µ‚Ü‚µ‚½B",
 #endif
 #ifdef SAVE_STATE
-		"Borrar archivo de esatado.",
+		"ƒXƒe[ƒgƒf[ƒ^‚ğíœ‚µ‚Ü‚·B",
 #endif
 #if (EMU_SYSTEM == NCDZ)
-		"Los archivos MP3 no se encuentran. CDDA no pueden reproducir.",
-		"IPL.TXT no enconrado.",
-		"Boot NEO¥GEO CDZ BIOS.",
-		"NEO¥GEO CDZ BIOS (neocd.bin) no encontrado.",
-		"Encontrado NEO¥GEO CDZ BIOS invalido.",
-		"No se puede iniciar juego.",
+		"MP3ƒtƒ@ƒCƒ‹‚ª–³‚¢ˆ×ACDDA‚ÍÄ¶‚³‚ê‚Ü‚¹‚ñB",
+		"IPL.TXT‚ª‚ ‚è‚Ü‚¹‚ñB",
+		"NEO¥GEO CDZ‚ÌBIOS‚ğ‹N“®‚µ‚Ü‚·B",
+		"NEO¥GEO CDZ‚ÌBIOS(neocd.bin)‚ª‚ ‚è‚Ü‚¹‚ñB",
+		"NEO¥GEO CDZ‚ÌBIOS‚ª–³Œø‚Å‚·B",
+		"ƒQ[ƒ€‚ğ‹N“®‚Å‚«‚Ü‚¹‚ñB",
 #endif
 
-		"Ayuda - %s",
-		"No usar",
-		"Pulsa cualquier boton para regresar al menu.",
-		"Explorador de archivos",
-		"Desplazar",
-		"Desplazar 1 pagina",
-		"Cargar juego",
-		"Cargar juego (AdHoc)",
-		"Salir del emulador",
-		"Mostrar menu de seleccion de BIOS",
-		"Abrir el menu de ajustes de color",
-		"Muestra esta ayuda",
-		"Boot BIOS",
-		"Fija el directorio seleccionado como inicial",
-		"Cambiar valor",
-		"Seleccionar",
-		"Seleccionar slot",
-		"Cambiar funcion",
-		"Ejecutar funcion",
-		"Seleccionar item",
-		"Seleccionar item / Cambiar valor",
-		"Valor RGB +5",
-		"Regresar al explorador de archivos",
-		"Valor RGB -5",
-		"Restaurar todos los valores por defecto",
-		"Desplazar / Seleccionar item",
-		"Abrir / Cerrar elemento del menu",
-		"Regresar al menu principal / juego",
+		"ƒwƒ‹ƒv - %s",
+		"g—p‚µ‚Ü‚¹‚ñ",
+		"‰½‚©ƒ{ƒ^ƒ“‚ğ‰Ÿ‚·‚Æƒƒjƒ…[‚É–ß‚è‚Ü‚·",
+		"ƒtƒ@ƒCƒ‹ƒuƒ‰ƒEƒU",
+		"ƒJ[ƒ\\ƒ‹‚ğˆÚ“®",
+		"ƒJ[ƒ\\ƒ‹‚ğ1ƒy[ƒW•ªˆÚ“®",
+		"ƒQ[ƒ€‚ğ‹N“®",
+		"ƒQ[ƒ€‚ğ‹N“® (AdHoc)",
+		"ƒGƒ~ƒ…ƒŒ[ƒ^‚ğI—¹",
+		"BIOS‘I‘ğƒƒjƒ…[‚ğ•\\¦",
+		"ƒJƒ‰[İ’èƒƒjƒ…[‚ğŠJ‚­",
+		"‚±‚Ìƒwƒ‹ƒv‚ğŠJ‚­",
+		"BIOS‚ğ‹N“®",
+		"‘I‘ğ’†‚ÌƒfƒBƒŒƒNƒgƒŠ‚ğ‹N“®ƒfƒBƒŒƒNƒgƒŠ‚Éİ’è",
+		"’l‚ğ•ÏX",
+		"‘I‘ğ",
+		"ƒXƒƒbƒg‚Ì‘I‘ğ",
+		"ˆ—‚ğ•ÏX",
+		"ˆ—‚ğÀs",
+		"€–Ú‚Ì‘I‘ğ",
+		"€–Ú‚Ì‘I‘ğ/’l‚Ì•ÏX",
+		"RGB‚Ì’l‚ğ+5",
+		"ƒtƒ@ƒCƒ‹ƒuƒ‰ƒEƒU‚É–ß‚é",
+		"RGB‚Ì’l‚ğ-5",
+		"‘S‚Ä‚Ì’l‚ğ•W€‚É–ß‚·",
+		"ƒŠƒXƒg‚ğƒXƒNƒ[ƒ‹/€–Ú‚ğ‘I‘ğ",
+		"€–Úƒƒjƒ…[‚ğŠJ‚­/•Â‚¶‚é",
+		"ƒQ[ƒ€/ƒƒCƒ“ƒƒjƒ…[‚É–ß‚é",
 
 		/* psp/ui_menu.c */
-		"On",
-		"Off",
-		"Si",
-		"No",
-		"Habilitar",
-		"Inhabilitar",
-		"Regresar al menu principal",
-		"Menu de configuracion del juego",
-		"Raster Effects",
-		"Estirar Pantalla",
+		"ƒIƒ“",
+		"ƒIƒt",
+		"‚Í‚¢",
+		"‚¢‚¢‚¦",
+		"—LŒø",
+		"–³Œø",
+		"ƒƒCƒ“ƒƒjƒ…[‚É–ß‚é",
+		"ƒQ[ƒ€İ’èƒƒjƒ…[",
+		"ƒ‰ƒXƒ^ƒGƒtƒFƒNƒg",
+		"‰æ–ÊŠg‘å",
 #if (EMU_SYSTEM == CPS1 || EMU_SYSTEM == CPS2)
 		"360x270 (4:3)",
 		"384x270 (24:17)",
 		"480x270 (16:9)",
-		"Rotar Pantalla",
+		"‰æ–Ê‚ğ‰ñ“]",
 #else
 		"360x270 (4:3)",
 		"420x270 (14:9)",
 		"480x270 (16:9)",
 #endif
-		"Video Sync",
-		"Frameskip Automatico",
-		"Frameskip",
-		"nivel 1",
-		"nivel 2",
-		"nivel 3",
-		"nivel 4",
-		"nivel 5",
-		"nivel 6",
-		"nivel 7",
-		"nivel 8",
-		"nivel 9",
-		"nivel 10",
-		"nivel 11",
-		"Mostrar FPS",
-		"Limitar a 60fps",
-		"Habilinitar Sonido",
-		"Frecuencia de muestreo",
+		"VBLANK“¯Šú",
+		"©“®ƒtƒŒ[ƒ€ƒXƒLƒbƒv",
+		"ƒtƒŒ[ƒ€ƒXƒLƒbƒv",
+		"ƒŒƒxƒ‹1",
+		"ƒŒƒxƒ‹2",
+		"ƒŒƒxƒ‹3",
+		"ƒŒƒxƒ‹4",
+		"ƒŒƒxƒ‹5",
+		"ƒŒƒxƒ‹6",
+		"ƒŒƒxƒ‹7",
+		"ƒŒƒxƒ‹8",
+		"ƒŒƒxƒ‹9",
+		"ƒŒƒxƒ‹10",
+		"ƒŒƒxƒ‹11",
+		"FPS•\\¦",
+		"60fpsƒtƒŒ[ƒ€§ŒÀ",
+		"ƒTƒEƒ“ƒhÄ¶",
+		"ƒTƒ“ƒvƒ‹ƒŒ[ƒg",
 		"11025Hz",
 		"22050Hz",
 		"44100Hz",
-		"Volumen del sonido",
+		"ƒTƒEƒ“ƒh‰¹—Ê",
 		"0%",
 		"10%",
 		"20%",
@@ -690,41 +689,41 @@ static const char *text[2][UI_TEXT_MAX] =
 		"80%",
 		"90%",
 		"100%",
-		"Control",
-		"Jugador 1",
-		"Jugador 2",
+		"ƒRƒ“ƒgƒ[ƒ‰",
+		"ƒvƒŒƒCƒ„[1",
+		"ƒvƒŒƒCƒ„[2",
 #if (EMU_SYSTEM == CPS1 || EMU_SYSTEM == CPS2)
-		"Jugador 3",
-		"Jugador 4",
+		"ƒvƒŒƒCƒ„[3",
+		"ƒvƒŒƒCƒ„[4",
 #endif
-		"PSP clock",
+		"PSP CPUƒNƒƒbƒN",
 		"222MHz",
 		"266MHz",
 		"300MHz",
 		"333MHz",
 #if (EMU_SYSTEM == MVS)
-		"Default",
+		"BIOS•W€",
 #endif
 #if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
-		"Machine Region",
-		"Japan",
-		"USA",
-		"Europe",
+		"ƒVƒXƒeƒ€’nˆæİ’è",
+		"“ú–{",
+		"ƒAƒƒŠƒJ",
+		"ƒˆ[ƒƒbƒp",
 #endif
 #if (EMU_SYSTEM == MVS)
-		"Machine Mode",
-		"Console (AES)",
-		"Arcade (MVS)",
+		"ƒVƒXƒeƒ€ƒ‚[ƒhİ’è",
+		"‰Æ’ë—p (AES)",
+		"ƒA[ƒP[ƒh (MVS)",
 #endif
 #if (EMU_SYSTEM == NCDZ)
-		"Emular la pantalla de carga",
-		"Velicida limite de CD-ROM",
-		"Habilitar CDDA",
-		"CDDA Volume",
+		"ƒ[ƒh‰æ–ÊƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“",
+		"CD-ROM‘¬“x§ŒÀ",
+		"CDDAÄ¶",
+		"CDDA‰¹—Ê",
 #endif
 
-		"Menu de configuracion de botones",
-		"Not use",
+		"“ü—Íƒ{ƒ^ƒ“İ’èƒƒjƒ…[",
+		"g—p‚µ‚È‚¢",
 		FONT_UPARROW,
 		FONT_DOWNARROW,
 		FONT_LEFTARROW,
@@ -733,354 +732,352 @@ static const char *text[2][UI_TEXT_MAX] =
 		FONT_CROSS,
 		FONT_SQUARE,
 		FONT_TRIANGLE,
-		"L TRIGGER",
-		"R TRIGGER",
+		"LƒgƒŠƒK",
+		"RƒgƒŠƒK",
 		"START",
 		"SELECT",
-		"Bajo",
-		"Normal",
-		"Alto",
+		"’á",
+		"•W€",
+		"‚",
 #if (EMU_SYSTEM == CPS2)
-		"Jugador1 Start",
-		"Jugador2 Start",
+		"ƒvƒŒƒCƒ„[1 ƒXƒ^[ƒg",
+		"ƒvƒŒƒCƒ„[2 ƒXƒ^[ƒg",
 #endif
-		"%d frame",
-		"%d frames",
+		"%dƒtƒŒ[ƒ€",
+		"%dƒtƒŒ[ƒ€",
 		FONT_UPARROW,
 		FONT_DOWNARROW,
 		FONT_LEFTARROW,
 		FONT_RIGHTARROW,
 #if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
-		"Boton A",
-		"Boton B",
-		"Boton C",
-		"Boton D",
+		"ƒ{ƒ^ƒ“A",
+		"ƒ{ƒ^ƒ“B",
+		"ƒ{ƒ^ƒ“C",
+		"ƒ{ƒ^ƒ“D",
 #else
-		"Boton 1",
-		"Boton 2",
-		"Boton 3",
-		"Boton 4",
-		"Boton 5",
-		"Boton 6",
+		"ƒ{ƒ^ƒ“1",
+		"ƒ{ƒ^ƒ“2",
+		"ƒ{ƒ^ƒ“3",
+		"ƒ{ƒ^ƒ“4",
+		"ƒ{ƒ^ƒ“5",
+		"ƒ{ƒ^ƒ“6",
 #endif
-		"Start",
+		"ƒXƒ^[ƒg",
 #if (EMU_SYSTEM == NCDZ)
-		"Select",
+		"ƒZƒŒƒNƒg",
 #else
-		"Moneda",
-		"Moneda de Servicio",
+		"ƒRƒCƒ“",
+		"ƒT[ƒrƒXƒRƒCƒ“",
 #endif
 #if (EMU_SYSTEM == MVS)
-		"Interruptor de prueba",
+		"ƒeƒXƒgƒXƒCƒbƒ`",
 #elif (EMU_SYSTEM != NCDZ)
-		"Interruptor de Servicio",
+		"ƒT[ƒrƒXƒXƒCƒbƒ`",
 #endif
 #if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
-		"Autodisparo A",
-		"Autodisparo B",
-		"Autodisparo C",
-		"Autodisparo D",
+		"ƒ{ƒ^ƒ“A ˜AË",
+		"ƒ{ƒ^ƒ“B ˜AË",
+		"ƒ{ƒ^ƒ“C ˜AË",
+		"ƒ{ƒ^ƒ“D ˜AË",
 #else
-		"Autodisparo 1",
-		"Autodisparo 2",
-		"Autodisparo 3",
-		"Autodisparo 4",
-		"Autodisparo 5",
-		"Autodisparo 6",
+		"ƒ{ƒ^ƒ“1 ˜AË",
+		"ƒ{ƒ^ƒ“2 ˜AË",
+		"ƒ{ƒ^ƒ“3 ˜AË",
+		"ƒ{ƒ^ƒ“4 ˜AË",
+		"ƒ{ƒ^ƒ“5 ˜AË",
+		"ƒ{ƒ^ƒ“6 ˜AË",
 #endif
-		"Intervalo de Autodisparo",
+		"˜AËŠÔŠu",
 #if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
-		"Hotkey A+B",
-		"Hotkey A+C",
-		"Hotkey A+D",
-		"Hotkey B+C",
-		"Hotkey B+D",
-		"Hotkey C+D",
-		"Hotkey A+B+C",
-		"Hotkey A+B+D",
-		"Hotkey A+C+D",
-		"Hotkey B+C+D",
-		"Hotkey A+B+C+D",
+		"AB “¯‰Ÿ‚µ",
+		"AC “¯‰Ÿ‚µ",
+		"AD “¯‰Ÿ‚µ",
+		"BC “¯‰Ÿ‚µ",
+		"BD “¯‰Ÿ‚µ",
+		"CD “¯‰Ÿ‚µ",
+		"ABC “¯‰Ÿ‚µ",
+		"ABD “¯‰Ÿ‚µ",
+		"ACD “¯‰Ÿ‚µ",
+		"BCD “¯‰Ÿ‚µ",
+		"ABCD “¯‰Ÿ‚µ",
 #endif
 #if (EMU_SYSTEM != NCDZ)
-		"Selsibilidar del Analogo",
+		"ƒAƒiƒƒOŠ´“x",
 #endif
 #if (EMU_SYSTEM == CPS1)
-		"Dial (Izquierda)",
-		"Dial (Derecha)",
-		"Pausa",
+		"ƒ_ƒCƒAƒ‹ (¶‰ñ“])",
+		"ƒ_ƒCƒAƒ‹ (‰E‰ñ“])",
+		"ƒ|[ƒY",
 #endif
 #if (EMU_SYSTEM == CPS2)
-		"Paddle (Izquierda)",
-		"Paddle (Derecha)",
+		"ƒpƒhƒ‹ (¶‰ñ“])",
+		"ƒpƒhƒ‹ (‰E‰ñ“])",
 #endif
 #if (EMU_SYSTEM == MVS)
-		"Big",
-		"Small",
-		"Double Up",
-		"Start/Collect",
-		"Payout",
-		"Cancel",
-		"Bet",
-		"Bet/Cancel All",
-		"Operator Menu",
-		"Clear Credit",
-		"Hopper Out",
+		"ƒrƒbƒO",
+		"ƒXƒ‚[ƒ‹",
+		"ƒ_ƒuƒ‹ƒAƒbƒv",
+		"ƒXƒ^[ƒg/WŒv",
+		"•¥‚¢–ß‚µ",
+		"ƒLƒƒƒ“ƒZƒ‹",
+		"ƒxƒbƒg",
+		"‘S‚Ä‚Éƒxƒbƒg/‘S‚ÄƒLƒƒƒ“ƒZƒ‹",
+		"ƒIƒyƒŒ[ƒ^ƒƒjƒ…[",
+		"ƒNƒŒƒWƒbƒg‚ğƒNƒŠƒA",
+		"ƒzƒbƒp[æ‚èo‚µ",
 #endif
-		"Captura de pantalla",
-		"Cambiar Jugador",
+		"ƒXƒNƒŠ[ƒ“ƒVƒ‡ƒbƒg•Û‘¶",
+		"ƒvƒŒƒCƒ„[Ø‚è‘Ö‚¦",
 #if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
-		"Plantilla de Botones",
-		"Tipo 1 (NEOGEO PAD)",
-		"Tipo 2 (MVS)",
-		"Tipo 3 (PlayStation)",
-		"Definido por el usuario",
+		"ƒ{ƒ^ƒ“”z’u",
+		"ƒ^ƒCƒv1 (NEO¥GEOƒpƒbƒh)",
+		"ƒ^ƒCƒv2 (MVS)",
+		"ƒ†[ƒU’è‹`",
 #endif
 
-		"Menu de confiracion DIP",
-		"Este juego no tiene DIP switches.",
+		"ƒfƒBƒbƒvƒXƒCƒbƒ`İ’èƒƒjƒ…[",
+		"‚±‚ÌƒQ[ƒ€‚É‚ÍƒfƒBƒbƒvƒXƒCƒbƒ`‚Í‚ ‚è‚Ü‚¹‚ñB",
 
-		"Guardar/Cargar State",
-		"Slot %d:",
-		"Vacio",
-		"Cargar",
-		"Borrar",
-		"Guardar",
-		"Fecha",
-		"Hora",
-		"Version",
-		"Fallo al borrar archivo \"%s\".",
+		"ƒZ[ƒu/ƒ[ƒhƒXƒe[ƒg",
+		"ƒXƒƒbƒg %d:",
+		"ƒf[ƒ^‚È‚µ",
+		"ƒ[ƒh",
+		"íœ",
+		"ƒZ[ƒu",
+		"ƒvƒŒƒC“ú•t",
+		"ƒZ[ƒu",
+		"ƒo[ƒWƒ‡ƒ“",
+		"ƒtƒ@ƒCƒ‹\"%s\"‚ğíœ‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B",
 
-		"Menu principal",
-		"Configuracion del Juego",
-		"Cambiar ajustes del juego.",
-		"Configuracion de botones",
-		"Cambiar configuracion de botones autodisparo/hotkey.",
+		"ƒƒCƒ“ƒƒjƒ…[",
+		"ƒQ[ƒ€İ’è",
+		"ƒQ[ƒ€‚Ì“®ìİ’è‚ğ•ÏX‚µ‚Ü‚·B",
+		"“ü—Íƒ{ƒ^ƒ“İ’è",
+		"“ü—Íƒ{ƒ^ƒ“‚Æ˜AË/ƒzƒbƒgƒL[‚Ìİ’è‚ğ‚µ‚Ü‚·B",
 #if (EMU_SYSTEM != NCDZ)
-		"Configuracion DIP switch",
-		"Cambiar la configuracion DIP swich de hardware.",
+		"ƒfƒBƒbƒvƒXƒCƒbƒ`İ’è",
+		"ƒfƒBƒbƒvƒXƒCƒbƒ`‚Ìİ’è‚ğ•ÏX‚µ‚Ü‚·B",
 #endif
-		"Reiniciar emulacion",
-		"Reinicia la emulacion de "SYSTEM_NAME,
-		"Regresar al explorador de archivos",
-		"Detiene la emulacion y regresa al explorador de archivos.",
-		"Regresar al juego",
-		"Regresar a la emulacion del juego",
-		"Salir del emulador",
-		"Salir del emulador y volver al menu de PSP.",
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ğƒŠƒZƒbƒg",
+		SYSTEM_NAME "‚ÌƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ğƒŠƒZƒbƒg‚µ‚Ü‚·B",
+		"ƒtƒ@ƒCƒ‹ƒuƒ‰ƒEƒU‚É–ß‚é",
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ğI—¹‚µAƒtƒ@ƒCƒ‹ƒuƒ‰ƒEƒU‚É–ß‚è‚Ü‚·B",
+		"ƒQ[ƒ€‚É–ß‚é",
+		"ƒQ[ƒ€‰æ–Ê‚É–ß‚è‚Ü‚·B",
+		"ƒGƒ~ƒ…ƒŒ[ƒ^‚ğI—¹",
+		"‚±‚Ìƒ\\ƒtƒgƒEƒFƒA‚ğI—¹‚µAPSP‚Ìƒƒjƒ…[‚É–ß‚è‚Ü‚·B",
 #ifdef COMMAND_LIST
-		"Mostrar lista de comandos",
-		"Mostrar lista de comando. (MAME Plus! format \"command.dat\")",
+		"ƒRƒ}ƒ“ƒhƒŠƒXƒg•\\¦",
+		"‚±‚ÌƒQ[ƒ€‚ÌƒRƒ}ƒ“ƒhˆê——‚ğ•\\¦‚µ‚Ü‚·B",
 #endif
 
 #if PSP_VIDEO_32BPP
-		"Menu de ajustes de color",
-		"Tipo de imagen de fondo",
-		"Brillo de imagen de fondo",
-		"Texto de barra de titulo",
-		"Texto seleccionado",
-		"Texto normal",
-		"Texto de mensajes de informacion",
-		"Texto de mensajes de advertencia",
-		"Barra de seleccion de archivo (inico)",
-		"Barra de seleccion de archivo (fin)",
-		"Barra de titulo/Message box",
-		"Barra de titulo/ Message box frame",
-		"Fondo",
-		"Rojo",
-		"Verde",
-		"Azul",
-		"Imagen por defecto",
-		"Imagen del usuario",
-		"solo logo.png",
-		"Barra de seleccion de archivo",
+		"ƒJƒ‰[İ’èƒƒjƒ…[",
+		"”wŒi‰æ‘œ‚Ìí—Ş",
+		"”wŒi‰æ‘œ‚Ì–¾‚é‚³",
+		"ƒ^ƒCƒgƒ‹ƒo[‚Ì•¶š",
+		"‘I‘ğ‚³‚ê‚½•¶š",
+		"•W€‚Ì•¶š",
+		"î•ñƒƒbƒZ[ƒW‚Ì•¶š",
+		"ŒxƒƒbƒZ[ƒW‚Ì•¶š",
+		"ƒtƒ@ƒCƒ‹‘I‘ğƒo[(ŠJn)",
+		"ƒtƒ@ƒCƒ‹‘I‘ğƒo[(I—¹)",
+		"ƒ^ƒCƒgƒ‹ƒo[/ƒƒbƒZ[ƒWƒ{ƒbƒNƒX",
+		"ƒ^ƒCƒgƒ‹ƒo[/ƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚Ì˜g",
+		"”wŒiF(”wŒi‰æ‘œ–¢g—p)",
+		"Ô‹P“x",
+		"—Î‹P“x",
+		"Â‹P“x",
+		"•W€‚Ì‰æ‘œ",
+		"ƒ†[ƒU‚Ì‰æ‘œ",
+		"logo.png‚Ì‚İ",
+		"ƒtƒ@ƒCƒ‹‘I‘ğƒo[",
 #endif
 
-		"Lista de comandos",
+		"ƒRƒ}ƒ“ƒhƒŠƒXƒg",
 
 		/* psp/mp3.c */
 #if (EMU_SYSTEM == NCDZ)
-		"No se pudo entrar de nuevo a archivo mp3 \"%s\".",
-		"Error al decodificar MP3.",
-		"No se pudo reservar el canal de audio para MP3.",
-		"No se pudo iniciar la tarea de MP3.",
+		"MP3ƒtƒ@ƒCƒ‹\"%s\"‚ğÄƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñB",
+		"MP3ƒfƒR[ƒhƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B",
+		"MP3Ä¶—pƒI[ƒfƒBƒIƒ`ƒƒƒlƒ‹‚ğŠm•Û‚Å‚«‚Ü‚¹‚ñB",
+		"MP3ƒXƒŒƒbƒh‚ğŠJn‚Å‚«‚Ü‚¹‚ñB",
 #endif
 
 		/* psp/adhoc.c*/
 #ifdef ADHOC
-		"lobby",
-		"server",
-		"crient",
-		"Esperando a que otra PSP se una.\n",
-		"Conectando a %s.",
-		"Conectado.",
-		"Desconectar de %s.",
-		"Desconectado.",
-		"fracasado.",
-		"Seleccione un servidor al que conectarse, o pulse " FONT_TRIANGLE " para regresar.\n",
-		"Esperando a que %s acepte la coneccion.\n",
-		"Para cancelar pulsa " FONT_CROSS ".\n",
-		"%s has requested a connection.\n",
-		"Para aceptar la conexion pulsa " FONT_CIRCLE ", para cancelar pulsa " FONT_CROSS ".\n",
-		"Esperando para la sincronizacion.",
+		"ƒƒr[",
+		"ƒT[ƒo[",
+		"ƒNƒ‰ƒCƒAƒ“ƒg",
+		"‘¼‚ÌPSP‚ÌÚ‘±‚ğ‘Ò‹@’†B\n",
+		"%s‚ÉÚ‘±’†...",
+		"Ú‘±‚µ‚Ü‚µ‚½B",
+		"%s‚©‚çØ’f’†...",
+		"Ø’f‚µ‚Ü‚µ‚½B",
+		"Ú‘±¸”s",
+		"Ú‘±‚·‚éƒT[ƒo[‚ğ‘I‘ğB" FONT_TRIANGLE "‚ğ‰Ÿ‚·‚Æ’†~‚µ‚Ü‚·B\n",
+		"%s‚ÌÚ‘±‹–‰Â‚ğ‘Ò‚Á‚Ä‚¢‚Ü‚·B\n",
+		FONT_CROSS "‚ğ‰Ÿ‚·‚Æ’†~‚µ‚Ü‚·B\n",
+		"%s‚ªÚ‘±‹–‰Â‚ğ—v‹‚µ‚Ä‚¢‚Ü‚·B\n",
+		FONT_CIRCLE "‚ÅÚ‘±‚ğ‹–‰ÂA" FONT_CROSS "‚ÅÚ‘±‚ğ‹‘”Û‚µ‚Ü‚·B\n",
+		"“¯Šú‚ğ‘Ò‚Á‚Ä‚¢‚Ü‚·B",
 #endif
 
 		/* psp/png.c */
-		"No se pudo asignar memoria para PNG.",
-		"No se pudo codificar la imagen PNG.",
+		"PNG‰æ‘œ—p‚Ìƒƒ‚ƒŠ‚ğŠm•Û‚Å‚«‚Ü‚¹‚ñB",
+		"PNG‰æ‘œ‚ğì¬‚Å‚«‚Ü‚¹‚ñB",
 #if PSP_VIDEO_32BPP || (EMU_SYSTEM == NCDZ)
-		"No se pudo decodificar la imagen PNG.",
+		"PNG‰æ‘œ‚ğ“WŠJ‚Å‚«‚Ü‚¹‚ñB",
 #endif
-		"%d bit color imagen PNG no soportada.",
+		"%dbitƒJƒ‰[‚ÌPNG‰æ‘œ‚É‚Í‘Î‰‚µ‚Ä‚¢‚Ü‚¹‚ñB",
 
 		/* emumain.c */
-		"Error fatal",
-		"Capura guardada como \"%s_%02d.png\".",
+		"’v–½“I‚ÈƒGƒ‰[",
+		"ƒXƒNƒŠ[ƒ“ƒVƒ‡ƒbƒg‚ğ\"%s_%02d.png\"‚É•Û‘¶‚µ‚Ü‚µ‚½B",
 
 #if USE_CACHE
 		/* common/cache.c */
-		"No se pudo abrir archivo de cache.\n",
-		"No hay suficiente memoria.\n",
-		"No se pudo asignar memoria cache.\n",
-		"%dKB cache alojado.\n",
-		"Error de carga de cache!!!\n",
-		"Cargando informacion de tatos de cache...\n",
-		"Version de cache no soportada \"V%c%c\".\n",
-		"Version actual requerida \"" CACHE_VERSION "\".\n",
-		"Por favor, reconstruir la cache de los archivos.\n",
+		"ƒLƒƒƒbƒVƒ…ƒtƒ@ƒCƒ‹‚ğƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñB\n",
+		"ƒƒ‚ƒŠ‚ª‘«‚è‚Ü‚¹‚ñB\n",
+		"ƒLƒƒƒbƒVƒ…ƒƒ‚ƒŠ‚ğŠm•Û‚Å‚«‚Ü‚¹‚ñB\n",
+		"%dKB‚ÌƒLƒƒƒbƒVƒ…ƒƒ‚ƒŠ‚ğŠm•Û‚µ‚Ü‚µ‚½B\n",
+		"ƒLƒƒƒbƒVƒ…ƒ[ƒh’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B\n",
+		"ƒLƒƒƒbƒVƒ…î•ñƒf[ƒ^‚ğƒ[ƒh’†...\n",
+		"ƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚È‚¢ƒo[ƒWƒ‡ƒ“\"V%c%c\"‚ÌƒLƒƒƒbƒVƒ…ƒtƒ@ƒCƒ‹‚Å‚·B\n",
+		"Œ»İ—v‹‚³‚ê‚éƒLƒƒƒbƒVƒ…ƒtƒ@ƒCƒ‹‚Ìƒo[ƒWƒ‡ƒ“‚Í\"" CACHE_VERSION "\"‚Å‚·B\n",
+		"ƒLƒƒƒbƒVƒ…ƒtƒ@ƒCƒ‹‚ğì¬‚µ‚È‚¨‚µ‚Ä‚­‚¾‚³‚¢B\n",
 #if (EMU_SYSTEM == CPS2)
-		"No se pudo abrir bloque de sprite %03x\n",
+		"ƒXƒvƒ‰ƒCƒgƒuƒƒbƒN%03x‚ğƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñB\n",
 #elif (EMU_SYSTEM == MVS)
-		"PCM cache habilitado.\n",
+		"PCMƒLƒƒƒbƒVƒ…‚ğg—p‚µ‚Ü‚·B\n",
 #endif
 #endif
 
 		/* common/loadrom.c */
-		"Pulse cualquier boton.\n",
-		"No ha podido asignar %s memory.\n",
-		"CRC32 incorrecto. \"%s\"\n",
-		"Archivo no encontrado. \"%s\"\n",
+		"‰½‚©ƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B\n",
+		"ƒƒ‚ƒŠ‚ğŠm•Û‚Å‚«‚Ü‚¹‚ñB(REGION_%s)\n",
+		"CRC32‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñB\"%s\"\n",
+		"ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB\"%s\"\n",
 
 #ifdef SAVE_STATE
 		/* common/state.c */
-		"No se pudo asignar un bufger de estado.",
-		"No se pudo crear el archivo \"%s.sv%d\"",
-		"No se pudo abrir el archivo \"%s.sv%d\"",
-		"Guardando \"%s.sv%d\"",
-		"Cargando \"%s.sv%d\"",
+		"ƒXƒe[ƒg—p‚Ìƒoƒbƒtƒ@‚ğŠm•Û‚Å‚«‚Ü‚¹‚ñB",
+		"ƒtƒ@ƒCƒ‹\"%s.sv%d\"‚ğì¬‚Å‚«‚Ü‚¹‚ñB",
+		"ƒtƒ@ƒCƒ‹\"%s.sv%d\"‚ğƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñB",
+		"\"%s.sv%d\"‚ğ•Û‘¶’†",
+		"\"%s.sv%d\"‚ğƒ[ƒh’†",
 #if (EMU_SYSTEM == MVS)
-		"No se puedo cargar la BIOS. Pulse cualquier boton para salir.",
+		"BIOS‚ğƒ[ƒh‚Å‚«‚Ü‚¹‚ñB‰½‚©ƒ{ƒ^ƒ“‚ğ‰Ÿ‚·‚ÆI—¹‚µ‚Ü‚·B",
 #elif (EMU_SYSTEM == NCDZ)
-		"No se pueden comprimir los datos de estado.",
-		"No se pueden descomprimir los datos de estado.",
+		"ƒXƒe[ƒgƒf[ƒ^‚ğˆ³k‚Å‚«‚Ü‚¹‚ñB",
+		"ƒXƒe[ƒgƒf[ƒ^‚ğ“WŠJ‚Å‚«‚Ü‚¹‚ñB",
 #endif
 #endif
 
 #ifdef COMMAND_LIST
 		/* common/cmdlist.c */
-		"La lista de comando para este juejo no se encontro.",
-		"Lista de comando - %s",
-		"%d/%d items",
-		"Reduccion de tamano de COMMAND.DAT",
-		"Este proceso elimina la lista de comandos de los juegos que no cuentan\n",
-		"con el soporte de este emulador de COMMAND.DAT.\n",
-		"Si desea reducir el tamaemulaciono de command.dat, pulse el boton" FONT_CIRCLE "\n",
-		"De lo contrario, pulse el boton " FONT_CROSS " para regresar al explorador de archivos.\n",
-		"Verifidando el formato de COMMAND.DAT...\n",
-		"ERROR: Formato desconocido.\n",
-		"ERROR: Archivo vacio.\n",
-		"ERROR: No se pudo asignar memoria.\n",
-		"ERROR: No se pudo cambiar el nombre de archivo.\n",
-		"ERROR: Se pudo crear el archivo de salida.\n",
-		"Copiando \"%s\"...\n",
-		"Tamano original:%dbytes, Resultado:%dbytes (-%.1f%%)\n",
+		"‚±‚ÌƒQ[ƒ€—p‚ÌƒRƒ}ƒ“ƒhƒŠƒXƒg‚ª‚ ‚è‚Ü‚¹‚ñB",
+		"ƒRƒ}ƒ“ƒhƒŠƒXƒg - %s",
+		"%d/%d €–Ú",
+		"COMMAND.DAT ƒTƒCƒYk¬ˆ—",
+		"‚±‚ÌƒGƒ~ƒ…ƒŒ[ƒ^‚Å‘Î‰‚µ‚Ä‚¢‚È‚¢ƒQ[ƒ€‚ÌƒRƒ}ƒ“ƒhƒŠƒXƒg‚ğíœ‚µA\n",
+		"COMMAND.DAT‚Ìƒtƒ@ƒCƒ‹ƒTƒCƒY‚ğk¬‚µ‚Ü‚·B\n",
+		"ˆ—‚ğs‚¤ê‡‚ÍA" FONT_CIRCLE "ƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B\n",
+		FONT_CROSS "ƒ{ƒ^ƒ“‚ğ‰Ÿ‚·‚Æˆ—‚ğ’†~‚µ‚Äƒtƒ@ƒCƒ‹ƒuƒ‰ƒEƒU‚É–ß‚è‚Ü‚·B\n",
+		"COMMAND.DAT ‚ğŒŸ¸’†...\n",
+		"ƒGƒ‰[: –¢‘Î‰‚Ì\"COMMAND.DAT\"‚©ƒtƒ@ƒCƒ‹‚ÌŒ`®‚ªˆÙ‚È‚è‚Ü‚·B\n",
+		"ƒGƒ‰[: ‹ó‚Ìƒtƒ@ƒCƒ‹‚Å‚·B\n",
+		"ƒGƒ‰[: ƒƒ‚ƒŠ‚ğŠm•Û‚Å‚«‚Ü‚¹‚ñB\n",
+		"ƒGƒ‰[: ƒtƒ@ƒCƒ‹‚ğƒŠƒl[ƒ€‚Å‚«‚Ü‚¹‚ñB\n",
+		"ƒGƒ‰[: o—Íƒtƒ@ƒCƒ‹‚ğì¬‚Å‚«‚Ü‚¹‚ñB\n",
+		"\"%s\" ‚ÌƒRƒ}ƒ“ƒh‚ğƒRƒs[’†...\n",
+		"ƒTƒCƒY %dbytes ¨ %dbytes (%.1f%%Œ¸)\n",
 #endif
 
 		/* emulation core */
-		"Terminado.\n",
-		"Salir de la emulacion",
-		"Por favor espere.\n",
+		"Š®—¹‚µ‚Ü‚µ‚½B\n",
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ÌI—¹",
+		"‚µ‚Î‚ç‚­‚¨‘Ò‚¿‚­‚¾‚³‚¢B\n",
 
 		/* inptport.c */
-		"Controller: Player 1",
-		"Controller: Player %d",
+		"ƒRƒ“ƒgƒ[ƒ‰[: ƒvƒŒƒCƒ„[1",
+		"ƒRƒ“ƒgƒ[ƒ‰[: ƒvƒŒƒCƒ„[%d",
 #ifdef ADHOC
-		"Sicronizacion perdida.\n",
-		"Pausado por %s",
-		"Regresar al juego",
-		"Desconectar",
+		"“¯Šú‚ğ¸‚¢‚Ü‚µ‚½B\n",
+		"%s‚É‚æ‚éƒ|[ƒY",
+		"ƒQ[ƒ€‚ğÄŠJ",
+		"Ø’f‚µ‚ÄI—¹",
 #endif
 
 		/* memintrf.c */
-		"Cargando \"%s\"\n",
-		"Carga de ROM",
+		"ƒ[ƒh’† \"%s\"\n",
+		"ROM‚Ìƒ[ƒh",
 #if (EMU_SYSTEM != NCDZ)
-		"Verificando informacion del ROM...\n",
-		"Este juego no esta soportado.\n",
-		"ROM no encontrado. (zip nombre de archivo incorrecto)\n",
-		"Driver para \"%s\" no encontrado.\n",
-		"ROM set \"%s\" (parent: %s)\n",
-		"ROM set \"%s\"\n",
+		"ROMî•ñ‚ğƒ`ƒFƒbƒN’†...\n",
+		"‚±‚ÌƒQ[ƒ€‚ÍƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB\n",
+		"ROM‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB(zipƒtƒ@ƒCƒ‹–¼‚ª³‚µ‚­‚È‚¢)\n",
+		"\"%s\"‚Ìƒhƒ‰ƒCƒo‚ª‚ ‚è‚Ü‚¹‚ñB\n",
+		"ROMƒZƒbƒg–¼\"%s\" (eƒZƒbƒg–¼: %s)\n",
+		"ROMƒZƒbƒg–¼\"%s\"\n",
 #endif
 
 #if (EMU_SYSTEM == CPS1)
 
 		/* memintrf.c */
-		"rominfo.cps1 no encontrado.\n",
-		"No se pudo asignar memoria. (0x8000 bytes)",
+		"rominfo.cps1‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB\n",
+		"ƒƒ‚ƒŠ‚ğŠm•Û‚Å‚«‚Ü‚¹‚ñB(0x8000ƒoƒCƒg)",
 
 #elif (EMU_SYSTEM == CPS2)
 
 		/* cps2crpt.c */
-		"Des-encriptando %d%%\r",
-		"Des-encriptando 100%%\n",
+		"•œ†ˆ—‚ğÀs’† %d%%\r",
+		"•œ†ˆ—‚ğÀs’† 100%%\n",
 
 		/* memintrf.c */
-		"rominfo.cps2 no encontrado.\n",
+		"rominfo.cps2‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB\n",
 
 #ifdef PSP_SLIM
 		/* vidhrdw.c */
-		"Decodificando GFX...\n",
+		"ƒOƒ‰ƒtƒBƒbƒNƒf[ƒ^‚ğ“WŠJ’†...\n",
 #endif
 
 #elif (EMU_SYSTEM == MVS)
 
 		/* biosmenu.c */
-		"Menu de seleccion de BIOS",
-		"BIOS no encontrada.",
-		"Selecione la BIOS y pulse el boton " FONT_CIRCLE ,
-		"Todos los archivos NVRAM se borraron.\n",
+		"BIOS‘I‘ğƒƒjƒ…[",
+		"BIOS‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB",
+		"BIOS‚ğ‘I‘ğ‚µA" FONT_CIRCLE "ƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B",
+		"NVRAMƒtƒ@ƒCƒ‹‚Í‘S‚Äíœ‚³‚ê‚Ü‚µ‚½B\n",
 
 		/* memintrf.c */
-		"rominfo.mvs no encontrado.\n",
-		"Cargando \"%s (%s)\"\n",
-		"Cargando GFX2 ROM desencriptado...\n",
-		"Cargando SOUND1 ROM desencriptado...\n",
-		"No se pudo asignar memoria para desencriptar ROM.\n",
-		"No se pudo asignar memoria para los datos de sprite.\n",
-		"Trate de usar cache de sprite...\n",
-		"Verificando BIOS...\n",
+		"rominfo.mvs‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB\n",
+		"ƒ[ƒh’† \"%s (%s)\"\n",
+		"•œ†Ï‚İGFX2 ROM‚ğƒ[ƒh’†...\n",
+		"•œ†Ï‚İSOUND1 ROM‚ğƒ[ƒh’†...\n",
+		"ROM•œ†—p‚Ìƒƒ‚ƒŠ‚ğŠm•Û‚Å‚«‚Ü‚¹‚ñB\n",
+		"ƒXƒvƒ‰ƒCƒgƒf[ƒ^—p‚Ìƒƒ‚ƒŠ‚ğŠm•Û‚Å‚«‚Ü‚¹‚ñB\n",
+		"ƒXƒvƒ‰ƒCƒgƒLƒƒƒbƒVƒ…‚Ìg—p‚ğ‚İ‚Ü‚·B\n",
+		"BIOS‚ğƒ`ƒFƒbƒN’†...\n",
 
 #elif (EMU_SYSTEM == NCDZ)
 
 		/* ncdz.c */
-		"Error al procesar IPL.TXT.",
-		"Reset caused by watchdog counter.",
+		"IPL.TXTˆ—’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B",
+		"ƒEƒHƒbƒ`ƒhƒbƒOƒJƒEƒ“ƒ^‚É‚æ‚éƒŠƒZƒbƒg‚ª”­¶‚µ‚Ü‚µ‚½B",
 
 		/* cdrom.c */
-		"No se pudo abrir el archivo \"%s\".",
-		"No se pudo insertar los datos del estado de CD-ROM.",
+		"ƒtƒ@ƒCƒ‹\"%s\"‚ğƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñB",
+		"CD-ROM‚ÌƒXƒe[ƒgƒf[ƒ^‚ğ’Ç‰Á‚Å‚«‚Ü‚¹‚ñB",
 
 		/* vidhrdw.c */
-		"Velocidad limite de CD-ROM: Off",
-		"Velocidad limite de CD-ROM: On",
+		"CD-ROM‘¬“x§ŒÀ: –³Œø",
+		"CD-ROM‘¬“x§ŒÀ: —LŒø",
 
 		/* memintrf.c */
-		"Verificando ID de juego...\n",
+		"ƒQ[ƒ€ID‚ğƒ`ƒFƒbƒN’†...\n",
 #endif
 		NULL
-	},
-	
+	}
 };
 
 
@@ -1093,7 +1090,7 @@ void ui_text_init(void)
 
 	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &lang);
 
-	if (lang == PSP_SYSTEMPARAM_LANGUAGE_SPANISH)
+	if (lang == PSP_SYSTEMPARAM_LANGUAGE_JAPANESE)
 		lang = 1;
 	else
 		lang = 0;
