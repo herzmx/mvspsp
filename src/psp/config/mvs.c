@@ -33,7 +33,7 @@ static cfg_type gamecfg_mvs[] =
 	{ CFG_INT,	"RasterEnable",			&neogeo_raster_enable,	0,	1	},
 
 	{ CFG_NONE,	"[Video Settings]", },
-	{ CFG_INT,	"StretchScreen",		&option_stretch,		1,	3	},
+	{ CFG_INT,  "StretchScreen",        &option_stretch,        1,  3   },
 	{ CFG_BOOL,	"VideoSync",			&option_vsync,			0,	1	},
 	{ CFG_BOOL,	"AutoFrameSkip",		&option_autoframeskip,	0,	1	},
 	{ CFG_INT,	"FrameSkipLevel",		&option_frameskip,		0,	11	},
@@ -54,8 +54,8 @@ static cfg_type gamecfg_mvs[] =
 	{ CFG_PAD,	"Left",			&input_map[P1_LEFT],	PSP_CTRL_LEFT,		0	},
 	{ CFG_PAD,	"Right",		&input_map[P1_RIGHT],	PSP_CTRL_RIGHT,		0	},
 	{ CFG_PAD,	"ButtonA",		&input_map[P1_BUTTONA],	PSP_CTRL_SQUARE,	0	},
-	{ CFG_PAD,	"ButtonB",		&input_map[P1_BUTTONB],	PSP_CTRL_TRIANGLE,	0	},
-	{ CFG_PAD,	"ButtonC",		&input_map[P1_BUTTONC],	PSP_CTRL_CROSS,		0	},
+	{ CFG_PAD,  "ButtonB",      &input_map[P1_BUTTONB], PSP_CTRL_CROSS,     0   },
+	{ CFG_PAD,  "ButtonC",      &input_map[P1_BUTTONC], PSP_CTRL_TRIANGLE,  0   }
 	{ CFG_PAD,	"ButtonD",		&input_map[P1_BUTTOND],	PSP_CTRL_CIRCLE,	0	},
 	{ CFG_PAD,	"Start",		&input_map[P1_START],	PSP_CTRL_START,		0	},
 	{ CFG_PAD,	"Coin",			&input_map[P1_COIN],	PSP_CTRL_SELECT,	0	},

@@ -314,7 +314,7 @@ void neogeo_reset_driver_type(void)
 
 	raster_enable = neogeo_raster_enable;
 
-	if (neogeo_bios >= UNI_V20 && neogeo_bios <= UNI_V22)
+	if (neogeo_bios >= UNI_V20 && neogeo_bios <= UNI_V23)
 		raster_enable = 1;
 
 	if (raster_enable)
