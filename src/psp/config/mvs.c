@@ -55,7 +55,7 @@ static cfg_type gamecfg_mvs[] =
 	{ CFG_PAD,	"Right",		&input_map[P1_RIGHT],	PSP_CTRL_RIGHT,		0	},
 	{ CFG_PAD,	"ButtonA",		&input_map[P1_BUTTONA],	PSP_CTRL_SQUARE,	0	},
 	{ CFG_PAD,  "ButtonB",      &input_map[P1_BUTTONB], PSP_CTRL_CROSS,     0   },
-	{ CFG_PAD,  "ButtonC",      &input_map[P1_BUTTONC], PSP_CTRL_TRIANGLE,  0   }
+	{ CFG_PAD,  "ButtonC",      &input_map[P1_BUTTONC], PSP_CTRL_TRIANGLE,  0   },
 	{ CFG_PAD,	"ButtonD",		&input_map[P1_BUTTOND],	PSP_CTRL_CIRCLE,	0	},
 	{ CFG_PAD,	"Start",		&input_map[P1_START],	PSP_CTRL_START,		0	},
 	{ CFG_PAD,	"Coin",			&input_map[P1_COIN],	PSP_CTRL_SELECT,	0	},
