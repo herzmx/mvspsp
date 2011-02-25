@@ -12,6 +12,12 @@
 #define MENU_RETURN	{ RETURN_TO_MAIN_MENU, }
 #define MENU_END	{ EOM, }
 
+//>>>>>>>>>>>>>>>>>DAVEX: VARIABLES GLOBALES DE CHEATS /////////////
+//variables globales de cheats
+int gnum_cheats = 0;
+cheat_st* gcheat_game[MAX_CHEATS];
+//<<<<<<<<DAVEX: VARIABLES GLOBALES DE CHEATS /////////////
+
 
 /*------------------------------------------------------
 	エミュレーションリセット
@@ -54,6 +60,7 @@ static int menu_restart(void)
 
 static int menu_browser(void)
 {
+	gnum_cheats = 0; //se vuelven a cargar los cheats( con fuga de memoria)
 	Loop = LOOP_BROWSER;
 	Sleep = 0;
 	return 1;
@@ -96,6 +103,18 @@ static int menu_cmdlist(void)
 ------------------------------------------------------*/
 
 #define GAMECFG_MAX_ITEMS	32
+#define CHEATCFG_MAX_ITEMS	MAX_CHEATS //davex
+
+
+typedef struct {
+	const char *label;
+	int *value;
+	int enable;
+	int flag;
+	int old_value;
+	int value_max;
+	const char *values_label[MAX_CHEAT_OPTION];
+} cheat_gamecfg_t;
 
 typedef struct {
 	const char *label;
@@ -356,6 +375,1085 @@ static int menu_gamecfg(void)
 }
 
 
+//>>>>>>>>>>>>>>>>>>>>>>CHEAT OPTIONS DAVEX///////////////////////////////////
+
+
+
+int add_new_cheat(int type, char *cheat_name, cheat_st** new_cheat){
+    cheat_st *cheat;
+    int i;
+
+		if( gnum_cheats >= MAX_CHEATS){ *(new_cheat) = NULL; return -1; }
+
+    cheat = (cheat_st *) malloc( sizeof(cheat_st) );
+		if( cheat == NULL) return -1;
+
+	//Se reserva la memoria dinamica del nombre del cheat
+	cheat->cheat_name = (char *) malloc( strlen(cheat_name) + 1 ); //incluir null al final
+	if( cheat->cheat_name == NULL)
+		return -2;
+
+	//se copia el nombre del cheat
+	strcpy(cheat->cheat_name, cheat_name);
+
+    //se inicializan el resto de los valores
+	//cheat->type = type; //mem save
+	cheat->num_cheat_options = 0;
+	cheat->curr_option = 0;
+
+	for( i = 0; i< MAX_CHEAT_OPTION; i++)
+		cheat->cheat_option[i] = NULL;
+	
+    //Se agrega el cheat al arreglo de cheats
+    gcheat_game[gnum_cheats++] = cheat;
+
+	*(new_cheat) = cheat; //se regresa la referencia para agregar los addres_value
+	return 0;
+
+}
+
+const char *DISABLED_LABEL = "Disabled";
+const char *ENABLED_LABEL = "Enabled";
+
+
+int add_new_cheat_option(char *label, cheat_st* cheat,cheat_option_st** new_cheat_option){
+	int i;
+	cheat_option_st *cheat_option;
+	
+	//Se verifican indices
+	//if( cheat->num_cheat_options >= MAX_CHEAT_OPTION  ) return -1;
+	if( cheat == NULL){ *(new_cheat_option) = NULL; return -1;}
+	if( cheat->num_cheat_options >= MAX_CHEAT_OPTION  ){ *(new_cheat_option) = NULL;  return -1; }
+		
+	
+	cheat_option = (cheat_option_st*) malloc( sizeof(cheat_option_st) );
+	if( cheat_option == NULL)
+		return -10;
+		
+	 //Se verifica si se puede ahorrar memoria usando etiquetas fijas para 'Enabled' y 'Disabled'
+	if( (strncmp(label, "Disabled", 8 ) == 0 ) || (strncmp(label, "Enabled", 7) == 0 )   ){
+		if(  strncmp(label, "Disabled", 8 ) == 0 )
+			cheat_option->label = (char *)DISABLED_LABEL;
+		else
+			cheat_option->label = (char *)ENABLED_LABEL;
+	
+	}else{ //No coincide, reservar memoria
+		
+		//Se reserva memoria para la etiqueta y se copia
+		cheat_option->label =  (char *) malloc( strlen(label) + 1);
+		if( cheat_option->label == NULL)
+			return -20;
+
+		strcpy(cheat_option->label, label);
+		
+	}
+
+  
+
+	//se inicializan los cheat_values
+	cheat_option->num_cheat_values = 0;
+	for(i = 0; i< MAX_CHEAT_VALUE; i++){
+		cheat_option->cheat_value[i] = NULL;
+	}
+
+	cheat->cheat_option[ cheat->num_cheat_options++] =  cheat_option;
+	*(new_cheat_option) = cheat_option;
+
+	return 0;
+}
+
+int add_new_cheat_value(int cpu, int address, int value, cheat_option_st *cheat_option){
+	
+	cheat_value_st *cheat_value;
+	
+	if( cheat_option == NULL) return -200;
+	if( cheat_option->num_cheat_values >= MAX_CHEAT_VALUE) return -201;	
+	
+
+	cheat_value = (cheat_value_st *) malloc( sizeof(cheat_value_st) );
+	if( cheat_value == NULL)
+		return -100;
+
+	//cheat_value->cpu = cpu; //mem_save
+	cheat_value->address = address;
+	cheat_value->value = value;
+	cheat_option->cheat_value[ cheat_option->num_cheat_values++ ] = cheat_value;
+
+	return 0;
+}
+
+int cheat_clear(void){
+
+  cheat_st *a_cheat = NULL;
+	cheat_option_st *a_cheat_option = NULL;
+	cheat_value_st *a_cheat_value = NULL;
+	int c,i,j;
+    for( c = 0; c < gnum_cheats; c++){ //arreglo de cheats
+        a_cheat = gcheat_game[c];
+        free( a_cheat->cheat_name); //etiqueta del cheat
+        
+
+        //Se limpian los cheat option
+		for(i = 0; i < a_cheat->num_cheat_options; i++){
+			a_cheat_option = a_cheat->cheat_option[i];
+			
+            free( a_cheat_option->label ); //se libera la etiqueta de la opcion
+			
+			//Se imprimen los cheat_value
+			for(  j = 0; j< a_cheat_option->num_cheat_values; j++){
+                a_cheat_value = a_cheat_option->cheat_value[j];
+                free( a_cheat_value);	
+			}
+            //aqui ya se puede eliminar el cheat_option
+            free( a_cheat_option);
+			
+	    }
+
+        //se libera el cheat
+        free( a_cheat);
+    }
+
+    gnum_cheats = 0; //se pone el numero de cheats a 0 
+    
+    return 0;
+}
+
+int axtoi(char *str_num){
+	int n;
+	sscanf( str_num,"%X", &n);
+  return n;
+}
+
+int parse_cheat_option_line(char *line, cheat_st* cheat ){
+
+    //se analiza una linea de tipo 
+    //1 "Blanka - Rolling Attack", 0, 0xFF8456, 0x06, 0, 0xFF8458, 0x06
+    cheat_option_st* new_cheat_option = NULL;
+    char buff[512] = {0};
+    char *ptrTok = NULL;
+    char *tmpPtr = NULL;
+    char *tmpPtrDest = NULL;
+    int primTok = 0;
+    int tokCounter = 0;
+    strcpy(buff, line);
+    int cpu = 0;
+    int address = 0;
+    int value = 0;
+    int i = 0;
+    
+
+    const int MIN_CPU = 0;
+    const int MAX_CPU = 3;
+    const int MIN_ADDRESS = 0x000000;
+    const int MAX_ADDRESS = 0xFFFFFF;
+    const int MIN_VALUE = 0x00;
+    const int MAX_VALUE = 0xFF;
+    
+    
+
+    ptrTok = strtok(buff, ","); //se parten los gdes bloques por el caracter ','
+    while(ptrTok != NULL){
+
+        tmpPtr = ptrTok; //depuracion
+
+        if( primTok == 0){ //Se verifica que contega el label
+            
+
+            tmpPtr = ptrTok;
+            tmpPtrDest = buff;
+
+            //agotar los primeros caracteres hasta la primera '"'
+            while( 1){
+                if( *tmpPtr == '"' || *tmpPtr == '\0'  )
+                    break;
+                tmpPtr++;
+            }
+            //Se encontro o el fin de cadena o la primera comilla doble
+            if( *tmpPtr == '\0' ){ //no hubo comilla doble, fue un mal token, por lo que retorna la funcion completa
+                return -1;
+            }
+
+            tmpPtr++; //la primera comilla doble no se copia
+            i = 0;
+            while( 1){
+                if( *tmpPtr == '"' || *tmpPtr == '\0' || *tmpPtr == '\r' || *tmpPtr == '\n'  )break;
+                
+                if( i > 23 ) break; //las opciones tienen limite fijo de 23 caracteres	
+                *(tmpPtrDest++) = *(tmpPtr++);
+                i++;
+                 
+            }
+            *tmpPtrDest = '\0'; //se termina la cadena
+
+            add_new_cheat_option(buff, cheat, &new_cheat_option); //se agrega el cheat option
+
+
+            primTok = 1;
+            ptrTok = strtok(NULL, ","); //siguiente token
+
+            continue;
+        }
+
+        if( tokCounter == 0){ //cada token 0 contiene el CPU
+            cpu = atoi(ptrTok);
+            if( cpu < MIN_CPU || cpu > MAX_CPU) //CPU incorrecto
+                cpu = -1;
+        }
+
+        if( tokCounter == 1 ){//cada token 1 contiene address
+            address = axtoi(ptrTok);
+            if( address < MIN_ADDRESS || address > MAX_ADDRESS )
+                address = -1;
+        }
+
+        if( tokCounter == 2 ){//cada token 2 contiene value
+            value = axtoi(ptrTok);
+            if( value < MIN_VALUE || value > MAX_VALUE )
+                value = -1;
+        }
+
+        if( tokCounter == 2 ){ //despues del token 2 se agrega el cheat value
+            //Se valida si el cheat_value es valido
+            if( cpu >=0 && address >=0 && value >=0 )
+                add_new_cheat_value(cpu, address, value, new_cheat_option);
+        }
+
+
+        tokCounter++;
+        if( tokCounter > 2) tokCounter = 0;
+
+	    ptrTok = strtok(NULL, ","); //siguiente token
+    }
+        
+    return 0;
+}
+
+
+#define MAX_BUFF 512
+
+void cheats_load(void){
+		
+    char fn[512];
+    char buff[ MAX_BUFF];
+		FILE *fp;
+		char include_fn[50];
+		int i = 0;
+		char* buff_ptr = NULL;
+    
+    //Si ya hay elementos, no agregar mas a la funcion
+		if( gnum_cheats > 0) return; 
+		
+		sprintf(fn, "%scheats/%s.ini", launchDir, game_name);
+		
+    fp = fopen(fn, "r");
+    if( fp == NULL) return;
+    	
+    //se revisa si la primera linea es un include
+    if(  fgets(buff, MAX_BUFF, fp)	){
+    	if( strncmp(buff, "include",7) == 0){
+    		
+    			buff_ptr = buff;
+    			//se eliminan todos los caracteres hasta la primer comilla doble	
+    			while(1){
+    					if( *buff_ptr == '\0' || *buff_ptr == '\r' || *buff_ptr == '\n') break;
+    					if( *buff_ptr == '"'){ buff_ptr++; break;} //Se encontro la primera comilla doble, se consume el caracter y  termina el ciclo
+    					buff_ptr++;	
+    			}
+    			//Se revisa el ultimo caracter
+    			if( *buff_ptr == '\0' || *buff_ptr == '\r' || *buff_ptr == '\n') {
+    				fclose(fp);
+    				return; //mal cadena de include, no se encontro la primera comilla doble
+    			}
+    			//Se copian el resto de los caracteres
+    			i = 0;
+    			while(1){
+    				if( *buff_ptr == '\0' || *buff_ptr == '\r' || *buff_ptr == '\n') {
+    					fclose(fp);
+    					return; //mal cadena de include, no se encontro la ultima comilla doble
+    				}
+    				if( *buff_ptr == '"'){
+    					include_fn[i] = '\0'; //ultima comilla doble, se termina la cadena y el ciclo
+    					break;
+    				}
+    				
+    				include_fn[i++] = *(buff_ptr++);
+    			}
+    			
+    			sprintf(fn, "%scheats/%s.ini", launchDir, include_fn);
+    	}
+    }
+    fclose(fp);
+    
+    //ahora si, se abre el archivo correcto
+    cheats_load_file(fn);
+    
+}
+
+void cheats_load_file(char *fn){
+	  
+    int cheat_detected = 0;
+    char buff[ MAX_BUFF];
+    cheat_st* new_cheat = NULL;
+		FILE *fp;
+		char * ptr_tmp = NULL;
+    char clean_label[50];
+    int i;
+    
+    //Si ya hay elementos, no agregar mas a la funcion
+		if( gnum_cheats > 0) return; 
+		
+		
+    fp = fopen(fn, "r");
+    if( fp == NULL) return;
+
+    
+    while ( fgets(buff, MAX_BUFF, fp) ){
+
+        if( buff[0] == '\r' || buff[0] == '\n' ){
+            cheat_detected = 0;
+            continue;
+        }
+
+        if( strncmp(buff, "default",7) == 0) continue;
+
+        if( strncmp(buff, "cheat",5) == 0){ //comienza un cheat
+            //Se limpia el nombre del cheat
+            //a)quitar la palabra cheat
+            //b)remover " comilla doble
+            
+            ptr_tmp = &(buff[5]);
+            i = 0;
+            while(1){
+                if( *ptr_tmp == '\r' || *ptr_tmp == '\n' || *ptr_tmp == '\0')break;
+                if( *ptr_tmp == '"'){ ptr_tmp++; continue;}
+                if( i> 23) break; //maximo 23 caracteres
+
+                clean_label[i++] = *(ptr_tmp++);
+            }
+            clean_label[i] = '\0'; //se agrega el final de la cadena
+
+
+            cheat_detected = 1;
+            add_new_cheat(0, clean_label, &new_cheat);
+
+        }else if( cheat_detected == 1){ //linea de cheat option
+            parse_cheat_option_line( buff, new_cheat);
+        }        
+    }
+    fclose(fp);
+	
+}
+
+
+int get_free_memory()
+{
+  const int 
+    chunk_size = 65536, // 64 kB
+    chunks = 1024; // 65536 * 1024 = 64 MB
+  void *mem_reserv[chunks];
+  int total_mem = 0, i;
+ 
+  /* Initialize */	
+  for (i = 0; i < chunks; i++)
+    mem_reserv[i] = NULL;
+ 
+  /* Allocate */
+  for (i = 0; i < chunks; i++)
+  {
+    if (!(mem_reserv[i] = malloc(chunk_size)))
+      break;
+ 
+    total_mem += chunk_size;
+  }
+ 
+  /* Free */
+  for (i = 0; i < chunks; i++)
+  {
+    if (!mem_reserv[i])
+      break;
+    free(mem_reserv[i]);
+  }
+ 
+	return total_mem;
+}
+
+
+
+
+
+//<<<<<<<<<<<<<<<<<<<CHEAT OPTIONS DAVEX///////////////////////////////////
+
+//menu que se llena a partir de los cheatgame
+//static int menu_gamecfg_davex(void)
+int menu_gamecfg_davex(void)
+{
+
+	
+	int sel = 0, rows = 13, top = 0;
+	int i, arrowl, arrowr, prev_sel, update = 1;
+	cheat_gamecfg_t gamecfg[CHEATCFG_MAX_ITEMS];
+	int gamecfg_num;
+	int c;
+	
+	cheat_st *a_cheat = NULL;
+	cheat_option_st *a_cheat_option = NULL;
+	
+	
+	//Advertencia:limite de menus a GAMECFG_MAX_ITEMS
+	for (i = 0; i < CHEATCFG_MAX_ITEMS; i++)
+		gamecfg[i].enable = 1;
+		
+	//Inicializar los cheats	
+	cheats_load();
+	
+	
+	for( c = 0; c < gnum_cheats; c++){
+			a_cheat = gcheat_game[c];
+			
+      if( a_cheat->cheat_name == NULL)
+      	return 0;
+      else
+				gamecfg[c].label     = (const char*)a_cheat->cheat_name;
+				
+			gamecfg[c].value     = &(a_cheat->curr_option);
+			gamecfg[c].flag      = CFG_CONTINUE;
+			gamecfg[c].value_max = (int) (a_cheat->num_cheat_options - 1);
+
+			
+			
+			//ADVERTENCIA: el limite es MAX_CHEAT_OPTION
+			int z = 0;
+			for( z = 0; z< a_cheat->num_cheat_options; z++){
+				a_cheat_option = a_cheat->cheat_option[z];
+				
+				if(a_cheat_option->label == NULL)
+					return 0;
+				else
+					gamecfg[c].values_label[z] = a_cheat_option->label;
+				
+			}
+			
+			
+			if (gamecfg[c].value){
+				if (*gamecfg[c].value < 0) *gamecfg[c].value = 0;
+				if (*gamecfg[c].value > gamecfg[c].value_max)*gamecfg[c].value = gamecfg[c].value_max;
+					
+				gamecfg[c].old_value = *gamecfg[c].value;
+			}
+	}
+	gamecfg_num = gnum_cheats;
+	
+	if( gnum_cheats <= 0)
+		return 0;
+
+	
+	pad_wait_clear();
+	load_background(WP_GAMECFG);
+	ui_popup_reset();
+
+	do
+	{
+		if (update)
+		{
+			show_background();
+
+			arrowl = 0;
+			arrowr = 0;
+			if (gamecfg[sel].value)
+			{
+				int cur = *gamecfg[sel].value;
+
+				if (cur > 0) arrowl = 1;
+				if (cur < gamecfg[sel].value_max) arrowr = 1;
+			}
+
+			small_icon_shadow(8, 3, UI_COLOR(UI_PAL_TITLE), ICON_CONFIG);
+			uifont_print_shadow(36, 5, UI_COLOR(UI_PAL_TITLE), TEXT(GAME_CONFIGURATION_MENU));
+			draw_scrollbar(470, 26, 479, 270, rows, gamecfg_num, sel);
+
+			for (i = 0; i < rows; i++)
+			{
+				if (top + i >= gamecfg_num) break;
+
+				if (gamecfg[top + i].label[0] == '\n')
+					continue;
+
+				if (gamecfg[top + i].enable)
+				{
+					int inc = 0;
+					if ((top + i) == sel)
+					{
+						uifont_print_shadow(16, 40 + i * 17, UI_COLOR(UI_PAL_SELECT), gamecfg[top + i].label);
+						if (arrowl)
+						{
+							uifont_print_shadow(180 + inc, 40 + i * 17, UI_COLOR(UI_PAL_SELECT), FONT_LEFTTRIANGLE);
+						}
+					}
+					else
+						uifont_print(16, 40 + i * 17, UI_COLOR(UI_PAL_NORMAL), gamecfg[top + i].label);
+				}
+				else
+				{
+					if ((top + i) == sel)
+						uifont_print_shadow(16, 40 + i * 17, COLOR_GRAY, gamecfg[top + i].label);
+					else
+						uifont_print(16, 40 + i * 17, COLOR_DARKGRAY, gamecfg[top + i].label);
+				}
+
+				if (gamecfg[top + i].value)
+				{
+					int val = *gamecfg[top + i].value;
+					int inc = 0;
+
+					if (gamecfg[top + i].enable)
+					{
+						if ((top + i) == sel)
+						{
+							uifont_print_shadow(200 + inc, 40 + i * 17, UI_COLOR(UI_PAL_SELECT), gamecfg[top + i].values_label[val]);
+							if (arrowr)
+							{
+								int width = uifont_get_string_width(gamecfg[top + i].values_label[val]);
+								uifont_print_shadow(204 + width + inc, 40 + i * 17, UI_COLOR(UI_PAL_SELECT), FONT_RIGHTTRIANGLE);
+							}
+						}
+						else
+							uifont_print(200 + inc, 40 + i * 17, UI_COLOR(UI_PAL_NORMAL), gamecfg[top + i].values_label[val]);
+						
+					}
+					else
+					{
+						if ((top + i) == sel)
+							uifont_print_shadow(200 + inc, 40 + i * 17, COLOR_GRAY, gamecfg[top + i].values_label[val]);
+						else
+							uifont_print(200 + inc, 40 + i * 17, COLOR_DARKGRAY, gamecfg[top + i].values_label[val]);
+					}
+				}
+			}
+
+			update  = draw_battery_status(1);
+			update |= ui_show_popup(1);
+			video_flip_screen(1);
+		}
+		else
+		{
+			update  = draw_battery_status(0);
+			update |= ui_show_popup(0);
+			video_wait_vsync();
+		}
+
+		prev_sel = sel;
+
+		if (pad_pressed(PSP_CTRL_UP))
+		{
+			sel--;
+			if (sel < 0) sel = gamecfg_num - 1;
+			if (gamecfg[sel].label[0] == '\n') sel--;
+		}
+		else if (pad_pressed(PSP_CTRL_DOWN))
+		{
+			sel++;
+			if (sel > gamecfg_num - 1) sel = 0;
+			if (gamecfg[sel].label[0] == '\n') sel++;
+		}
+		else if (pad_pressed(PSP_CTRL_LEFT))
+		{
+			if (gamecfg[sel].value && gamecfg[sel].enable)
+			{
+				int cur = *gamecfg[sel].value;
+
+				if (cur > 0)
+				{
+					*gamecfg[sel].value = cur - 1;
+					update = 1;
+				}
+			}
+		}
+		else if (pad_pressed(PSP_CTRL_RIGHT))
+		{
+			if (gamecfg[sel].value && gamecfg[sel].enable)
+			{
+				int cur = *gamecfg[sel].value;
+
+				if (cur < gamecfg[sel].value_max)
+				{
+					*gamecfg[sel].value = cur + 1;
+					update = 1;
+				}
+			}
+		}
+		else if (pad_pressed(PSP_CTRL_CIRCLE))
+		{
+			if (sel == gamecfg_num - 1)
+				break;
+		}
+		else if (pad_pressed(PSP_CTRL_RTRIGGER))
+		{
+			help(HELP_GAMECONFIG);
+			update = 1;
+		}
+
+		if (top > gamecfg_num - rows) top = gamecfg_num - rows;
+		if (top < 0) top = 0;
+		if (sel >= gamecfg_num) sel = 0;
+		if (sel < 0) sel = gamecfg_num - 1;
+		if (sel >= top + rows) top = sel - rows + 1;
+		if (sel < top) top = sel;
+
+		if (prev_sel != sel) update = 1;
+
+		pad_update();
+
+		if (Loop == LOOP_EXIT) break;
+
+	} while (!pad_pressed(PSP_CTRL_CROSS));
+
+	for (i = 0; i < gamecfg_num; i++)
+	{
+		if (gamecfg[i].value && gamecfg[i].flag == CFG_RESTART)
+		{
+			if (gamecfg[i].old_value != *gamecfg[i].value)
+			{
+				menu_restart();
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+
+
+
+//menu que crea estructuras dinamicas
+int menu_gamecfg_davex_memfree(void)
+{
+	
+	int sel = 0, rows = 13, top = 0;
+	int i, arrowl, arrowr, prev_sel, update = 1;
+	gamecfg_t gamecfg[GAMECFG_MAX_ITEMS];
+	int gamecfg_num;
+	int mem_free = 0;
+	mem_free = get_free_memory();
+
+	//Advertencia:limite de menus a GAMECFG_MAX_ITEMS
+	for (i = 0; i < GAMECFG_MAX_ITEMS; i++)
+		gamecfg[i].enable = 1;
+
+
+	//Inicia la parte para copiar de gamecfg2 a gamecfg
+	//Crear unos menus de forma dinamica
+	int MAX_MENUS = 3;
+	char *label_menus[MAX_MENUS];
+	int  menu_values[MAX_MENUS];
+	const char *menu_op0 = "MENU OP_A";
+	const char *menu_op1 = "MENU OP_B";
+	const char *menu_op2 = "MENU OP_C";
+	
+	for( i = 0; i< MAX_MENUS; i++){ //reservar memoria y crear cadenas
+			label_menus[i] = (char *) malloc(30); //limite fijo para etiqueta de menu
+			if( i == 0)
+				sprintf( label_menus[i], "MFree:%d", mem_free);
+			else
+				sprintf( label_menus[i], "MENU DYN_%d", i);
+				
+			menu_values[i] = 0;
+			
+			gamecfg[i].label     = label_menus[i];
+			gamecfg[i].value     = &menu_values[i];
+			gamecfg[i].flag      = CFG_CONTINUE;
+			gamecfg[i].value_max = 2;
+			
+			gamecfg[i].values_label[0] = menu_op0;
+			gamecfg[i].values_label[1] = menu_op1;
+			gamecfg[i].values_label[2] = menu_op2;
+			
+			if (gamecfg[i].value){
+				if (*gamecfg[i].value < 0)
+						*gamecfg[i].value = 0;
+				if (*gamecfg[i].value > gamecfg[i].value_max)
+					*gamecfg[i].value = gamecfg[i].value_max;
+
+			gamecfg[i].old_value = *gamecfg[i].value;
+		}
+	}
+	gamecfg_num = MAX_MENUS;
+	
+	pad_wait_clear();
+	load_background(WP_GAMECFG);
+	ui_popup_reset();
+
+	do
+	{
+		if (update)
+		{
+			show_background();
+
+			arrowl = 0;
+			arrowr = 0;
+			if (gamecfg[sel].value)
+			{
+				int cur = *gamecfg[sel].value;
+
+				if (cur > 0) arrowl = 1;
+				if (cur < gamecfg[sel].value_max) arrowr = 1;
+			}
+
+			small_icon_shadow(8, 3, UI_COLOR(UI_PAL_TITLE), ICON_CONFIG);
+			uifont_print_shadow(36, 5, UI_COLOR(UI_PAL_TITLE), TEXT(GAME_CONFIGURATION_MENU));
+			draw_scrollbar(470, 26, 479, 270, rows, gamecfg_num, sel);
+
+			for (i = 0; i < rows; i++)
+			{
+				if (top + i >= gamecfg_num) break;
+
+				if (gamecfg[top + i].label[0] == '\n')
+					continue;
+
+				if (gamecfg[top + i].enable)
+				{
+					if ((top + i) == sel)
+					{
+						uifont_print_shadow(16, 40 + i * 17, UI_COLOR(UI_PAL_SELECT), gamecfg[top + i].label);
+						if (arrowl)
+						{
+							uifont_print_shadow(180, 40 + i * 17, UI_COLOR(UI_PAL_SELECT), FONT_LEFTTRIANGLE);
+						}
+					}
+					else
+						uifont_print(16, 40 + i * 17, UI_COLOR(UI_PAL_NORMAL), gamecfg[top + i].label);
+				}
+				else
+				{
+					if ((top + i) == sel)
+						uifont_print_shadow(16, 40 + i * 17, COLOR_GRAY, gamecfg[top + i].label);
+					else
+						uifont_print(16, 40 + i * 17, COLOR_DARKGRAY, gamecfg[top + i].label);
+				}
+
+				if (gamecfg[top + i].value)
+				{
+					int val = *gamecfg[top + i].value;
+
+					if (gamecfg[top + i].enable)
+					{
+						if ((top + i) == sel)
+						{
+							uifont_print_shadow(200, 40 + i * 17, UI_COLOR(UI_PAL_SELECT), gamecfg[top + i].values_label[val]);
+							if (arrowr)
+							{
+								int width = uifont_get_string_width(gamecfg[top + i].values_label[val]);
+								uifont_print_shadow(204 + width, 40 + i * 17, UI_COLOR(UI_PAL_SELECT), FONT_RIGHTTRIANGLE);
+							}
+						}
+						else
+							uifont_print(200, 40 + i * 17, UI_COLOR(UI_PAL_NORMAL), gamecfg[top + i].values_label[val]);
+					}
+					else
+					{
+						if ((top + i) == sel)
+							uifont_print_shadow(200, 40 + i * 17, COLOR_GRAY, gamecfg[top + i].values_label[val]);
+						else
+							uifont_print(200, 40 + i * 17, COLOR_DARKGRAY, gamecfg[top + i].values_label[val]);
+					}
+				}
+			}
+
+			update  = draw_battery_status(1);
+			update |= ui_show_popup(1);
+			video_flip_screen(1);
+		}
+		else
+		{
+			update  = draw_battery_status(0);
+			update |= ui_show_popup(0);
+			video_wait_vsync();
+		}
+
+		prev_sel = sel;
+
+		if (pad_pressed(PSP_CTRL_UP))
+		{
+			sel--;
+			if (sel < 0) sel = gamecfg_num - 1;
+			if (gamecfg[sel].label[0] == '\n') sel--;
+		}
+		else if (pad_pressed(PSP_CTRL_DOWN))
+		{
+			sel++;
+			if (sel > gamecfg_num - 1) sel = 0;
+			if (gamecfg[sel].label[0] == '\n') sel++;
+		}
+		else if (pad_pressed(PSP_CTRL_LEFT))
+		{
+			if (gamecfg[sel].value && gamecfg[sel].enable)
+			{
+				int cur = *gamecfg[sel].value;
+
+				if (cur > 0)
+				{
+					*gamecfg[sel].value = cur - 1;
+					update = 1;
+				}
+			}
+		}
+		else if (pad_pressed(PSP_CTRL_RIGHT))
+		{
+			if (gamecfg[sel].value && gamecfg[sel].enable)
+			{
+				int cur = *gamecfg[sel].value;
+
+				if (cur < gamecfg[sel].value_max)
+				{
+					*gamecfg[sel].value = cur + 1;
+					update = 1;
+				}
+			}
+		}
+		else if (pad_pressed(PSP_CTRL_CIRCLE))
+		{
+			if (sel == gamecfg_num - 1)
+				break;
+		}
+		else if (pad_pressed(PSP_CTRL_RTRIGGER))
+		{
+			help(HELP_GAMECONFIG);
+			update = 1;
+		}
+
+		if (top > gamecfg_num - rows) top = gamecfg_num - rows;
+		if (top < 0) top = 0;
+		if (sel >= gamecfg_num) sel = 0;
+		if (sel < 0) sel = gamecfg_num - 1;
+		if (sel >= top + rows) top = sel - rows + 1;
+		if (sel < top) top = sel;
+
+		if (prev_sel != sel) update = 1;
+
+		pad_update();
+
+		if (Loop == LOOP_EXIT) break;
+
+	} while (!pad_pressed(PSP_CTRL_CROSS));
+
+	for (i = 0; i < gamecfg_num; i++)
+	{
+		if (gamecfg[i].value && gamecfg[i].flag == CFG_RESTART)
+		{
+			if (gamecfg[i].old_value != *gamecfg[i].value)
+			{
+				menu_restart();
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+/*
+int menu_gamecfg_davex_memfree(void)
+{
+
+	int sel = 0, rows = 13, top = 0;
+	int i, arrowl, arrowr, prev_sel, update = 1;
+	gamecfg_t gamecfg[1];
+	int gamecfg_num;
+	char buff[256];
+	int mem_free = 0;
+	
+	mem_free = get_free_memory();
+	//un_valor_dummmy = 0;
+	
+	
+	sprintf(buff, "M:%d", mem_free);
+	
+	gamecfg[0].enable = 1;
+	gamecfg[0].label     = buff;
+	gamecfg[0].value     = &un_valor_dummy;
+	gamecfg[0].flag      = CFG_CONTINUE;
+	gamecfg[0].value_max = 0;
+	
+	
+	gamecfg_num = 1;
+	
+	pad_wait_clear();
+	load_background(WP_GAMECFG);
+	ui_popup_reset();
+
+	do
+	{
+		if (update)
+		{
+			show_background();
+
+			arrowl = 0;
+			arrowr = 0;
+			if (gamecfg[sel].value)
+			{
+				int cur = *gamecfg[sel].value;
+
+				if (cur > 0) arrowl = 1;
+				if (cur < gamecfg[sel].value_max) arrowr = 1;
+			}
+
+			small_icon_shadow(8, 3, UI_COLOR(UI_PAL_TITLE), ICON_CONFIG);
+			uifont_print_shadow(36, 5, UI_COLOR(UI_PAL_TITLE), TEXT(GAME_CONFIGURATION_MENU));
+			draw_scrollbar(470, 26, 479, 270, rows, gamecfg_num, sel);
+
+			for (i = 0; i < rows; i++)
+			{
+				if (top + i >= gamecfg_num) break;
+
+				if (gamecfg[top + i].label[0] == '\n')
+					continue;
+
+				if (gamecfg[top + i].enable)
+				{
+					int inc = 0;
+					if ((top + i) == sel)
+					{
+						uifont_print_shadow(16, 40 + i * 17, UI_COLOR(UI_PAL_SELECT), gamecfg[top + i].label);
+						if (arrowl)
+						{
+							uifont_print_shadow(180 + inc, 40 + i * 17, UI_COLOR(UI_PAL_SELECT), FONT_LEFTTRIANGLE);
+						}
+					}
+					else
+						uifont_print(16, 40 + i * 17, UI_COLOR(UI_PAL_NORMAL), gamecfg[top + i].label);
+				}
+				else
+				{
+					if ((top + i) == sel)
+						uifont_print_shadow(16, 40 + i * 17, COLOR_GRAY, gamecfg[top + i].label);
+					else
+						uifont_print(16, 40 + i * 17, COLOR_DARKGRAY, gamecfg[top + i].label);
+				}
+
+				if (gamecfg[top + i].value)
+				{
+					int val = *gamecfg[top + i].value;
+					int inc = 0;
+
+					if (gamecfg[top + i].enable)
+					{
+						if ((top + i) == sel)
+						{
+							uifont_print_shadow(200 + inc, 40 + i * 17, UI_COLOR(UI_PAL_SELECT), gamecfg[top + i].values_label[val]);
+							if (arrowr)
+							{
+								int width = uifont_get_string_width(gamecfg[top + i].values_label[val]);
+								uifont_print_shadow(204 + width + inc, 40 + i * 17, UI_COLOR(UI_PAL_SELECT), FONT_RIGHTTRIANGLE);
+							}
+						}
+						else
+							uifont_print(200 + inc, 40 + i * 17, UI_COLOR(UI_PAL_NORMAL), gamecfg[top + i].values_label[val]);
+						
+					}
+					else
+					{
+						if ((top + i) == sel)
+							uifont_print_shadow(200 + inc, 40 + i * 17, COLOR_GRAY, gamecfg[top + i].values_label[val]);
+						else
+							uifont_print(200 + inc, 40 + i * 17, COLOR_DARKGRAY, gamecfg[top + i].values_label[val]);
+					}
+				}
+			}
+
+			update  = draw_battery_status(1);
+			update |= ui_show_popup(1);
+			video_flip_screen(1);
+		}
+		else
+		{
+			update  = draw_battery_status(0);
+			update |= ui_show_popup(0);
+			video_wait_vsync();
+		}
+
+		prev_sel = sel;
+
+		if (pad_pressed(PSP_CTRL_UP))
+		{
+			sel--;
+			if (sel < 0) sel = gamecfg_num - 1;
+			if (gamecfg[sel].label[0] == '\n') sel--;
+		}
+		else if (pad_pressed(PSP_CTRL_DOWN))
+		{
+			sel++;
+			if (sel > gamecfg_num - 1) sel = 0;
+			if (gamecfg[sel].label[0] == '\n') sel++;
+		}
+		else if (pad_pressed(PSP_CTRL_LEFT))
+		{
+			if (gamecfg[sel].value && gamecfg[sel].enable)
+			{
+				int cur = *gamecfg[sel].value;
+
+				if (cur > 0)
+				{
+					*gamecfg[sel].value = cur - 1;
+					update = 1;
+				}
+			}
+		}
+		else if (pad_pressed(PSP_CTRL_RIGHT))
+		{
+			if (gamecfg[sel].value && gamecfg[sel].enable)
+			{
+				int cur = *gamecfg[sel].value;
+
+				if (cur < gamecfg[sel].value_max)
+				{
+					*gamecfg[sel].value = cur + 1;
+					update = 1;
+				}
+			}
+		}
+		else if (pad_pressed(PSP_CTRL_CIRCLE))
+		{
+			if (sel == gamecfg_num - 1)
+				break;
+		}
+		else if (pad_pressed(PSP_CTRL_RTRIGGER))
+		{
+			help(HELP_GAMECONFIG);
+			update = 1;
+		}
+
+		if (top > gamecfg_num - rows) top = gamecfg_num - rows;
+		if (top < 0) top = 0;
+		if (sel >= gamecfg_num) sel = 0;
+		if (sel < 0) sel = gamecfg_num - 1;
+		if (sel >= top + rows) top = sel - rows + 1;
+		if (sel < top) top = sel;
+
+		if (prev_sel != sel) update = 1;
+
+		pad_update();
+
+		if (Loop == LOOP_EXIT) break;
+
+	} while (!pad_pressed(PSP_CTRL_CROSS));
+
+	for (i = 0; i < gamecfg_num; i++)
+	{
+		if (gamecfg[i].value && gamecfg[i].flag == CFG_RESTART)
+		{
+			if (gamecfg[i].old_value != *gamecfg[i].value)
+			{
+				menu_restart();
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+*/
+
+
 /*------------------------------------------------------
 	ボタン設定メニュー
 ------------------------------------------------------*/
@@ -522,6 +1620,7 @@ static int menu_keycfg(void)
 	}
 #endif
 
+
 	pad_wait_clear();
 	load_background(WP_KEYCFG);
 	ui_popup_reset();
@@ -678,6 +1777,7 @@ static int menu_keycfg(void)
 					keycfg[8].value = 8;
 					keycfg[9].value = 5;
 					break;
+				
 				}
 			}
 #endif
@@ -730,6 +1830,7 @@ static int menu_keycfg(void)
 					keycfg[8].value = 8;
 					keycfg[9].value = 5;
 				}
+				
 			}
 #endif
 		}
@@ -773,6 +1874,7 @@ static int menu_keycfg(void)
 			}
 		}
 #endif
+
 
 		pad_update();
 
@@ -1450,8 +2552,11 @@ static menu2_t mainmenu2[] =
 	{ MENU_RESET_EMULATION,     menu_reset,     ICON_SYSTEM,    MENUHELP_RESET_EMULATION     },
 	{ MENU_RETURN_TO_BROWSER,   menu_browser,   ICON_FOLDER,    MENUHELP_RETURN_TO_BROWSER   },
 	{ MENU_RETURN_TO_GAME,      NULL,           ICON_RETURN,    MENUHELP_RETURN_TO_GAME      },
+	{ MENU_ESPECIAL_DAVEX,  		menu_gamecfg_davex,   ICON_CONFIG,    MENUAYUDA_ESPECIAL_DAVEX  },
+	{ MENU_MEM_FREE_DAVEX,  		menu_gamecfg_davex_memfree,   ICON_FOLDER,    MENUAYUDA_MEM_FREE_DAVEX  },
 	{ MENU_EXIT_EMULATOR,       menu_exit,      ICON_EXIT,      MENUHELP_EXIT_EMULATOR       },
 	MENU_END
+
 };
 
 

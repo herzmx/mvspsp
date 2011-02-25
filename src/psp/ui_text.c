@@ -545,6 +545,11 @@ static const char *text[2][UI_TEXT_MAX] =
 		/* memintrf.c */
 		"Checking game ID...\n",
 #endif
+		"Cheat menu",
+		"Select cheat",
+
+		"Memory free",
+		"Mem free",
 		NULL
 	},
 	{
@@ -1078,6 +1083,11 @@ static const char *text[2][UI_TEXT_MAX] =
 		/* memintrf.c */
 		"Verificando ID de juego...\n",
 #endif
+		"Cheat menu",
+		"Select cheat",
+
+		"Memory free",
+		"Mem free",
 		NULL
 	},
 	

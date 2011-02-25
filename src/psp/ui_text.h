@@ -1,9 +1,5 @@
 /******************************************************************************
-
 	ui_text.c
-
-	ユーザインタフェーステキスト管理
-
 ******************************************************************************/
 
 #ifndef UI_TEXT_H
@@ -526,6 +522,12 @@ enum
 	CHECKING_GAME_ID,
 
 #endif
+	MENU_ESPECIAL_DAVEX,
+	MENUAYUDA_ESPECIAL_DAVEX,
+	
+	MENU_MEM_FREE_DAVEX,
+	MENUAYUDA_MEM_FREE_DAVEX,
+	
 	END_OF_TEXT,
 
 	UI_TEXT_MAX
