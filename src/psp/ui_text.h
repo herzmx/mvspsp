@@ -7,6 +7,7 @@
 
 #define LANG_ENGLISH	0
 #define LANG_JAPANESE	1
+#define LANG_SPANISH	2
 
 enum
 {
