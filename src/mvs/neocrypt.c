@@ -310,7 +310,7 @@ int samsho5_decrypt_68k(void)
 	{
 		TEMP,
 		0x10, 0x70, 0x40, 0x30, 0x20, 0x50, 0x60, TEMP,
-		0x18, 0x68, 0x58, 0x28, 0x18, TEMP,
+		0x18, 0x68, 0x58, 0x28, TEMP,
 		0x38, 0x48, 0x78, TEMP,
 		END
 	};
@@ -636,9 +636,9 @@ int kof2003biosdecode(void)
 	};
 	UINT16 *src = (UINT16 *)memory_region_user1;
 #ifdef PSP_SLIM
-	UINT8 *buf = (UINT8 *)psp2k_mem_offset;
+	UINT16 *buf = (UINT16 *)psp2k_mem_offset;
 #else
-	UINT8 *buf = (UINT8 *)malloc(0x80000);
+	UINT16 *buf = (UINT16 *)malloc(0x80000);
 #endif
 	UINT32 a, addr;
 
