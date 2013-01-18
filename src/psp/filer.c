@@ -923,14 +923,15 @@ void file_browser(void)
 	small_icon_shadow(6, 3, UI_COLOR(UI_PAL_TITLE), ICON_SYSTEM);
 	logo(32, 5, UI_COLOR(UI_PAL_TITLE));
 
-	i = uifont_get_string_width(APPNAME_STR " " VERSION_STR) / 2;
 #ifdef PSP_SLIM
-	draw_dialog(240-(i+32), 136-60, 240+(i+32), 136+60);
-	uifont_print_shadow_center(136-30, 255,255,120, APPNAME_STR " " VERSION_STR " for PSP Slim");
+	i = uifont_get_string_width(APPNAME_STR " " VERSION_STR " for 2000,3000,Go,Street") / 2;
+	draw_dialog(240-(i+16), 136-60, 240+(i+16), 136+60);
+	uifont_print_shadow_center(136-30, 255,255,120, APPNAME_STR " " VERSION_STR " for 2000,3000,Go,Street");
 	uifont_print_shadow_center(136- 7, 255,255,255, "Hen mod by Herz");
 	uifont_print_shadow_center(136+11, 255,255,255, "Japanese Support by 173210");
 	uifont_print_shadow_center(136+34, 200,200,200, "NJ (http://nj-emu.tfact.jp)");
 #else
+	i = uifont_get_string_width(APPNAME_STR " " VERSION_STR) / 2;
 	draw_dialog(240-(i+32), 136-60, 240+(i+32), 136+72);
 	uifont_print_shadow_center(136-30, 255,255,120, APPNAME_STR " " VERSION_STR);
 	uifont_print_shadow_center(136- 7, 255,255,255, "Hen mod by Herz");
@@ -953,7 +954,7 @@ void file_browser(void)
 	getDir(curr_dir);
 
 #if defined(PSP_SLIM) && ((EMU_SYSTEM == CPS2) || (EMU_SYSTEM == MVS))
-	if (devkit_version < 0x03070110 || kuKernelGetModel() != PSP_MODEL_SLIM_AND_LITE)
+	if (devkit_version < 0x03070110 || kuKernelGetModel() == PSP_MODEL_STANDARD)
 	{
 		show_background();
 		small_icon_shadow(6, 3, UI_COLOR(UI_PAL_TITLE), ICON_SYSTEM);
