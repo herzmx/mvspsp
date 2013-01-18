@@ -1,14 +1,14 @@
 ------------------------------------------------------------------------------
 
-                CAPCOM CPS1 Emulator for PSP 2.3.1 for FW 3.xx
+        CAPCOM CPS2 Emulator for PSP 2.3.1 for PSP-2000,3000,Go,Street
 
-                このプログラムは CFW 3.03以下では動作しません。
+        このプログラムは PSP-2000,3000,Go,Street + CFW 3.71専用です。
 
 ------------------------------------------------------------------------------
 
 <概要>
 
-  PSP用のCAPCOM CPS1(Capcom Play System)エミュレータです。
+  PSP用のCAPCOM CPS2(Capcom Play System II)エミュレータです。
 
 ------------------------------------------------------------------------------
 対応ROMセットについて
@@ -33,16 +33,16 @@
 
 フォルダは全て初回起動時に自動的に作成されます。
 
- /PSP/GAME/  (GAMEフォルダが1.50 Kernelの場合は/PSP/GAME3xx/)
+ /PSP/GAME/  (または/PSP/GAME3xx/)
       |
-      +- CPS1PSP/
+      +- CPS2PSP/
          |  |
-         |  +- EBOOT.PBP         CPS1PSP本体
+         |  +- EBOOT.PBP         CPS2PSP本体
          |  +- SystemButtons.prx システムボタン押下状態取得PRX
-         |  +- cps1psp.ini       CPS1PSP設定情報記録ファイル (自動的に作成)
-         |  +- rominfo.cps1      CPS1 ROMセットデータベース  (必須)
-         |  +- zipname.cps1      CPS1 英語ゲーム名リスト     (必須)
-         |  +- zipnamej.cps1     CPS1 日本語ゲーム名リスト   (任意)
+         |  +- cps2psp.ini       CPS2PSP設定情報記録ファイル (自動的に作成)
+         |  +- rominfo.cps2      CPS2 ROMセットデータベース  (必須)
+         |  +- zipname.cps2      CPS2 英語ゲーム名リスト     (必須)
+         |  +- zipnamej.cps2     CPS2 日本語ゲーム名リスト   (任意)
          |  +- command.dat       MAME Plus!用command.dat (コマンドリスト/任意)
          |
          +- config/   ゲーム個別設定ファイル用フォルダ
@@ -55,16 +55,21 @@
          |
          +- roms/     ROMイメージファイル用フォルダ (ZIP形式で圧縮)
          |    |
-         |    +- 1941.zip (例: 1941)
-         |    +- sf2.zip  (例: Street Fighter II (parent))
-         |    +- sf2j.zip (例: Street Fighter II (clone: Japanese ver.))
+         |    +- 19xx.zip   (例: 19xx)
+         |    +- ssf2.zip   (例: Super Street Fighter II (parent))
+         |    +- ssf2j.zip  (例: Super Street Fighter II (clone: Japanese ver.))
+         |    +- ...
+         +- cheats/   チートファイル用フォルダ
+         |    |
+         |    +- 19xx.ini   (例: 19xx)
          |    +- ...
 
 ------------------------------------------------------------------------------
 ユーザーインタフェースの表示言語について
 
-・ver.2.2.2でバイナリを統合し、PSP本体の表示言語が日本語の場合は日本語で、
-  それ以外の場合は英語で表示します。
+・ver.2.2.2でバイナリを統合し、更に有志によって変更が加えられました。
+　これによりPSP本体の表示言語が日本語の場合は日本語で、スペイン語の場合は
+　スペイン語で、それ以外の場合は英語で表示するようになりました。
 
 ・zipnamej.datは日本語を使用しない場合は不要ですので、削除してかまいません。
 
@@ -87,8 +92,7 @@
 
   以下の場合には、自動的にボタン配置を画面に合わせて反転/回転しますので、
   特に意識して変更する必要はありません。
-  ・DIPスイッチでCabinetの項目をCooktailに設定した場合の2 Player操作時
-  ・DIPスイッチでFlip Screenの項目をOnにした場合
+  ・サービスメニューでFlip Screenの項目を有効にした場合
   ・縦画面のゲームでRotate ScreenをYesにした場合
 
   共通
@@ -108,14 +112,7 @@
     Button 2 - Triangle
     Button 3 - Cross
 
-  クイズゲーム (方向ボタンは使用しません)
-    Button 1 - Square
-    Button 2 - Triangle
-    Button 3 - Cross
-    Button 4 - Circle
-    プレイヤー切り替え - L trigger
-
-  Street Fighter II系のゲーム (Street Fighter Zero CPS Changer ver.含む)
+  6ボタンのゲーム
     Button 1 - Square
     Button 2 - Triangle
     Button 3 - L trigger
@@ -123,11 +120,12 @@
     Button 5 - Circle
     Button 6 - R trigger
 
-  Forgotton World / Lost World
-    (ループレバーはPSPではどうにもならないので、L/Rトリガで代用)
+  クイズなないろドリームス専用 (方向ボタンは使用しません)
     Button 1 - Square
-    Dial(rotate left) - L trigger
-    Dial(rotate right) - R trigger
+    Button 2 - Cross
+    Button 3 - Triangle
+    Button 4 - Circle
+    プレイヤー切り替え - L trigger
 
   特殊操作
     HOME: メニューを開く
