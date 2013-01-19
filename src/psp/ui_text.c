@@ -12,9 +12,8 @@
 
 const char *ui_text[UI_TEXT_MAX];
 
-static const char *text[3][UI_TEXT_MAX] =
+static const char *text_ENGLISH[UI_TEXT_MAX] =
 {
-	{
 		"\0",
 		"\n",
 
@@ -551,8 +550,9 @@ static const char *text[3][UI_TEXT_MAX] =
 		"Memory free",
 		"Mem free",
 		NULL
-	},
-	{
+};
+static const char *text_JAPANESE[UI_TEXT_MAX] =
+{
 		"\0",
 		"\n",
 
@@ -1089,8 +1089,9 @@ static const char *text[3][UI_TEXT_MAX] =
 		"ÉÅÉÇÉäâï˙",
 		"ÉÅÉÇÉäâï˙ê›íËÇïœçXÇµÇ‹Ç∑ÅB",
 		NULL
-	},
-	{
+};
+static const char *text_SPANISH[UI_TEXT_MAX] =
+{
 		"\0",
 		"\n",
 
@@ -1627,7 +1628,6 @@ static const char *text[3][UI_TEXT_MAX] =
 		"Memory free",
 		"Mem free",
 		NULL
-	}
 };
 
 
@@ -1641,14 +1641,24 @@ void ui_text_init(void)
 	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &lang);
 
 	if (lang == PSP_SYSTEMPARAM_LANGUAGE_JAPANESE)
-		lang = 1;
+	{
+		lang = LANG_JAPANESE;
+		for (i = 0; i < UI_TEXT_MAX; i++)
+			ui_text[i] = text_JAPANESE[i];
+	}
 	else if (lang == PSP_SYSTEMPARAM_LANGUAGE_SPANISH)
-		lang = 2;
+	{
+		lang = LANG_SPANISH;
+		for (i = 0; i < UI_TEXT_MAX; i++)
+			ui_text[i] = text_SPANISH[i];
+	}
 	else
-		lang = 0;
+	{
+		lang = LANG_ENGLISH;
+		for (i = 0; i < UI_TEXT_MAX; i++)
+			ui_text[i] = text_ENGLISH[i];
+	}
 
-	for (i = 0; i < UI_TEXT_MAX; i++)
-		ui_text[i] = text[lang][i];
 }
 
 int ui_text_get_language(void)
