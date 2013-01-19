@@ -68,9 +68,9 @@ static const char *text[3][UI_TEXT_MAX] =
 #if (EMU_SYSTEM == NCDZ)
 		"MP3 files not found. CDDA cannot play.",
 		"IPL.TXT not found.",
-		"Boot NEOÔøΩGEO CDZ BIOS.",
-		"NEOÔøΩGEO CDZ BIOS (neocd.bin) not found.",
-		"Invalid NEOÔøΩGEO CDZ BIOS found.",
+		"Boot NEO•GEO CDZ BIOS.",
+		"NEO•GEO CDZ BIOS (neocd.bin) not found.",
+		"Invalid NEO•GEO CDZ BIOS found.",
 		"Cannot launch game.",
 #endif
 
@@ -300,7 +300,7 @@ static const char *text[3][UI_TEXT_MAX] =
 		"Button Layout",
 		"Type 1 (NEOGEO PAD)",
 		"Type 2 (MVS)",
-		"Type 3 (PlaySation)",
+		"Type 3 (PlayStation)",
 		"User Define",
 #endif
 
@@ -838,6 +838,7 @@ static const char *text[3][UI_TEXT_MAX] =
 		"É{É^Éìîzíu",
 		"É^ÉCÉv1 (NEO•GEOÉpÉbÉh)",
 		"É^ÉCÉv2 (MVS)",
+		"É^ÉCÉv3 (PlayStation)",
 		"ÉÜÅ[ÉUíËã`",
 #endif
 
@@ -1143,9 +1144,9 @@ static const char *text[3][UI_TEXT_MAX] =
 #if (EMU_SYSTEM == NCDZ)
 		"Los archivos MP3 no se encuentran. CDDA no pueden reproducir.",
 		"IPL.TXT no enconrado.",
-		"Boot NEOÔøΩGEO CDZ BIOS.",
-		"NEOÔøΩGEO CDZ BIOS (neocd.bin) no encontrado.",
-		"Encontrado NEOÔøΩGEO CDZ BIOS invalido.",
+		"Boot NEO•GEO CDZ BIOS.",
+		"NEO•GEO CDZ BIOS (neocd.bin) no encontrado.",
+		"Encontrado NEO•GEO CDZ BIOS invalido.",
 		"No se puede iniciar juego.",
 #endif
 
