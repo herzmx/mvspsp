@@ -1644,6 +1644,8 @@ void ui_text_init(void)
 		lang = 1;
 	else if (lang == PSP_SYSTEMPARAM_LANGUAGE_SPANISH)
 		lang = 2;
+	else
+		lang = 0;
 
 	for (i = 0; i < UI_TEXT_MAX; i++)
 		ui_text[i] = text[lang][i];
