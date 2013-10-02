@@ -27,6 +27,7 @@ volatile int Sleep;
 char launchDir[MAX_PATH];
 int psp_cpuclock = PSPCLOCK_333;
 int devkit_version;
+int systembuttons_available;
 int njemu_debug;
 
 
@@ -188,15 +189,11 @@ int main(int argc, char *argv[])
 	if ((modID = pspSdkLoadStartModule(prx_path, PSP_MEMORY_PARTITION_KERNEL)) >= 0)
 	{
 		initSystemButtons(devkit_version);
+		systembuttons_available = 1;
+	}
+	else systembuttons_available = 0;
 
-		file_browser();
-	}
-	else
-	{
-		small_font_printf(0, 0, "Error 0x%08X start SystemButtons.prx.", modID);
-		video_flip_screen(1);
-		sceKernelDelayThread(5*1000*1000);
-	}
+	file_browser();
 
 	video_exit();
 

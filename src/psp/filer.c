@@ -1317,7 +1317,7 @@ void file_browser(void)
 #ifdef ADHOC
 					else if (adhoc_enable)
 					{
-						if (!readWLANSwitch())
+						if (!sceWlanGetSwitchState())
 						{
 							ui_popup(TEXT(PLEASE_TURN_ON_THE_WLAN_SWITCH));
 							adhoc_enable = 0;
