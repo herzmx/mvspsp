@@ -2363,11 +2363,9 @@ static void state_delete_slot(void)
 static int menu_state(void)
 {
 	int prev_sel = -1, prev_func = -1, update = 1;
-	int thumbnail_loaded = 0;
 
 	state_func = STATE_FUNC_SAVE;
 	state_sel = 0;
-	thumbnail_loaded = 0;
 
 	pad_wait_clear();
 	load_background(WP_STATE);
