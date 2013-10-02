@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 
-               CAPCOM CPS1 Emulator for PSP 2.3.1 for 1.5 kernel
+         Unofficial CAPCOM CPS1 Emulator for PSP 2.3.1 for 1.5 Kernel
 
                   Ç±ÇÃÉvÉçÉOÉâÉÄÇÕ PSP-2000Ç≈ÇÕìÆçÏÇµÇ‹ÇπÇÒÅB
 
