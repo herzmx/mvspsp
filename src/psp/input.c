@@ -211,16 +211,10 @@ void pad_wait_press(int msec)
 	}
 	else
 	{
-		TICKER curr = ticker();
-		TICKER target, prev;
+		TICKER target = ticker() + msec * (TICKS_PER_SEC / 1000);
 
-		target = curr + msec * (TICKS_PER_SEC / 1000);
-
-		while (curr < target)
+		while (ticker() < target)
 		{
-			prev = curr;
-			curr = ticker();
-
 			video_wait_vsync();
 			if (poll_gamepad()) break;
 			if (!Loop) break;

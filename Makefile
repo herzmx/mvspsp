@@ -203,7 +203,7 @@ include src/makefiles/$(TARGET).mak
 CFLAGS = \
 	-O2 \
 	-fomit-frame-pointer \
-	-fstrict-aliasing \
+	-fno-strict-aliasing \
 	-falign-functions=32 \
 	-falign-loops \
 	-falign-labels \

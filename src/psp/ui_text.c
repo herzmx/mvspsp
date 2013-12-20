@@ -2,7 +2,7 @@
 
 	ui_text.c
 
-	eï¿½ï¿½[eUeCeï¿½e^ntï¿½Fï¿½[ï¿½Xï¿½eï¿½Lï¿½Xï¿½gï¿½ï¿½oï¿½
+	ƒ†[ƒUƒCƒ“ƒ^ƒtƒF[ƒXƒeƒLƒXƒgŠÇ—
 
 ******************************************************************************/
 
@@ -12,9 +12,8 @@
 
 const char *ui_text[UI_TEXT_MAX];
 
-static const char *text[2][UI_TEXT_MAX] =
+static const char *text_ENGLISH[UI_TEXT_MAX] =
 {
-	{
 		"\0",
 		"\n",
 
@@ -68,9 +67,9 @@ static const char *text[2][UI_TEXT_MAX] =
 #if (EMU_SYSTEM == NCDZ)
 		"MP3 files not found. CDDA cannot play.",
 		"IPL.TXT not found.",
-		"Boot NEOï¿½GEO CDZ BIOS.",
-		"NEOï¿½GEO CDZ BIOS (neocd.bin) not found.",
-		"Invalid NEOï¿½GEO CDZ BIOS found.",
+		"Boot NEO¥GEO CDZ BIOS.",
+		"NEO¥GEO CDZ BIOS (neocd.bin) not found.",
+		"Invalid NEO¥GEO CDZ BIOS found.",
 		"Cannot launch game.",
 #endif
 
@@ -300,7 +299,7 @@ static const char *text[2][UI_TEXT_MAX] =
 		"Button Layout",
 		"Type 1 (NEOGEO PAD)",
 		"Type 2 (MVS)",
-		"Type 3 (PlaySation)",
+		"Type 3 (PlayStation)",
 		"User Define",
 #endif
 
@@ -551,8 +550,548 @@ static const char *text[2][UI_TEXT_MAX] =
 		"Memory free",
 		"Mem free",
 		NULL
-	},
-	{
+};
+static const char *text_JAPANESE[UI_TEXT_MAX] =
+{
+		"\0",
+		"\n",
+
+		/* psp/filer.c */
+		"‚µ‚Î‚ç‚­‚¨‘Ò‚¿‚­‚¾‚³‚¢B",
+		"zipname.%s‚ðƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñB",
+#ifdef ADHOC
+		"WLANƒXƒCƒbƒ`‚ðON‚É‚µ‚Ä‚­‚¾‚³‚¢B",
+		"AdHocƒ‚ƒWƒ…[ƒ‹‚ðƒ[ƒho—ˆ‚Ü‚¹‚ñ‚Å‚µ‚½B",
+#endif
+
+		/* psp/sound.c */
+		"ƒI[ƒfƒBƒIƒ`ƒƒƒlƒ‹‚ðŠm•Û‚Å‚«‚Ü‚¹‚ñB",
+		"ƒTƒEƒ“ƒhƒXƒŒƒbƒh‚ðŠJŽn‚Å‚«‚Ü‚¹‚ñB",
+
+		/* psp/ui.c */
+		"Œx: ƒoƒbƒeƒŠ[‚ÌŽc—e—Ê‚ª‚ ‚è‚Ü‚¹‚ñ(%d%%)B[“d‚µ‚Ä‚­‚¾‚³‚¢I",
+
+		FONT_CIRCLE " ‹N“®      " FONT_CROSS " ’†Ž~",
+		FONT_CIRCLE " ‘±s      " FONT_CROSS " ’†Ž~",
+#ifdef SAVE_STATE
+		FONT_CIRCLE " ƒQ[ƒ€‚É–ß‚é   " FONT_CROSS " ƒƒjƒ…[‚É–ß‚é",
+#endif
+		"‰½‚©ƒ{ƒ^ƒ“‚ð‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B",
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ðŠJŽn‚µ‚Ü‚·B",
+#ifdef ADHOC
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ðŠJŽn‚µ‚Ü‚·B(AdHoc)",
+#endif
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ðI—¹‚µ‚Ü‚·B",
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ðƒŠƒZƒbƒg‚µ‚Ü‚·B",
+		"ƒGƒ~ƒ…ƒŒ[ƒ^‚ðÄ‹N“®‚µ‚Ü‚·B",
+#if (EMU_SYSTEM != NCDZ)
+		"‚±‚ÌƒQ[ƒ€‚Í“®ì‚µ‚Ü‚¹‚ñB",
+		"‚±‚ÌƒQ[ƒ€‚ÍŒ»ó‚Å‚Í‚Ç‚¤‚â‚Á‚Ä‚à³í‚É“®ì‚µ‚Ü‚¹‚ñ‚ªA",
+		"‹C‚É‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B",
+#endif
+		"‚±‚ÌƒfƒBƒŒƒNƒgƒŠ‚ð‰ŠúƒfƒBƒŒƒNƒgƒŠ‚ÉÝ’è‚µ‚Ü‚·B",
+#ifdef PSP_SLIM
+		"‚±‚ÌƒvƒƒOƒ‰ƒ€‚ÍPSP-2000 + FW 3.71 M33ˆÈ~ê—p‚Å‚·B",
+#endif
+#ifdef SAVE_STATE
+		"ƒXƒe[ƒgƒZ[ƒu‚ðŠJŽn‚µ‚Ü‚·B",
+		"ƒXƒe[ƒgƒ[ƒh‚ðŠJŽn‚µ‚Ü‚·B",
+#endif
+#if defined(SAVE_STATE) || defined(COMMAND_LIST)
+		"Š®—¹‚µ‚Ü‚µ‚½B",
+#endif
+#ifdef SAVE_STATE
+		"ƒXƒe[ƒgƒf[ƒ^‚ðíœ‚µ‚Ü‚·B",
+#endif
+#if (EMU_SYSTEM == NCDZ)
+		"MP3ƒtƒ@ƒCƒ‹‚ª–³‚¢ˆ×ACDDA‚ÍÄ¶‚³‚ê‚Ü‚¹‚ñB",
+		"IPL.TXT‚ª‚ ‚è‚Ü‚¹‚ñB",
+		"NEO¥GEO CDZ‚ÌBIOS‚ð‹N“®‚µ‚Ü‚·B",
+		"NEO¥GEO CDZ‚ÌBIOS(neocd.bin)‚ª‚ ‚è‚Ü‚¹‚ñB",
+		"NEO¥GEO CDZ‚ÌBIOS‚ª–³Œø‚Å‚·B",
+		"ƒQ[ƒ€‚ð‹N“®‚Å‚«‚Ü‚¹‚ñB",
+#endif
+
+		"ƒwƒ‹ƒv - %s",
+		"Žg—p‚µ‚Ü‚¹‚ñ",
+		"‰½‚©ƒ{ƒ^ƒ“‚ð‰Ÿ‚·‚Æƒƒjƒ…[‚É–ß‚è‚Ü‚·",
+		"ƒtƒ@ƒCƒ‹ƒuƒ‰ƒEƒU",
+		"ƒJ[ƒ\\ƒ‹‚ðˆÚ“®",
+		"ƒJ[ƒ\\ƒ‹‚ð1ƒy[ƒW•ªˆÚ“®",
+		"ƒQ[ƒ€‚ð‹N“®",
+		"ƒQ[ƒ€‚ð‹N“® (AdHoc)",
+		"ƒGƒ~ƒ…ƒŒ[ƒ^‚ðI—¹",
+		"BIOS‘I‘ðƒƒjƒ…[‚ð•\\Ž¦",
+		"ƒJƒ‰[Ý’èƒƒjƒ…[‚ðŠJ‚­",
+		"‚±‚Ìƒwƒ‹ƒv‚ðŠJ‚­",
+		"BIOS‚ð‹N“®",
+		"‘I‘ð’†‚ÌƒfƒBƒŒƒNƒgƒŠ‚ð‹N“®ƒfƒBƒŒƒNƒgƒŠ‚ÉÝ’è",
+		"’l‚ð•ÏX",
+		"‘I‘ð",
+		"ƒXƒƒbƒg‚Ì‘I‘ð",
+		"ˆ—‚ð•ÏX",
+		"ˆ—‚ðŽÀs",
+		"€–Ú‚Ì‘I‘ð",
+		"€–Ú‚Ì‘I‘ð/’l‚Ì•ÏX",
+		"RGB‚Ì’l‚ð+5",
+		"ƒtƒ@ƒCƒ‹ƒuƒ‰ƒEƒU‚É–ß‚é",
+		"RGB‚Ì’l‚ð-5",
+		"‘S‚Ä‚Ì’l‚ð•W€‚É–ß‚·",
+		"ƒŠƒXƒg‚ðƒXƒNƒ[ƒ‹/€–Ú‚ð‘I‘ð",
+		"€–Úƒƒjƒ…[‚ðŠJ‚­/•Â‚¶‚é",
+		"ƒQ[ƒ€/ƒƒCƒ“ƒƒjƒ…[‚É–ß‚é",
+
+		/* psp/ui_menu.c */
+		"ƒIƒ“",
+		"ƒIƒt",
+		"‚Í‚¢",
+		"‚¢‚¢‚¦",
+		"—LŒø",
+		"–³Œø",
+		"ƒƒCƒ“ƒƒjƒ…[‚É–ß‚é",
+		"ƒQ[ƒ€Ý’èƒƒjƒ…[",
+		"ƒ‰ƒXƒ^ƒGƒtƒFƒNƒg",
+		"‰æ–ÊŠg‘å",
+#if (EMU_SYSTEM == CPS1 || EMU_SYSTEM == CPS2)
+		"360x270 (4:3)",
+		"384x270 (24:17)",
+		"480x270 (16:9)",
+		"‰æ–Ê‚ð‰ñ“]",
+#else
+		"360x270 (4:3)",
+		"420x270 (14:9)",
+		"480x270 (16:9)",
+#endif
+		"VBLANK“¯Šú",
+		"Ž©“®ƒtƒŒ[ƒ€ƒXƒLƒbƒv",
+		"ƒtƒŒ[ƒ€ƒXƒLƒbƒv",
+		"ƒŒƒxƒ‹1",
+		"ƒŒƒxƒ‹2",
+		"ƒŒƒxƒ‹3",
+		"ƒŒƒxƒ‹4",
+		"ƒŒƒxƒ‹5",
+		"ƒŒƒxƒ‹6",
+		"ƒŒƒxƒ‹7",
+		"ƒŒƒxƒ‹8",
+		"ƒŒƒxƒ‹9",
+		"ƒŒƒxƒ‹10",
+		"ƒŒƒxƒ‹11",
+		"FPS•\\Ž¦",
+		"60fpsƒtƒŒ[ƒ€§ŒÀ",
+		"ƒTƒEƒ“ƒhÄ¶",
+		"ƒTƒ“ƒvƒ‹ƒŒ[ƒg",
+		"11025Hz",
+		"22050Hz",
+		"44100Hz",
+		"ƒTƒEƒ“ƒh‰¹—Ê",
+		"0%",
+		"10%",
+		"20%",
+		"30%",
+		"40%",
+		"50%",
+		"60%",
+		"70%",
+		"80%",
+		"90%",
+		"100%",
+		"ƒRƒ“ƒgƒ[ƒ‰",
+		"ƒvƒŒƒCƒ„[1",
+		"ƒvƒŒƒCƒ„[2",
+#if (EMU_SYSTEM == CPS1 || EMU_SYSTEM == CPS2)
+		"ƒvƒŒƒCƒ„[3",
+		"ƒvƒŒƒCƒ„[4",
+#endif
+		"PSP CPUƒNƒƒbƒN",
+		"222MHz",
+		"266MHz",
+		"300MHz",
+		"333MHz",
+#if (EMU_SYSTEM == MVS)
+		"BIOS•W€",
+#endif
+#if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
+		"ƒVƒXƒeƒ€’nˆæÝ’è",
+		"“ú–{",
+		"ƒAƒƒŠƒJ",
+		"ƒˆ[ƒƒbƒp",
+#endif
+#if (EMU_SYSTEM == MVS)
+		"ƒVƒXƒeƒ€ƒ‚[ƒhÝ’è",
+		"‰Æ’ë—p (AES)",
+		"ƒA[ƒP[ƒh (MVS)",
+#endif
+#if (EMU_SYSTEM == NCDZ)
+		"ƒ[ƒh‰æ–ÊƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“",
+		"CD-ROM‘¬“x§ŒÀ",
+		"CDDAÄ¶",
+		"CDDA‰¹—Ê",
+#endif
+
+		"“ü—Íƒ{ƒ^ƒ“Ý’èƒƒjƒ…[",
+		"Žg—p‚µ‚È‚¢",
+		FONT_UPARROW,
+		FONT_DOWNARROW,
+		FONT_LEFTARROW,
+		FONT_RIGHTARROW,
+		FONT_CIRCLE,
+		FONT_CROSS,
+		FONT_SQUARE,
+		FONT_TRIANGLE,
+		"LƒgƒŠƒK",
+		"RƒgƒŠƒK",
+		"START",
+		"SELECT",
+		"’á",
+		"•W€",
+		"‚",
+#if (EMU_SYSTEM == CPS2)
+		"ƒvƒŒƒCƒ„[1 ƒXƒ^[ƒg",
+		"ƒvƒŒƒCƒ„[2 ƒXƒ^[ƒg",
+#endif
+		"%dƒtƒŒ[ƒ€",
+		"%dƒtƒŒ[ƒ€",
+		FONT_UPARROW,
+		FONT_DOWNARROW,
+		FONT_LEFTARROW,
+		FONT_RIGHTARROW,
+#if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
+		"ƒ{ƒ^ƒ“A",
+		"ƒ{ƒ^ƒ“B",
+		"ƒ{ƒ^ƒ“C",
+		"ƒ{ƒ^ƒ“D",
+#else
+		"ƒ{ƒ^ƒ“1",
+		"ƒ{ƒ^ƒ“2",
+		"ƒ{ƒ^ƒ“3",
+		"ƒ{ƒ^ƒ“4",
+		"ƒ{ƒ^ƒ“5",
+		"ƒ{ƒ^ƒ“6",
+#endif
+		"ƒXƒ^[ƒg",
+#if (EMU_SYSTEM == NCDZ)
+		"ƒZƒŒƒNƒg",
+#else
+		"ƒRƒCƒ“",
+		"ƒT[ƒrƒXƒRƒCƒ“",
+#endif
+#if (EMU_SYSTEM == MVS)
+		"ƒeƒXƒgƒXƒCƒbƒ`",
+#elif (EMU_SYSTEM != NCDZ)
+		"ƒT[ƒrƒXƒXƒCƒbƒ`",
+#endif
+#if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
+		"ƒ{ƒ^ƒ“A ˜AŽË",
+		"ƒ{ƒ^ƒ“B ˜AŽË",
+		"ƒ{ƒ^ƒ“C ˜AŽË",
+		"ƒ{ƒ^ƒ“D ˜AŽË",
+#else
+		"ƒ{ƒ^ƒ“1 ˜AŽË",
+		"ƒ{ƒ^ƒ“2 ˜AŽË",
+		"ƒ{ƒ^ƒ“3 ˜AŽË",
+		"ƒ{ƒ^ƒ“4 ˜AŽË",
+		"ƒ{ƒ^ƒ“5 ˜AŽË",
+		"ƒ{ƒ^ƒ“6 ˜AŽË",
+#endif
+		"˜AŽËŠÔŠu",
+#if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
+		"AB “¯Žž‰Ÿ‚µ",
+		"AC “¯Žž‰Ÿ‚µ",
+		"AD “¯Žž‰Ÿ‚µ",
+		"BC “¯Žž‰Ÿ‚µ",
+		"BD “¯Žž‰Ÿ‚µ",
+		"CD “¯Žž‰Ÿ‚µ",
+		"ABC “¯Žž‰Ÿ‚µ",
+		"ABD “¯Žž‰Ÿ‚µ",
+		"ACD “¯Žž‰Ÿ‚µ",
+		"BCD “¯Žž‰Ÿ‚µ",
+		"ABCD “¯Žž‰Ÿ‚µ",
+#endif
+#if (EMU_SYSTEM != NCDZ)
+		"ƒAƒiƒƒOŠ´“x",
+#endif
+#if (EMU_SYSTEM == CPS1)
+		"ƒ_ƒCƒAƒ‹ (¶‰ñ“])",
+		"ƒ_ƒCƒAƒ‹ (‰E‰ñ“])",
+		"ƒ|[ƒY",
+#endif
+#if (EMU_SYSTEM == CPS2)
+		"ƒpƒhƒ‹ (¶‰ñ“])",
+		"ƒpƒhƒ‹ (‰E‰ñ“])",
+#endif
+#if (EMU_SYSTEM == MVS)
+		"ƒrƒbƒO",
+		"ƒXƒ‚[ƒ‹",
+		"ƒ_ƒuƒ‹ƒAƒbƒv",
+		"ƒXƒ^[ƒg/WŒv",
+		"•¥‚¢–ß‚µ",
+		"ƒLƒƒƒ“ƒZƒ‹",
+		"ƒxƒbƒg",
+		"‘S‚Ä‚Éƒxƒbƒg/‘S‚ÄƒLƒƒƒ“ƒZƒ‹",
+		"ƒIƒyƒŒ[ƒ^ƒƒjƒ…[",
+		"ƒNƒŒƒWƒbƒg‚ðƒNƒŠƒA",
+		"ƒzƒbƒp[Žæ‚èo‚µ",
+#endif
+		"ƒXƒNƒŠ[ƒ“ƒVƒ‡ƒbƒg•Û‘¶",
+		"ƒvƒŒƒCƒ„[Ø‚è‘Ö‚¦",
+#if (EMU_SYSTEM == MVS || EMU_SYSTEM == NCDZ)
+		"ƒ{ƒ^ƒ“”z’u",
+		"ƒ^ƒCƒv1 (NEO¥GEOƒpƒbƒh)",
+		"ƒ^ƒCƒv2 (MVS)",
+		"ƒ^ƒCƒv3 (PlayStation)",
+		"ƒ†[ƒU’è‹`",
+#endif
+
+		"ƒfƒBƒbƒvƒXƒCƒbƒ`Ý’èƒƒjƒ…[",
+		"‚±‚ÌƒQ[ƒ€‚É‚ÍƒfƒBƒbƒvƒXƒCƒbƒ`‚Í‚ ‚è‚Ü‚¹‚ñB",
+
+		"ƒZ[ƒu/ƒ[ƒhƒXƒe[ƒg",
+		"ƒXƒƒbƒg %d:",
+		"ƒf[ƒ^‚È‚µ",
+		"ƒ[ƒh",
+		"íœ",
+		"ƒZ[ƒu",
+		"ƒvƒŒƒC“ú•t",
+		"ƒZ[ƒuŽž",
+		"ƒo[ƒWƒ‡ƒ“",
+		"ƒtƒ@ƒCƒ‹\"%s\"‚ðíœ‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B",
+
+		"ƒƒCƒ“ƒƒjƒ…[",
+		"ƒQ[ƒ€Ý’è",
+		"ƒQ[ƒ€‚Ì“®ìÝ’è‚ð•ÏX‚µ‚Ü‚·B",
+		"“ü—Íƒ{ƒ^ƒ“Ý’è",
+		"“ü—Íƒ{ƒ^ƒ“‚Æ˜AŽË/ƒzƒbƒgƒL[‚ÌÝ’è‚ð‚µ‚Ü‚·B",
+#if (EMU_SYSTEM != NCDZ)
+		"ƒfƒBƒbƒvƒXƒCƒbƒ`Ý’è",
+		"ƒfƒBƒbƒvƒXƒCƒbƒ`‚ÌÝ’è‚ð•ÏX‚µ‚Ü‚·B",
+#endif
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ðƒŠƒZƒbƒg",
+		SYSTEM_NAME "‚ÌƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ðƒŠƒZƒbƒg‚µ‚Ü‚·B",
+		"ƒtƒ@ƒCƒ‹ƒuƒ‰ƒEƒU‚É–ß‚é",
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ðI—¹‚µAƒtƒ@ƒCƒ‹ƒuƒ‰ƒEƒU‚É–ß‚è‚Ü‚·B",
+		"ƒQ[ƒ€‚É–ß‚é",
+		"ƒQ[ƒ€‰æ–Ê‚É–ß‚è‚Ü‚·B",
+		"ƒGƒ~ƒ…ƒŒ[ƒ^‚ðI—¹",
+		"‚±‚Ìƒ\\ƒtƒgƒEƒFƒA‚ðI—¹‚µAPSP‚Ìƒƒjƒ…[‚É–ß‚è‚Ü‚·B",
+#ifdef COMMAND_LIST
+		"ƒRƒ}ƒ“ƒhƒŠƒXƒg•\\Ž¦",
+		"‚±‚ÌƒQ[ƒ€‚ÌƒRƒ}ƒ“ƒhˆê——‚ð•\\Ž¦‚µ‚Ü‚·B",
+#endif
+
+#if PSP_VIDEO_32BPP
+		"ƒJƒ‰[Ý’èƒƒjƒ…[",
+		"”wŒi‰æ‘œ‚ÌŽí—Þ",
+		"”wŒi‰æ‘œ‚Ì–¾‚é‚³",
+		"ƒ^ƒCƒgƒ‹ƒo[‚Ì•¶Žš",
+		"‘I‘ð‚³‚ê‚½•¶Žš",
+		"•W€‚Ì•¶Žš",
+		"î•ñƒƒbƒZ[ƒW‚Ì•¶Žš",
+		"ŒxƒƒbƒZ[ƒW‚Ì•¶Žš",
+		"ƒtƒ@ƒCƒ‹‘I‘ðƒo[(ŠJŽn)",
+		"ƒtƒ@ƒCƒ‹‘I‘ðƒo[(I—¹)",
+		"ƒ^ƒCƒgƒ‹ƒo[/ƒƒbƒZ[ƒWƒ{ƒbƒNƒX",
+		"ƒ^ƒCƒgƒ‹ƒo[/ƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚Ì˜g",
+		"”wŒiF(”wŒi‰æ‘œ–¢Žg—pŽž)",
+		"Ô‹P“x",
+		"—Î‹P“x",
+		"Â‹P“x",
+		"•W€‚Ì‰æ‘œ",
+		"ƒ†[ƒU‚Ì‰æ‘œ",
+		"logo.png‚Ì‚Ý",
+		"ƒtƒ@ƒCƒ‹‘I‘ðƒo[",
+#endif
+
+		"ƒRƒ}ƒ“ƒhƒŠƒXƒg",
+
+		/* psp/mp3.c */
+#if (EMU_SYSTEM == NCDZ)
+		"MP3ƒtƒ@ƒCƒ‹\"%s\"‚ðÄƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñB",
+		"MP3ƒfƒR[ƒhƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B",
+		"MP3Ä¶—pƒI[ƒfƒBƒIƒ`ƒƒƒlƒ‹‚ðŠm•Û‚Å‚«‚Ü‚¹‚ñB",
+		"MP3ƒXƒŒƒbƒh‚ðŠJŽn‚Å‚«‚Ü‚¹‚ñB",
+#endif
+
+		/* psp/adhoc.c*/
+#ifdef ADHOC
+		"ƒƒr[",
+		"ƒT[ƒo[",
+		"ƒNƒ‰ƒCƒAƒ“ƒg",
+		"‘¼‚ÌPSP‚ÌÚ‘±‚ð‘Ò‹@’†B\n",
+		"%s‚ÉÚ‘±’†...",
+		"Ú‘±‚µ‚Ü‚µ‚½B",
+		"%s‚©‚çØ’f’†...",
+		"Ø’f‚µ‚Ü‚µ‚½B",
+		"Ú‘±Ž¸”s",
+		"Ú‘±‚·‚éƒT[ƒo[‚ð‘I‘ðB" FONT_TRIANGLE "‚ð‰Ÿ‚·‚Æ’†Ž~‚µ‚Ü‚·B\n",
+		"%s‚ÌÚ‘±‹–‰Â‚ð‘Ò‚Á‚Ä‚¢‚Ü‚·B\n",
+		FONT_CROSS "‚ð‰Ÿ‚·‚Æ’†Ž~‚µ‚Ü‚·B\n",
+		"%s‚ªÚ‘±‹–‰Â‚ð—v‹‚µ‚Ä‚¢‚Ü‚·B\n",
+		FONT_CIRCLE "‚ÅÚ‘±‚ð‹–‰ÂA" FONT_CROSS "‚ÅÚ‘±‚ð‹‘”Û‚µ‚Ü‚·B\n",
+		"“¯Šú‚ð‘Ò‚Á‚Ä‚¢‚Ü‚·B",
+#endif
+
+		/* psp/png.c */
+		"PNG‰æ‘œ—p‚Ìƒƒ‚ƒŠ‚ðŠm•Û‚Å‚«‚Ü‚¹‚ñB",
+		"PNG‰æ‘œ‚ðì¬‚Å‚«‚Ü‚¹‚ñB",
+#if PSP_VIDEO_32BPP || (EMU_SYSTEM == NCDZ)
+		"PNG‰æ‘œ‚ð“WŠJ‚Å‚«‚Ü‚¹‚ñB",
+#endif
+		"%dbitƒJƒ‰[‚ÌPNG‰æ‘œ‚É‚Í‘Î‰ž‚µ‚Ä‚¢‚Ü‚¹‚ñB",
+
+		/* emumain.c */
+		"’v–½“I‚ÈƒGƒ‰[",
+		"ƒXƒNƒŠ[ƒ“ƒVƒ‡ƒbƒg‚ð\"%s_%02d.png\"‚É•Û‘¶‚µ‚Ü‚µ‚½B",
+
+#if USE_CACHE
+		/* common/cache.c */
+		"ƒLƒƒƒbƒVƒ…ƒtƒ@ƒCƒ‹‚ðƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñB\n",
+		"ƒƒ‚ƒŠ‚ª‘«‚è‚Ü‚¹‚ñB\n",
+		"ƒLƒƒƒbƒVƒ…ƒƒ‚ƒŠ‚ðŠm•Û‚Å‚«‚Ü‚¹‚ñB\n",
+		"%dKB‚ÌƒLƒƒƒbƒVƒ…ƒƒ‚ƒŠ‚ðŠm•Û‚µ‚Ü‚µ‚½B\n",
+		"ƒLƒƒƒbƒVƒ…ƒ[ƒh’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B\n",
+		"ƒLƒƒƒbƒVƒ…î•ñƒf[ƒ^‚ðƒ[ƒh’†...\n",
+		"ƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚È‚¢ƒo[ƒWƒ‡ƒ“\"V%c%c\"‚ÌƒLƒƒƒbƒVƒ…ƒtƒ@ƒCƒ‹‚Å‚·B\n",
+		"Œ»Ý—v‹‚³‚ê‚éƒLƒƒƒbƒVƒ…ƒtƒ@ƒCƒ‹‚Ìƒo[ƒWƒ‡ƒ“‚Í\"" CACHE_VERSION "\"‚Å‚·B\n",
+		"ƒLƒƒƒbƒVƒ…ƒtƒ@ƒCƒ‹‚ðì¬‚µ‚È‚¨‚µ‚Ä‚­‚¾‚³‚¢B\n",
+#if (EMU_SYSTEM == CPS2)
+		"ƒXƒvƒ‰ƒCƒgƒuƒƒbƒN%03x‚ðƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñB\n",
+#elif (EMU_SYSTEM == MVS)
+		"PCMƒLƒƒƒbƒVƒ…‚ðŽg—p‚µ‚Ü‚·B\n",
+#endif
+#endif
+
+		/* common/loadrom.c */
+		"‰½‚©ƒ{ƒ^ƒ“‚ð‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B\n",
+		"ƒƒ‚ƒŠ‚ðŠm•Û‚Å‚«‚Ü‚¹‚ñB(REGION_%s)\n",
+		"CRC32‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñB\"%s\"\n",
+		"ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB\"%s\"\n",
+
+#ifdef SAVE_STATE
+		/* common/state.c */
+		"ƒXƒe[ƒg—p‚Ìƒoƒbƒtƒ@‚ðŠm•Û‚Å‚«‚Ü‚¹‚ñB",
+		"ƒtƒ@ƒCƒ‹\"%s.sv%d\"‚ðì¬‚Å‚«‚Ü‚¹‚ñB",
+		"ƒtƒ@ƒCƒ‹\"%s.sv%d\"‚ðƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñB",
+		"\"%s.sv%d\"‚ð•Û‘¶’†",
+		"\"%s.sv%d\"‚ðƒ[ƒh’†",
+#if (EMU_SYSTEM == MVS)
+		"BIOS‚ðƒ[ƒh‚Å‚«‚Ü‚¹‚ñB‰½‚©ƒ{ƒ^ƒ“‚ð‰Ÿ‚·‚ÆI—¹‚µ‚Ü‚·B",
+#elif (EMU_SYSTEM == NCDZ)
+		"ƒXƒe[ƒgƒf[ƒ^‚ðˆ³k‚Å‚«‚Ü‚¹‚ñB",
+		"ƒXƒe[ƒgƒf[ƒ^‚ð“WŠJ‚Å‚«‚Ü‚¹‚ñB",
+#endif
+#endif
+
+#ifdef COMMAND_LIST
+		/* common/cmdlist.c */
+		"‚±‚ÌƒQ[ƒ€—p‚ÌƒRƒ}ƒ“ƒhƒŠƒXƒg‚ª‚ ‚è‚Ü‚¹‚ñB",
+		"ƒRƒ}ƒ“ƒhƒŠƒXƒg - %s",
+		"%d/%d €–Ú",
+		"COMMAND.DAT ƒTƒCƒYk¬ˆ—",
+		"‚±‚ÌƒGƒ~ƒ…ƒŒ[ƒ^‚Å‘Î‰ž‚µ‚Ä‚¢‚È‚¢ƒQ[ƒ€‚ÌƒRƒ}ƒ“ƒhƒŠƒXƒg‚ðíœ‚µA\n",
+		"COMMAND.DAT‚Ìƒtƒ@ƒCƒ‹ƒTƒCƒY‚ðk¬‚µ‚Ü‚·B\n",
+		"ˆ—‚ðs‚¤ê‡‚ÍA" FONT_CIRCLE "ƒ{ƒ^ƒ“‚ð‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B\n",
+		FONT_CROSS "ƒ{ƒ^ƒ“‚ð‰Ÿ‚·‚Æˆ—‚ð’†Ž~‚µ‚Äƒtƒ@ƒCƒ‹ƒuƒ‰ƒEƒU‚É–ß‚è‚Ü‚·B\n",
+		"COMMAND.DAT ‚ðŒŸ¸’†...\n",
+		"ƒGƒ‰[: –¢‘Î‰ž‚Ì\"COMMAND.DAT\"‚©ƒtƒ@ƒCƒ‹‚ÌŒ`Ž®‚ªˆÙ‚È‚è‚Ü‚·B\n",
+		"ƒGƒ‰[: ‹ó‚Ìƒtƒ@ƒCƒ‹‚Å‚·B\n",
+		"ƒGƒ‰[: ƒƒ‚ƒŠ‚ðŠm•Û‚Å‚«‚Ü‚¹‚ñB\n",
+		"ƒGƒ‰[: ƒtƒ@ƒCƒ‹‚ðƒŠƒl[ƒ€‚Å‚«‚Ü‚¹‚ñB\n",
+		"ƒGƒ‰[: o—Íƒtƒ@ƒCƒ‹‚ðì¬‚Å‚«‚Ü‚¹‚ñB\n",
+		"\"%s\" ‚ÌƒRƒ}ƒ“ƒh‚ðƒRƒs[’†...\n",
+		"ƒTƒCƒY %dbytes ¨ %dbytes (%.1f%%Œ¸)\n",
+#endif
+
+		/* emulation core */
+		"Š®—¹‚µ‚Ü‚µ‚½B\n",
+		"ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ÌI—¹",
+		"‚µ‚Î‚ç‚­‚¨‘Ò‚¿‚­‚¾‚³‚¢B\n",
+
+		/* inptport.c */
+		"ƒRƒ“ƒgƒ[ƒ‰[: ƒvƒŒƒCƒ„[1",
+		"ƒRƒ“ƒgƒ[ƒ‰[: ƒvƒŒƒCƒ„[%d",
+#ifdef ADHOC
+		"“¯Šú‚ðŽ¸‚¢‚Ü‚µ‚½B\n",
+		"%s‚É‚æ‚éƒ|[ƒY",
+		"ƒQ[ƒ€‚ðÄŠJ",
+		"Ø’f‚µ‚ÄI—¹",
+#endif
+
+		/* memintrf.c */
+		"ƒ[ƒh’† \"%s\"\n",
+		"ROM‚Ìƒ[ƒh",
+#if (EMU_SYSTEM != NCDZ)
+		"ROMî•ñ‚ðƒ`ƒFƒbƒN’†...\n",
+		"‚±‚ÌƒQ[ƒ€‚ÍƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB\n",
+		"ROM‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB(zipƒtƒ@ƒCƒ‹–¼‚ª³‚µ‚­‚È‚¢)\n",
+		"\"%s\"‚Ìƒhƒ‰ƒCƒo‚ª‚ ‚è‚Ü‚¹‚ñB\n",
+		"ROMƒZƒbƒg–¼\"%s\" (eƒZƒbƒg–¼: %s)\n",
+		"ROMƒZƒbƒg–¼\"%s\"\n",
+#endif
+
+#if (EMU_SYSTEM == CPS1)
+
+		/* memintrf.c */
+		"rominfo.cps1‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB\n",
+		"ƒƒ‚ƒŠ‚ðŠm•Û‚Å‚«‚Ü‚¹‚ñB(0x8000ƒoƒCƒg)",
+
+#elif (EMU_SYSTEM == CPS2)
+
+		/* cps2crpt.c */
+		"•œ†ˆ—‚ðŽÀs’† %d%%\r",
+		"•œ†ˆ—‚ðŽÀs’† 100%%\n",
+
+		/* memintrf.c */
+		"rominfo.cps2‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB\n",
+
+#ifdef PSP_SLIM
+		/* vidhrdw.c */
+		"ƒOƒ‰ƒtƒBƒbƒNƒf[ƒ^‚ð“WŠJ’†...\n",
+#endif
+
+#elif (EMU_SYSTEM == MVS)
+
+		/* biosmenu.c */
+		"BIOS‘I‘ðƒƒjƒ…[",
+		"BIOS‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB",
+		"BIOS‚ð‘I‘ð‚µA" FONT_CIRCLE "ƒ{ƒ^ƒ“‚ð‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B",
+		"NVRAMƒtƒ@ƒCƒ‹‚Í‘S‚Äíœ‚³‚ê‚Ü‚µ‚½B\n",
+
+		/* memintrf.c */
+		"rominfo.mvs‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB\n",
+		"ƒ[ƒh’† \"%s (%s)\"\n",
+		"•œ†Ï‚ÝGFX2 ROM‚ðƒ[ƒh’†...\n",
+		"•œ†Ï‚ÝSOUND1 ROM‚ðƒ[ƒh’†...\n",
+		"ROM•œ†—p‚Ìƒƒ‚ƒŠ‚ðŠm•Û‚Å‚«‚Ü‚¹‚ñB\n",
+		"ƒXƒvƒ‰ƒCƒgƒf[ƒ^—p‚Ìƒƒ‚ƒŠ‚ðŠm•Û‚Å‚«‚Ü‚¹‚ñB\n",
+		"ƒXƒvƒ‰ƒCƒgƒLƒƒƒbƒVƒ…‚ÌŽg—p‚ðŽŽ‚Ý‚Ü‚·B\n",
+		"BIOS‚ðƒ`ƒFƒbƒN’†...\n",
+
+#elif (EMU_SYSTEM == NCDZ)
+
+		/* ncdz.c */
+		"IPL.TXTˆ—’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B",
+		"ƒEƒHƒbƒ`ƒhƒbƒOƒJƒEƒ“ƒ^‚É‚æ‚éƒŠƒZƒbƒg‚ª”­¶‚µ‚Ü‚µ‚½B",
+
+		/* cdrom.c */
+		"ƒtƒ@ƒCƒ‹\"%s\"‚ðƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñB",
+		"CD-ROM‚ÌƒXƒe[ƒgƒf[ƒ^‚ð’Ç‰Á‚Å‚«‚Ü‚¹‚ñB",
+
+		/* vidhrdw.c */
+		"CD-ROM‘¬“x§ŒÀ: –³Œø",
+		"CD-ROM‘¬“x§ŒÀ: —LŒø",
+
+		/* memintrf.c */
+		"ƒQ[ƒ€ID‚ðƒ`ƒFƒbƒN’†...\n",
+#endif
+		"ƒ`[ƒgƒƒjƒ…[",
+		"ƒ`[ƒg‚ð‘I‘ð‚µ‚Ü‚·B",
+
+		"ƒƒ‚ƒŠ‰ð•ú",
+		"ƒƒ‚ƒŠ‰ð•úÝ’è‚ð•ÏX‚µ‚Ü‚·B",
+		NULL
+};
+static const char *text_SPANISH[UI_TEXT_MAX] =
+{
 		"\0",
 		"\n",
 
@@ -606,9 +1145,9 @@ static const char *text[2][UI_TEXT_MAX] =
 #if (EMU_SYSTEM == NCDZ)
 		"Los archivos MP3 no se encuentran. CDDA no pueden reproducir.",
 		"IPL.TXT no enconrado.",
-		"Boot NEOï¿½GEO CDZ BIOS.",
-		"NEOï¿½GEO CDZ BIOS (neocd.bin) no encontrado.",
-		"Encontrado NEOï¿½GEO CDZ BIOS invalido.",
+		"Boot NEO¥GEO CDZ BIOS.",
+		"NEO¥GEO CDZ BIOS (neocd.bin) no encontrado.",
+		"Encontrado NEO¥GEO CDZ BIOS invalido.",
 		"No se puede iniciar juego.",
 #endif
 
@@ -1089,8 +1628,6 @@ static const char *text[2][UI_TEXT_MAX] =
 		"Memory free",
 		"Mem free",
 		NULL
-	},
-	
 };
 
 
@@ -1103,13 +1640,25 @@ void ui_text_init(void)
 
 	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &lang);
 
-	if (lang == PSP_SYSTEMPARAM_LANGUAGE_SPANISH)
-		lang = 1;
+	if (lang == PSP_SYSTEMPARAM_LANGUAGE_JAPANESE)
+	{
+		lang = LANG_JAPANESE;
+		for (i = 0; i < UI_TEXT_MAX; i++)
+			ui_text[i] = text_JAPANESE[i];
+	}
+	else if (lang == PSP_SYSTEMPARAM_LANGUAGE_SPANISH)
+	{
+		lang = LANG_SPANISH;
+		for (i = 0; i < UI_TEXT_MAX; i++)
+			ui_text[i] = text_SPANISH[i];
+	}
 	else
-		lang = 0;
+	{
+		lang = LANG_ENGLISH;
+		for (i = 0; i < UI_TEXT_MAX; i++)
+			ui_text[i] = text_ENGLISH[i];
+	}
 
-	for (i = 0; i < UI_TEXT_MAX; i++)
-		ui_text[i] = text[lang][i];
 }
 
 int ui_text_get_language(void)

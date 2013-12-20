@@ -1,3 +1,9 @@
+----Licence----
+Codes added by 173210 is licenced under GPLv3.
+Please read Licence.txt.
+If you found a problem about licence, please tell me.
+---------------
+
 ※ソースコードのコンパイルについて
 
 作成環境は Cygwin + PSPSDK (revision 2318) です。

@@ -208,12 +208,10 @@ void neogeo_cdda_check(void)
 
 static void neogeo_cdda_command(int command, int track)
 {
-	int loop, mode, flag, _track;
+	int loop, flag;
 
-	_track = track;
 	track = ((track >> 4) * 10) + (track & 0x0f);
 	loop  = (command & 1) ? 0 : 1;
-	mode  = (command & 2) ? 1 : 0;
 	flag  = (command & 4) ? 1 : 0;
 
 	switch (command)
